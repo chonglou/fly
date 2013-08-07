@@ -96,7 +96,7 @@ public class MenuBar {
         }
     }
 
-    public void showOpenClose(){
+    public void showOpenClose() {
         boolean enable = serialDialog.isOpen();
         items.get("open").setEnabled(!enable);
         items.get("close").setEnabled(enable);

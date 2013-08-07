@@ -35,8 +35,8 @@ public class ToolBar {
         }
     }
 
-    public void setEnable(boolean enable){
-        for(JButton btn : buttons){
+    public void setEnable(boolean enable) {
+        for (JButton btn : buttons) {
             btn.setEnabled(enable);
         }
     }

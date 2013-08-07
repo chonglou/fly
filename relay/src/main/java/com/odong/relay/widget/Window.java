@@ -1,6 +1,5 @@
 package com.odong.relay.widget;
 
-import com.jtattoo.plaf.luna.LunaLookAndFeel;
 import com.odong.relay.util.LabelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Locale;
-import java.util.Properties;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,7 +23,8 @@ import java.util.Properties;
 public class Window {
     @PostConstruct
     void init() {
-        initStyle();
+
+        initLookAndFeel();
 
         frame = new JFrame();
         frame.setLayout(new BorderLayout());
@@ -38,7 +37,8 @@ public class Window {
 
         initEvent();
         setLocale(Locale.SIMPLIFIED_CHINESE);
-        show();
+        show(true);
+
     }
 
 
@@ -50,45 +50,49 @@ public class Window {
         exitDialog.setLocale(locale);
         messageDialog.setLocale(locale);
         serialDialog.setLocale(locale);
+        taskTray.setLocale(locale);
     }
 
-    public void show() {
-        //frame.setLocationRelativeTo( null);
-        Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setSize(d.width / 2, d.height / 2);
-        frame.setLocation(d.width / 4, d.height / 4);
+    public void show(boolean visible) {
+        if (visible) {
+            //frame.setLocationRelativeTo( null);
+            Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+            frame.setSize(d.width / 2, d.height / 2);
+            frame.setLocation(d.width / 4, d.height / 4);
 
-        frame.pack();
-        frame.setVisible(true);
+            frame.pack();
+
+        }
+        frame.setVisible(visible);
     }
 
     public JFrame get() {
         return frame;
     }
 
-    private void initStyle() {
-        // mac
-        // com.jtattoo.plaf.mcwin.McWinLookAndFeel
-        // winxp
-        // com.jtattoo.plaf.luna.LunaLookAndFeel
-        // aero
-        // com.jtattoo.plaf.aero.AeroLookAndFeel
+    private void initLookAndFeel() {
+
+
+        // JFrame.setDefaultLookAndFeelDecorated(true);
+        //  JDialog.setDefaultLookAndFeelDecorated(true);
 
         try {
-            JFrame.setDefaultLookAndFeelDecorated(true);
-            Properties props = new Properties();
-            props.put("logoString", "relay");
-            LunaLookAndFeel.setCurrentTheme(props);
-            UIManager.setLookAndFeel("com.jtattoo.plaf.luna.LunaLookAndFeel");
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            logger.error("未找到风格", e);
+            logger.error("加载系统风格失败", e);
         }
+
     }
 
 
     private void initEvent() {
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowIconified(WindowEvent e) {
+                taskTray.show();
+            }
+
             @Override
             public void windowClosing(WindowEvent e) {
                 exitDialog.show();
@@ -114,6 +118,12 @@ public class Window {
     private ExitDialog exitDialog;
     @Resource
     private SerialDialog serialDialog;
+    @Resource
+    private TaskTray taskTray;
+
+    public void setTaskTray(TaskTray taskTray) {
+        this.taskTray = taskTray;
+    }
 
     public void setSerialDialog(SerialDialog serialDialog) {
         this.serialDialog = serialDialog;

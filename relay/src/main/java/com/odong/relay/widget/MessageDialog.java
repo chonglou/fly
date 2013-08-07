@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.swing.*;
-import java.awt.*;
 import java.util.Locale;
 
 /**
@@ -16,23 +15,25 @@ import java.util.Locale;
  */
 @Component
 public class MessageDialog {
-    public void error(String key){
+    public void error(String key) {
         JOptionPane.showMessageDialog(window.get(),
-                labelHelper.getMessage("dialog."+key+".message", locale),
-                labelHelper.getMessage("dialog."+key+".title", locale),
+                labelHelper.getMessage("dialog." + key + ".message", locale),
+                labelHelper.getMessage("dialog." + key + ".title", locale),
                 JOptionPane.ERROR_MESSAGE);
     }
-    public void info(String key){
+
+    public void info(String key) {
         JOptionPane.showMessageDialog(window.get(),
-                labelHelper.getMessage("dialog."+key+".message", locale),
-                labelHelper.getMessage("dialog."+key+".title", locale),
+                labelHelper.getMessage("dialog." + key + ".message", locale),
+                labelHelper.getMessage("dialog." + key + ".title", locale),
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
 
-    public void setLocale(Locale locale){
+    public void setLocale(Locale locale) {
         this.locale = locale;
     }
+
     private Locale locale;
     @Resource
     private LabelHelper labelHelper;
