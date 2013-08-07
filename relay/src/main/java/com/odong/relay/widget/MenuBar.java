@@ -41,6 +41,7 @@ public class MenuBar {
             bindEvent(s);
         }
 
+        showOpenClose();
     }
 
 
@@ -95,6 +96,13 @@ public class MenuBar {
         }
     }
 
+    public void showOpenClose(){
+        boolean enable = serialDialog.isOpen();
+        items.get("open").setEnabled(!enable);
+        items.get("close").setEnabled(enable);
+        toolBar.setEnable(enable);
+    }
+
     private void bindEvent(String s) {
         items.get(s).addActionListener(new ActionListener() {
             @Override
@@ -103,6 +111,20 @@ public class MenuBar {
                     JMenuItem item = items.get(s);
                     if (item.equals(e.getSource())) {
                         switch (s) {
+                            case "open":
+                                serialDialog.open();
+                                showOpenClose();
+                                break;
+                            case "close":
+                                serialDialog.close();
+                                showOpenClose();
+                                break;
+                            case "doc":
+                                messageDialog.info("doc");
+                                break;
+                            case "aboutMe":
+                                messageDialog.info("aboutMe");
+                                break;
                             case "exit":
                                 exitDialog.show();
                                 break;
@@ -127,11 +149,29 @@ public class MenuBar {
     private Map<String, JMenuItem> items;
     @Resource
     private LabelHelper labelHelper;
-    private final static Logger logger = LoggerFactory.getLogger(MenuBar.class);
     @Resource
     private Window window;
     @Resource
     private ExitDialog exitDialog;
+    @Resource
+    private SerialDialog serialDialog;
+    @Resource
+    private MessageDialog messageDialog;
+    @Resource
+    private ToolBar toolBar;
+    private final static Logger logger = LoggerFactory.getLogger(MenuBar.class);
+
+    public void setToolBar(ToolBar toolBar) {
+        this.toolBar = toolBar;
+    }
+
+    public void setSerialDialog(SerialDialog serialDialog) {
+        this.serialDialog = serialDialog;
+    }
+
+    public void setMessageDialog(MessageDialog messageDialog) {
+        this.messageDialog = messageDialog;
+    }
 
     public void setExitDialog(ExitDialog exitDialog) {
         this.exitDialog = exitDialog;

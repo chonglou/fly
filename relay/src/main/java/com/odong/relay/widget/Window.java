@@ -29,21 +29,17 @@ public class Window {
 
         frame = new JFrame();
         frame.setLayout(new BorderLayout());
+
         Container container = frame.getContentPane();
-
-
-        container.add(toolBar.get(), BorderLayout.NORTH);
+        container.add(toolBar.get(), BorderLayout.PAGE_START);
         container.add(channel.getPanel(), BorderLayout.CENTER);
-
 
         frame.setJMenuBar(menuBar.get());
 
-
-           initEvent();
+        initEvent();
         setLocale(Locale.SIMPLIFIED_CHINESE);
         show();
     }
-
 
 
     public void setLocale(Locale locale) {
@@ -51,7 +47,9 @@ public class Window {
         channel.setLocale(locale);
         toolBar.setLocale(locale);
         menuBar.setLocale(locale);
-        exitDlg.setLocale(locale);
+        exitDialog.setLocale(locale);
+        messageDialog.setLocale(locale);
+        serialDialog.setLocale(locale);
     }
 
     public void show() {
@@ -63,7 +61,8 @@ public class Window {
         frame.pack();
         frame.setVisible(true);
     }
-    public JFrame get(){
+
+    public JFrame get() {
         return frame;
     }
 
@@ -87,12 +86,12 @@ public class Window {
     }
 
 
-    private void initEvent(){
+    private void initEvent() {
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                exitDlg.show();
+                exitDialog.show();
             }
         });
     }
@@ -102,6 +101,8 @@ public class Window {
 
     private final static Logger logger = LoggerFactory.getLogger(Window.class);
     @Resource
+    private MessageDialog messageDialog;
+    @Resource
     private LabelHelper labelHelper;
     @Resource
     private ToolBar toolBar;
@@ -110,10 +111,20 @@ public class Window {
     @Resource
     private MenuBar menuBar;
     @Resource
-    private ExitDialog exitDlg;
+    private ExitDialog exitDialog;
+    @Resource
+    private SerialDialog serialDialog;
 
-    public void setExitDlg(ExitDialog exitDlg) {
-        this.exitDlg = exitDlg;
+    public void setSerialDialog(SerialDialog serialDialog) {
+        this.serialDialog = serialDialog;
+    }
+
+    public void setMessageDialog(MessageDialog messageDialog) {
+        this.messageDialog = messageDialog;
+    }
+
+    public void setExitDialog(ExitDialog exitDialog) {
+        this.exitDialog = exitDialog;
     }
 
     public void setMenuBar(MenuBar menuBar) {

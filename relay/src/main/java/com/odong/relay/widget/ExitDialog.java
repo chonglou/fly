@@ -28,9 +28,14 @@ public class ExitDialog {
         JDialog dialog = pane.createDialog(window.get(), title);
         dialog.setVisible(true);
         Object sel = pane.getValue();
-        if(sel == options[0]){
-            logger.info("停止");
-            System.exit(0);
+        if (sel == options[0]) {
+            if (serialDialog.isOpen()) {
+                messageDialog.error("stillOpen");
+            } else {
+                logger.info("停止");
+                System.exit(0);
+            }
+
         }
     }
 
@@ -53,7 +58,19 @@ public class ExitDialog {
     private LabelHelper labelHelper;
     @Resource
     private Window window;
+    @Resource
+    private SerialDialog serialDialog;
+    @Resource
+    private MessageDialog messageDialog;
     private final static Logger logger = LoggerFactory.getLogger(ExitDialog.class);
+
+    public void setMessageDialog(MessageDialog messageDialog) {
+        this.messageDialog = messageDialog;
+    }
+
+    public void setSerialDialog(SerialDialog serialDialog) {
+        this.serialDialog = serialDialog;
+    }
 
     public void setWindow(Window window) {
         this.window = window;

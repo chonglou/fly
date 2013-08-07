@@ -35,6 +35,12 @@ public class ToolBar {
         }
     }
 
+    public void setEnable(boolean enable){
+        for(JButton btn : buttons){
+            btn.setEnabled(enable);
+        }
+    }
+
     public void setLocale(Locale locale) {
         for (int i = 0; i < size; i++) {
             buttons.get(i).setText(labelHelper.getMessage("button.port", locale) + (i + 1));
