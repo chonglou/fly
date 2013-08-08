@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
  */
 public class AppTest {
 
-    @Test
+    //@Test
     public void test0() {
         try {
             Thread.sleep(1000 * 60 * 5);
@@ -20,7 +20,7 @@ public class AppTest {
         }
     }
 
-    @BeforeTest
+    //@BeforeTest
     public void init() {
         try {
             ctx = new ClassPathXmlApplicationContext("spring/*.xml");
