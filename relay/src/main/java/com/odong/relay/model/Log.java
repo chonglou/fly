@@ -10,6 +10,11 @@ import java.util.Date;
  * Time: 下午10:33
  */
 public class Log implements Serializable {
+    @Override
+    public String toString() {
+        return created.toString() + "：" + message;
+    }
+
     private static final long serialVersionUID = 9201693672487578059L;
     private long id;
     private Integer port;

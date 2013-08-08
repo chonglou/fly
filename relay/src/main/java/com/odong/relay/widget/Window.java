@@ -58,7 +58,7 @@ public class Window {
             //frame.setLocationRelativeTo( null);
             Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
             //frame.setSize(d.width / 2, d.height / 2);
-            frame.setSize(800,600);
+            frame.setSize(800, 600);
             frame.setLocation(d.width / 4, d.height / 4);
 
             //frame.pack();

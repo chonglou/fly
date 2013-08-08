@@ -1,6 +1,7 @@
 package com.odong.relay.widget;
 
 import com.odong.relay.util.LabelHelper;
+import com.odong.relay.util.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +11,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -23,38 +23,51 @@ import java.util.Map;
  */
 @Component
 public class CardPanel {
-    public synchronized void hide(){
+    public synchronized void close(){
+        for(String s : channelPanels.keySet()){
+            ChannelPanel cp =channelPanels.get(s);
+            if(cp.isOn()){
+                cp.setOn(false);
+            }
+        }
+    }
+    public synchronized void hide() {
         panel.setVisible(false);
     }
-    public synchronized void show(int port){
-        layout.show(panel, port2name(port));
+
+    public synchronized void show(int port) {
+        String name = port2name(port);
+        layout.show(panel, name);
         panel.setVisible(true);
+        channelPanels.get(name).refreshLogList();
+
     }
+
     @PostConstruct
-    void init(){
+    void init() {
         channelPanels = new HashMap<>();
         panel = new JPanel();
-         layout = new CardLayout();
+        layout = new CardLayout();
         panel.setLayout(layout);
-        for(int i=1; i<=size; i++){
+        for (int i = 1; i <= size; i++) {
             String name = port2name(i);
-            ChannelPanel cp = new ChannelPanel(name,i, locale, labelHelper);
+            ChannelPanel cp = new ChannelPanel(name, i, locale, toolBar, labelHelper, logService);
             channelPanels.put(name, cp);
             panel.add(cp.get(), name);
         }
         panel.setVisible(false);
     }
 
-    public void setLocale(Locale locale){
-        for(String s : channelPanels.keySet()){
+    public void setLocale(Locale locale) {
+        for (String s : channelPanels.keySet()) {
             channelPanels.get(s).setLocale(locale);
         }
         this.locale = locale;
 
     }
 
-    private String port2name(int port){
-        return "panel-"+port;
+    private String port2name(int port) {
+        return "panel-" + port;
     }
 
     private JPanel panel;
@@ -63,9 +76,21 @@ public class CardPanel {
     private Locale locale;
     @Resource
     private LabelHelper labelHelper;
+    @Resource
+    private LogService logService;
+    @Resource
+    private ToolBar toolBar;
     @Value("${channel.size}")
     private int size;
     private final static Logger logger = LoggerFactory.getLogger(CardPanel.class);
+
+    public void setToolBar(ToolBar toolBar) {
+        this.toolBar = toolBar;
+    }
+
+    public void setLogService(LogService logService) {
+        this.logService = logService;
+    }
 
     public void setSize(int size) {
         this.size = size;

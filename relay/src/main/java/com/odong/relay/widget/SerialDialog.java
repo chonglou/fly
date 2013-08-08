@@ -59,9 +59,9 @@ public class SerialDialog {
 
         container.add(getMainPanel(), BorderLayout.CENTER);
 
-        for(String s : new String[]{
-                BorderLayout.SOUTH,BorderLayout.NORTH,BorderLayout.WEST,BorderLayout.EAST
-        } ){
+        for (String s : new String[]{
+                BorderLayout.SOUTH, BorderLayout.NORTH, BorderLayout.WEST, BorderLayout.EAST
+        }) {
             container.add(new JLabel(), s);
         }
 
@@ -71,7 +71,7 @@ public class SerialDialog {
         dialog.setResizable(false);
     }
 
-    private JPanel getMainPanel(){
+    private JPanel getMainPanel() {
 
         JPanel mainP = new JPanel();
         mainP.setLayout(new GridLayout(5, 2, 20, 20));

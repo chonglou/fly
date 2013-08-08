@@ -12,5 +12,6 @@ import java.util.List;
  */
 public interface LogService {
     List<Log> list(int port, int size);
+
     void add(int port, String message);
 }

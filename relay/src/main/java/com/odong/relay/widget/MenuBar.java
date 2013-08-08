@@ -66,6 +66,7 @@ public class MenuBar {
 
         for (int i = 0; ; ) {
             JRadioButtonMenuItem item = new JRadioButtonMenuItem();
+            item.setName("item-" + items[i]);
             m.add(item);
             group.add(item);
             this.items.put(items[i], item);
@@ -85,6 +86,7 @@ public class MenuBar {
 
         for (int i = 0; ; ) {
             JMenuItem item = new JMenuItem();
+            item.setName("item-" + items[i]);
             m.add(item);
             this.items.put(items[i], item);
             i++;
@@ -95,6 +97,7 @@ public class MenuBar {
 
         }
     }
+
 
     public void showOpenClose() {
         boolean enable = serialDialog.isOpen();
@@ -107,38 +110,37 @@ public class MenuBar {
         items.get(s).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                for (String s : items.keySet()) {
-                    JMenuItem item = items.get(s);
-                    if (item.equals(e.getSource())) {
-                        switch (s) {
-                            case "open":
-                                serialDialog.open();
-                                showOpenClose();
-                                break;
-                            case "close":
-                                serialDialog.close();
-                                showOpenClose();
-                                break;
-                            case "doc":
-                                messageDialog.info("doc");
-                                break;
-                            case "aboutMe":
-                                messageDialog.info("aboutMe");
-                                break;
-                            case "exit":
-                                exitDialog.show();
-                                break;
-                            case "en_US":
-                                window.setLocale(Locale.US);
-                                break;
-                            case "zh_CN":
-                                window.setLocale(Locale.SIMPLIFIED_CHINESE);
-                                break;
-                            default:
-                                break;
-                        }
+                JMenuItem item = (JMenuItem) e.getSource();
+
+
+                switch (item.getName().split("\\-")[1]) {
+                    case "open":
+                        serialDialog.open();
+                        showOpenClose();
                         break;
-                    }
+                    case "close":
+                        cardPanel.close();
+                        serialDialog.close();
+                        showOpenClose();
+                        break;
+                    case "doc":
+                        messageDialog.info("doc");
+                        break;
+                    case "aboutMe":
+                        messageDialog.info("aboutMe");
+                        break;
+                    case "exit":
+                        exitDialog.show();
+                        break;
+                    case "en_US":
+                        window.setLocale(Locale.US);
+                        break;
+                    case "zh_CN":
+                        window.setLocale(Locale.SIMPLIFIED_CHINESE);
+                        break;
+                    default:
+                        break;
+
                 }
             }
         });
@@ -158,8 +160,14 @@ public class MenuBar {
     @Resource
     private MessageDialog messageDialog;
     @Resource
+    private CardPanel cardPanel;
+    @Resource
     private ToolBar toolBar;
     private final static Logger logger = LoggerFactory.getLogger(MenuBar.class);
+
+    public void setCardPanel(CardPanel cardPanel) {
+        this.cardPanel = cardPanel;
+    }
 
     public void setToolBar(ToolBar toolBar) {
         this.toolBar = toolBar;

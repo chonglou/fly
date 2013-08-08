@@ -13,7 +13,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -36,7 +35,7 @@ public class ToolBar {
         buttons = new HashMap<>();
         for (int i = 0; i < size; i++) {
             JButton btn = new JButton();
-            String name = "button-"+getButtonName(i+1);
+            String name = getButtonName(i + 1);
             btn.setName(name);
             toolBar.add(btn);
             toolBar.addSeparator();
@@ -44,40 +43,42 @@ public class ToolBar {
         }
 
         initEvents();
-        setEnable(false);
+
     }
 
-    private String getButtonName(int port){
-        return "button_"+port;
+    private String getButtonName(int port) {
+        return "button_" + port;
     }
-    private int getButtonPort(String name){
+
+    private int getButtonPort(String name) {
         return Integer.parseInt(name.split("_")[1]);
     }
 
-    public void setOn(int i, boolean on){
-        buttons.get(getButtonName(i)).setBackground(on ? Color.green : Color.red);
+    public void setOn(int i, boolean on) {
+
+        buttons.get(getButtonName(i)).setBackground(on ? Color.green : new JButton().getBackground());
     }
 
     public void setEnable(boolean enable) {
         this.enable = enable;
-        for(String s : buttons.keySet()){
+        for (String s : buttons.keySet()) {
             buttons.get(s).setEnabled(enable);
         }
     }
 
     public void setLocale(Locale locale) {
-        for(String s : buttons.keySet()){
-            buttons.get(s).setText(labelHelper.getMessage("button.port", locale)+getButtonPort(s));
+        for (String s : buttons.keySet()) {
+            buttons.get(s).setText(labelHelper.getMessage("button.port", locale) + getButtonPort(s));
         }
     }
 
-    private void initEvents(){
+    private void initEvents() {
         MouseListener listener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                JButton btn =(JButton)e.getSource();
+                JButton btn = (JButton) e.getSource();
 
-                if(btn.isEnabled()){
+                if (btn.isEnabled()) {
                     cardPanel.show(getButtonPort(btn.getName()));
                     setEnable(enable);
                     btn.setEnabled(false);
@@ -86,7 +87,7 @@ public class ToolBar {
 
             }
         };
-        for(String s : buttons.keySet()){
+        for (String s : buttons.keySet()) {
             buttons.get(s).addMouseListener(listener);
         }
     }

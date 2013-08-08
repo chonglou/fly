@@ -15,17 +15,19 @@ import java.text.SimpleDateFormat;
  */
 public class AppTest {
 
-    @Test
-    public void testLog(){
+    //@Test
+    public void testLog() {
         LogService ls = ctx.getBean(LogService.class);
-        for(int i=0; i<100; i++){
-            ls.add(1, "测试 "+i);
+        for (int i = 0; i < 100; i++) {
+            ls.add(1, "测试 " + i);
         }
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        for(Log l : ls.list(1, 99)){
-            System.out.println(l.getId()+"\t"+format.format(l.getCreated())+"\t"+l.getMessage());
+        for (Log l : ls.list(1, 99)) {
+            System.out.println(l.getId() + "\t" + format.format(l.getCreated()) + "\t" + l.getMessage());
         }
     }
+
+    @Test
     public void test0() {
         try {
 
