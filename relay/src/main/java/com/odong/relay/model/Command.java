@@ -8,10 +8,10 @@ import java.io.Serializable;
  * Date: 13-8-7
  * Time: 上午10:39
  */
-public class Channel implements Serializable {
+public class Command implements Serializable {
     private static final long serialVersionUID = -4430458793102362593L;
 
-    public Channel(int port, boolean flag) {
+    public Command(int port, boolean flag) {
         this.port = port;
         this.flag = flag;
     }

@@ -31,7 +31,7 @@ public class Window {
 
         Container container = frame.getContentPane();
         container.add(toolBar.get(), BorderLayout.PAGE_START);
-        container.add(channel.getPanel(), BorderLayout.CENTER);
+        container.add(cardPanel.get(), BorderLayout.CENTER);
 
         frame.setJMenuBar(menuBar.get());
 
@@ -44,7 +44,7 @@ public class Window {
 
     public void setLocale(Locale locale) {
         frame.setTitle(labelHelper.getMessage("title", locale));
-        channel.setLocale(locale);
+        cardPanel.setLocale(locale);
         toolBar.setLocale(locale);
         menuBar.setLocale(locale);
         exitDialog.setLocale(locale);
@@ -57,10 +57,11 @@ public class Window {
         if (visible) {
             //frame.setLocationRelativeTo( null);
             Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-            frame.setSize(d.width / 2, d.height / 2);
+            //frame.setSize(d.width / 2, d.height / 2);
+            frame.setSize(800,600);
             frame.setLocation(d.width / 4, d.height / 4);
 
-            frame.pack();
+            //frame.pack();
 
         }
         frame.setVisible(visible);
@@ -81,6 +82,19 @@ public class Window {
         } catch (Exception e) {
             logger.error("加载系统风格失败", e);
         }
+        /*
+        Font f = new Font(Font.MONOSPACED, Font.PLAIN, 20);
+        Enumeration<Object> keys = UIManager.getDefaults().keys();
+        while (keys.hasMoreElements()) {
+            Object key = keys.nextElement();
+            Object value = UIManager.get(key);
+            if (value instanceof FontUIResource)
+
+                UIManager.put(key, f);
+
+        }
+
+        */
 
     }
 
@@ -111,7 +125,7 @@ public class Window {
     @Resource
     private ToolBar toolBar;
     @Resource
-    private Channel channel;
+    private CardPanel cardPanel;
     @Resource
     private MenuBar menuBar;
     @Resource
@@ -141,8 +155,8 @@ public class Window {
         this.menuBar = menuBar;
     }
 
-    public void setChannel(Channel channel) {
-        this.channel = channel;
+    public void setCardPanel(CardPanel cardPanel) {
+        this.cardPanel = cardPanel;
     }
 
     public void setToolBar(ToolBar toolBar) {

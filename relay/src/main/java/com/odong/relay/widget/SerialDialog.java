@@ -32,6 +32,7 @@ public class SerialDialog {
         //todo 关闭串口
         conn = null;
         dialog.setVisible(false);
+        cardPanel.hide();
     }
 
     public boolean isOpen() {
@@ -53,60 +54,77 @@ public class SerialDialog {
     void init() {
         dialog = new JDialog(window.get(), "", true);
         Container container = dialog.getContentPane();
-        container.setLayout(new GridLayout(5, 2));
+        container.setLayout(new BorderLayout(20, 20));
+
+
+        container.add(getMainPanel(), BorderLayout.CENTER);
+
+        for(String s : new String[]{
+                BorderLayout.SOUTH,BorderLayout.NORTH,BorderLayout.WEST,BorderLayout.EAST
+        } ){
+            container.add(new JLabel(), s);
+        }
+
+        initEvents();
+
+        dialog.setLocationRelativeTo(window.get());
+        dialog.setResizable(false);
+    }
+
+    private JPanel getMainPanel(){
+
+        JPanel mainP = new JPanel();
+        mainP.setLayout(new GridLayout(5, 2, 20, 20));
 
         labels = new HashMap<>();
         JLabel lbl;
         JComboBox cb;
 
         lbl = new JLabel();
-        container.add(lbl);
+        mainP.add(lbl);
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
         cb = new JComboBox<>(new String[]{"COM1", "COM2", "COM3"});
-        container.add(cb);
+        mainP.add(cb);
         cb.setSelectedIndex(0);
         labels.put("commPort", lbl);
 
         lbl = new JLabel();
-        container.add(lbl);
+        mainP.add(lbl);
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
         cb = new JComboBox<>(new Integer[]{1});
-        container.add(cb);
+        mainP.add(cb);
         cb.setSelectedIndex(0);
         labels.put("stopBits", lbl);
 
 
         lbl = new JLabel();
-        container.add(lbl);
+        mainP.add(lbl);
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
         cb = new JComboBox<>(new String[]{"None"});
-        container.add(cb);
+        mainP.add(cb);
         cb.setSelectedIndex(0);
         labels.put("parity", lbl);
 
         lbl = new JLabel();
-        container.add(lbl);
+        mainP.add(lbl);
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
         cb = new JComboBox<>(new Integer[]{9600});
         cb.setSelectedIndex(0);
-        container.add(cb);
+        mainP.add(cb);
         labels.put("dataBaud", lbl);
 
         buttons = new HashMap<>();
         JButton btn;
 
         btn = new JButton();
-        container.add(btn);
+        mainP.add(btn);
         buttons.put("submit", btn);
 
         btn = new JButton();
-        container.add(btn);
+        mainP.add(btn);
         buttons.put("cancel", btn);
 
-        initEvents();
-
-        dialog.setLocationRelativeTo(window.get());
-        dialog.setResizable(false);
+        return mainP;
     }
 
     private void initEvents() {
@@ -142,8 +160,14 @@ public class SerialDialog {
     private LabelHelper labelHelper;
     @Resource
     private Window window;
+    @Resource
+    private CardPanel cardPanel;
     private Map<String, JLabel> labels;
     private Map<String, JButton> buttons;
+
+    public void setCardPanel(CardPanel cardPanel) {
+        this.cardPanel = cardPanel;
+    }
 
     public void setWindow(Window window) {
         this.window = window;
