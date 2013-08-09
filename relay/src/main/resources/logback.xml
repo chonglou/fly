@@ -28,23 +28,8 @@
     <logger name="com.opensymphony" level="WARN"/>
     <logger name="org.apache" level="WARN"/>
 
-    <logger name="org.hibernate" level="WARN"/>
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder"
-            level="TRACE"/>
-    <logger name="org.hibernate.type.descriptor.sql.BasicExtractor"
-            level="DEBUG"/>
-    <logger name="org.hibernate.SQL" level="DEBUG"/>
-    <logger name="org.hibernate.engine.QueryParameters" level="DEBUG"/>
-    <logger name="org.hibernate.engine.query.HQLQueryPlan" level="DEBUG"/>
 
-    <logger name="net.rubyeye.xmemcached" level="WARN"/>
-    <logger name="com.google.code.yanf4j" level="WARN"/>
-
-    <logger name="net.sf.ehcache" level="WARN"/>
-
-    <logger name="httl" level="WARN"/>
-
-    <logger name="io.netty" level="WARN"/>
+    <logger name="org.quartz" level="WARN"/>
 
     <root level="DEBUG">
         <appender-ref ref="stdout"/>

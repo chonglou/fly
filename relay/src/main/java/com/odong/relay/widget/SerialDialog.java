@@ -1,6 +1,10 @@
 package com.odong.relay.widget;
 
+import com.odong.relay.MyException;
+import com.odong.relay.serial.SerialHelper;
 import com.odong.relay.util.LabelHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -29,19 +33,13 @@ public class SerialDialog {
     }
 
     public void close() {
-        //todo 关闭串口
-        conn = null;
         dialog.setVisible(false);
         cardPanel.hide();
     }
 
-    public boolean isOpen() {
-        return conn != null;
-    }
-
     public void setLocale(Locale locale) {
         dialog.setTitle(labelHelper.getMessage("dialog.serial.title", locale));
-        for (String s : new String[]{"commPort", "dataBaud", "stopBits", "parity"}) {
+        for (String s : labels.keySet()) {
             labels.get(s).setText(labelHelper.getMessage("serial." + s, locale) + "：");
         }
 
@@ -53,11 +51,12 @@ public class SerialDialog {
     @PostConstruct
     void init() {
         dialog = new JDialog(window.get(), "", true);
+        dialog.setIconImage(labelHelper.getIconImage());
         Container container = dialog.getContentPane();
         container.setLayout(new BorderLayout(20, 20));
 
-
-        container.add(getMainPanel(), BorderLayout.CENTER);
+        initMainPanel();
+        container.add(mainP, BorderLayout.CENTER);
 
         for (String s : new String[]{
                 BorderLayout.SOUTH, BorderLayout.NORTH, BorderLayout.WEST, BorderLayout.EAST
@@ -71,47 +70,31 @@ public class SerialDialog {
         dialog.setResizable(false);
     }
 
-    private JPanel getMainPanel() {
+    private <T> void addLine(String name, Class<T> clazz, T... items) {
+        JLabel lbl = new JLabel();
+        mainP.add(lbl);
+        lbl.setHorizontalAlignment(SwingConstants.RIGHT);
+        labels.put(name, lbl);
 
-        JPanel mainP = new JPanel();
-        mainP.setLayout(new GridLayout(5, 2, 20, 20));
+        JComboBox<T> cb = new JComboBox<T>(items);
+        cb.setSelectedIndex(0);
+        mainP.add(cb);
+        comboBoxes.put(name, cb);
+    }
+
+    private void initMainPanel() {
+        mainP = new JPanel();
+        mainP.setLayout(new GridLayout(6, 2, 20, 20));
 
         labels = new HashMap<>();
-        JLabel lbl;
-        JComboBox cb;
+        comboBoxes = new HashMap<>();
 
-        lbl = new JLabel();
-        mainP.add(lbl);
-        lbl.setHorizontalAlignment(SwingConstants.RIGHT);
-        cb = new JComboBox<>(new String[]{"COM1", "COM2", "COM3"});
-        mainP.add(cb);
-        cb.setSelectedIndex(0);
-        labels.put("commPort", lbl);
+        addLine("commPort", String.class, serialHelper.listPortNames().toArray(new String[1]));
+        addLine("dataBaud", Integer.class, 9600);
+        addLine("dataBits", Integer.class, 8);
+        addLine("stopBits", Integer.class, 1);
+        addLine("parity", String.class, "None");
 
-        lbl = new JLabel();
-        mainP.add(lbl);
-        lbl.setHorizontalAlignment(SwingConstants.RIGHT);
-        cb = new JComboBox<>(new Integer[]{1});
-        mainP.add(cb);
-        cb.setSelectedIndex(0);
-        labels.put("stopBits", lbl);
-
-
-        lbl = new JLabel();
-        mainP.add(lbl);
-        lbl.setHorizontalAlignment(SwingConstants.RIGHT);
-        cb = new JComboBox<>(new String[]{"None"});
-        mainP.add(cb);
-        cb.setSelectedIndex(0);
-        labels.put("parity", lbl);
-
-        lbl = new JLabel();
-        mainP.add(lbl);
-        lbl.setHorizontalAlignment(SwingConstants.RIGHT);
-        cb = new JComboBox<>(new Integer[]{9600});
-        cb.setSelectedIndex(0);
-        mainP.add(cb);
-        labels.put("dataBaud", lbl);
 
         buttons = new HashMap<>();
         JButton btn;
@@ -124,7 +107,6 @@ public class SerialDialog {
         mainP.add(btn);
         buttons.put("cancel", btn);
 
-        return mainP;
     }
 
     private void initEvents() {
@@ -141,11 +123,31 @@ public class SerialDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == buttons.get("submit")) {
-                    //TODO 打开串口
-                    conn = new Object();
-                }
 
-                dialog.setVisible(false);
+                    try {
+                        serialHelper.open(
+                                (String) comboBoxes.get("commPort").getSelectedItem(),
+                                (Integer) comboBoxes.get("dataBaud").getSelectedItem(),
+                                new SerialHelper.Callback() {
+                                    @Override
+                                    public void process(byte[] buffer) {
+                                        //TODO
+                                        logger.debug("返回: " + new String(buffer));
+                                    }
+                                });
+                    } catch (Exception ex) {
+                        logger.debug("打开端口出错", ex);
+                        if (ex instanceof MyException) {
+                            messageDialog.error(((MyException) ex).getType());
+                        }
+                    }
+
+                    if (serialHelper.isOpen()) {
+                        close();
+                    }
+                } else {
+                    close();
+                }
 
             }
         };
@@ -154,16 +156,30 @@ public class SerialDialog {
         }
     }
 
-    private Object conn;
     private JDialog dialog;
+    private JPanel mainP;
     @Resource
     private LabelHelper labelHelper;
     @Resource
     private Window window;
     @Resource
     private CardPanel cardPanel;
+    @Resource
+    private SerialHelper serialHelper;
+    @Resource
+    private MessageDialog messageDialog;
     private Map<String, JLabel> labels;
     private Map<String, JButton> buttons;
+    private Map<String, JComboBox> comboBoxes;
+    private final static Logger logger = LoggerFactory.getLogger(SerialDialog.class);
+
+    public void setMessageDialog(MessageDialog messageDialog) {
+        this.messageDialog = messageDialog;
+    }
+
+    public void setSerialHelper(SerialHelper serialHelper) {
+        this.serialHelper = serialHelper;
+    }
 
     public void setCardPanel(CardPanel cardPanel) {
         this.cardPanel = cardPanel;

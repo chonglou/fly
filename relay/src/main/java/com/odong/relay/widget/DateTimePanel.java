@@ -1,13 +1,11 @@
 package com.odong.relay.widget;
 
 import com.odong.relay.util.LabelHelper;
+import org.joda.time.DateTime;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -71,6 +69,7 @@ public class DateTimePanel {
         panel.add(cb);
         panel.add(lbl);
         labels.put(key, lbl);
+        comboBoxes.put(key, cb);
     }
 
 
@@ -79,6 +78,22 @@ public class DateTimePanel {
             labels.get(s).setText(labelHelper.getMessage("dateTimeP." + s, locale));
         }
 
+    }
+
+    public Date toDate() {
+        return new DateTime()
+                .withYear(combo2integer("year"))
+                .withMonthOfYear(combo2integer("month"))
+                .withDayOfMonth(combo2integer("day"))
+                .withHourOfDay(combo2integer("hour"))
+                .withMinuteOfHour(combo2integer("minute"))
+                .withSecondOfMinute(combo2integer("second"))
+                .withMillisOfSecond(0)
+                .toDate();
+    }
+
+    private int combo2integer(String name) {
+        return (Integer) (comboBoxes.get(name).getSelectedItem());
     }
 
     private JPanel panel;

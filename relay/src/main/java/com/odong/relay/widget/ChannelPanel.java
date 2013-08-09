@@ -1,8 +1,12 @@
 package com.odong.relay.widget;
 
+import com.odong.relay.job.Task;
+import com.odong.relay.job.TaskJob;
 import com.odong.relay.model.Log;
 import com.odong.relay.util.LabelHelper;
-import com.odong.relay.util.LogService;
+import com.odong.relay.util.StoreHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,11 +25,19 @@ import java.util.Map;
  */
 public class ChannelPanel {
 
-    public ChannelPanel(String name, int port, Locale locale, ToolBar toolBar, LabelHelper labelHelper, LogService logService) {
+    public ChannelPanel(String name, int port,
+                        Locale locale,
+                        ToolBar toolBar,
+                        LabelHelper labelHelper,
+                        StoreHelper logService,
+                        MessageDialog messageDialog,
+                        TaskJob taskJob) {
         this.port = port;
         this.toolBar = toolBar;
         this.labelHelper = labelHelper;
         this.logService = logService;
+        this.messageDialog = messageDialog;
+        this.taskJob = taskJob;
 
         panel = new JPanel(new GridBagLayout());
         panel.setName(name);
@@ -35,7 +47,8 @@ public class ChannelPanel {
 
         setLocale(locale);
 
-        //setOn(false);
+        buttons.get("on").setEnabled(true);
+        buttons.get("off").setEnabled(false);
     }
 
     public void setLocale(Locale locale) {
@@ -48,7 +61,8 @@ public class ChannelPanel {
         for (String s : buttons.keySet()) {
             buttons.get(s).setText(labelHelper.getMessage("button." + s, locale));
         }
-        title.setText(labelHelper.getMessage("channel.task.title", locale) + port);
+
+        title.setText("<html><h1>" + labelHelper.getMessage("channel.task.title", locale) + port + "</h1></html>");
     }
 
 
@@ -60,16 +74,29 @@ public class ChannelPanel {
     }
 
     public void setOn(boolean on) {
-        if(on){
-             //TODO 启动
+        if (on) {
+            try {
+                int total = Integer.parseInt(this.total.getText());
+                taskJob.putOnOffTask(port, beginTime.toDate(), endTime.toDate(),
+                        Integer.parseInt(onSpace.getText()),
+                        Integer.parseInt(offSpace.getText()),
+                        total == 0 ? null : total);
+            } catch (Exception e) {
+                messageDialog.error("inputNonValid");
+                logger.error("添加任务出错", e);
+                return;
+            }
+        } else {
+            taskJob.popOnOffTask(port);
         }
-        else {
-            //TODO 停止
-        }
-        this.on = on;
+
         buttons.get("on").setEnabled(!on);
         buttons.get("off").setEnabled(on);
         toolBar.setOn(port, on);
+    }
+
+    public boolean isOn() {
+        return taskJob.getTaskName(port, Task.Type.ON_OFF) == null;
     }
 
     private void initEvents() {
@@ -93,6 +120,7 @@ public class ChannelPanel {
         for (String s : buttons.keySet()) {
             buttons.get(s).addMouseListener(listener);
         }
+
     }
 
 
@@ -102,9 +130,9 @@ public class ChannelPanel {
 
         endTime = new DateTimePanel(labelHelper);
         beginTime = new DateTimePanel(labelHelper);
-        times = new JTextField("0");
-        upSpace = new JTextField("3");
-        downSpace = new JTextField("3");
+        total = new JTextField("0");
+        onSpace = new JTextField("3");
+        offSpace = new JTextField("3");
         logModel = new DefaultListModel<>();
 
 
@@ -148,7 +176,7 @@ public class ChannelPanel {
         labels.put("onSpace", lbl);
         c.gridx = 1;
         c.gridy = 3;
-        panel.add(upSpace, c);
+        panel.add(onSpace, c);
 
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -158,17 +186,17 @@ public class ChannelPanel {
         labels.put("offSpace", lbl);
         c.gridx = 1;
         c.gridy = 4;
-        panel.add(downSpace, c);
+        panel.add(offSpace, c);
 
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
         c.gridx = 0;
         c.gridy = 5;
         panel.add(lbl, c);
-        labels.put("times", lbl);
+        labels.put("total", lbl);
         c.gridx = 1;
         c.gridy = 5;
-        panel.add(times, c);
+        panel.add(total, c);
 
         p = new JPanel(new BorderLayout());
         lbl = new JLabel();
@@ -179,7 +207,7 @@ public class ChannelPanel {
         p.add(jp, BorderLayout.CENTER);
         c.gridx = 2;
         c.gridy = 0;
-        c.gridheight = 6;
+        c.gridheight = 7;
         c.gridwidth = 2;
         c.weightx = 1.0;
         panel.add(p, c);
@@ -220,21 +248,21 @@ public class ChannelPanel {
     private DateTimePanel beginTime;
     private DateTimePanel endTime;
     private JPanel panel;
-    private JTextField upSpace;
-    private JTextField downSpace;
-    private JTextField times;
+    private JTextField onSpace;
+    private JTextField offSpace;
+    private JTextField total;
     private DefaultListModel<String> logModel;
     private JLabel title;
     private ToolBar toolBar;
+    private MessageDialog messageDialog;
     private LabelHelper labelHelper;
-    private LogService logService;
-    private boolean on;
-
-    public boolean isOn() {
-        return on;
-    }
+    private StoreHelper logService;
+    private TaskJob taskJob;
+    private final static Logger logger = LoggerFactory.getLogger(ChannelPanel.class);
 
     public JPanel get() {
         return panel;
     }
+
+
 }

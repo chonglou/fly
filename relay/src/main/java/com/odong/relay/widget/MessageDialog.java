@@ -1,5 +1,6 @@
 package com.odong.relay.widget;
 
+import com.odong.relay.MyException;
 import com.odong.relay.util.LabelHelper;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,13 @@ import java.util.Locale;
  */
 @Component
 public class MessageDialog {
+    public void error(MyException.Type type) {
+        JOptionPane.showMessageDialog(window.get(),
+                labelHelper.getMessage("exception." + type.name(), locale),
+                type.name(),
+                JOptionPane.ERROR_MESSAGE);
+    }
+
     public void error(String key) {
         JOptionPane.showMessageDialog(window.get(),
                 labelHelper.getMessage("dialog." + key + ".message", locale),

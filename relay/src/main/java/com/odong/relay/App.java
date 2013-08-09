@@ -11,6 +11,7 @@ import java.nio.channels.FileLock;
 public class App {
     public static void main(String[] args) {
         logger.info("启动");
+        System.setProperty("derby.stream.error.file", "var/derby.log");
         lock();
         new ClassPathXmlApplicationContext("spring/*.xml");
     }

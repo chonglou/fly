@@ -8,12 +8,12 @@ import java.io.Serializable;
  * Date: 13-8-7
  * Time: 上午10:39
  */
-public class Command implements Serializable {
+public class OnOffCommand implements Serializable {
     private static final long serialVersionUID = -4430458793102362593L;
 
-    public Command(int port, boolean flag) {
+    public OnOffCommand(int port, boolean on) {
         this.port = port;
-        this.flag = flag;
+        this.flag = on;
     }
 
     public final int port;

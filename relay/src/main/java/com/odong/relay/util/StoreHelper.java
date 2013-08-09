@@ -10,7 +10,13 @@ import java.util.List;
  * Date: 13-8-7
  * Time: 下午10:34
  */
-public interface LogService {
+public interface StoreHelper {
+    void put(String key, String val);
+
+    String get(String key);
+
+    void pop(String key);
+
     List<Log> list(int port, int size);
 
     void add(int port, String message);

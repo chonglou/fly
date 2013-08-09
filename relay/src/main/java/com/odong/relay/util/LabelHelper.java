@@ -4,6 +4,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.awt.*;
 import java.util.Locale;
 
 /**
@@ -14,6 +15,10 @@ import java.util.Locale;
  */
 @Component
 public class LabelHelper {
+
+    public Image getIconImage() {
+        return Toolkit.getDefaultToolkit().getImage(getClass().getResource("/tray.png"));
+    }
 
     public String getMessage(String key, Locale locale) {
         return messageSource.getMessage("lbl." + key, null, locale);

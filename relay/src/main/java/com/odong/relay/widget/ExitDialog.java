@@ -1,5 +1,6 @@
 package com.odong.relay.widget;
 
+import com.odong.relay.serial.SerialHelper;
 import com.odong.relay.util.LabelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class ExitDialog {
         dialog.setVisible(true);
         Object sel = pane.getValue();
         if (sel == options[0]) {
-            if (serialDialog.isOpen()) {
+            if (serialHelper.isOpen()) {
                 messageDialog.error("stillOpen");
             } else {
                 logger.info("停止");
@@ -59,18 +60,19 @@ public class ExitDialog {
     @Resource
     private Window window;
     @Resource
-    private SerialDialog serialDialog;
-    @Resource
     private MessageDialog messageDialog;
+    @Resource
+    private SerialHelper serialHelper;
     private final static Logger logger = LoggerFactory.getLogger(ExitDialog.class);
+
+    public void setSerialHelper(SerialHelper serialHelper) {
+        this.serialHelper = serialHelper;
+    }
 
     public void setMessageDialog(MessageDialog messageDialog) {
         this.messageDialog = messageDialog;
     }
 
-    public void setSerialDialog(SerialDialog serialDialog) {
-        this.serialDialog = serialDialog;
-    }
 
     public void setWindow(Window window) {
         this.window = window;

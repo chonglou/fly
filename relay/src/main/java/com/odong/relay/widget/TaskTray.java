@@ -31,7 +31,7 @@ public class TaskTray {
             return;
         }
 
-        Image img = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/tray.png"));
+        Image img = labelHelper.getIconImage();
 
         items = new HashMap<>();
         PopupMenu menu = new PopupMenu();

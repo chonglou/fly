@@ -1,6 +1,7 @@
 package com.odong.relay.widget;
 
 
+import com.odong.relay.serial.SerialHelper;
 import com.odong.relay.util.LabelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +101,7 @@ public class MenuBar {
 
 
     public void showOpenClose() {
-        boolean enable = serialDialog.isOpen();
+        boolean enable = serialHelper.isOpen();
         items.get("open").setEnabled(!enable);
         items.get("close").setEnabled(enable);
         toolBar.setEnable(enable);
@@ -163,7 +164,13 @@ public class MenuBar {
     private CardPanel cardPanel;
     @Resource
     private ToolBar toolBar;
+    @Resource
+    private SerialHelper serialHelper;
     private final static Logger logger = LoggerFactory.getLogger(MenuBar.class);
+
+    public void setSerialHelper(SerialHelper serialHelper) {
+        this.serialHelper = serialHelper;
+    }
 
     public void setCardPanel(CardPanel cardPanel) {
         this.cardPanel = cardPanel;

@@ -1,7 +1,8 @@
 package com.odong.relay.widget;
 
+import com.odong.relay.job.TaskJob;
 import com.odong.relay.util.LabelHelper;
-import com.odong.relay.util.LogService;
+import com.odong.relay.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,14 +24,15 @@ import java.util.Map;
  */
 @Component
 public class CardPanel {
-    public synchronized void close(){
-        for(String s : channelPanels.keySet()){
-            ChannelPanel cp =channelPanels.get(s);
-            if(cp.isOn()){
+    public synchronized void close() {
+        for (String s : channelPanels.keySet()) {
+            ChannelPanel cp = channelPanels.get(s);
+            if (cp.isOn()) {
                 cp.setOn(false);
             }
         }
     }
+
     public synchronized void hide() {
         panel.setVisible(false);
     }
@@ -51,7 +53,7 @@ public class CardPanel {
         panel.setLayout(layout);
         for (int i = 1; i <= size; i++) {
             String name = port2name(i);
-            ChannelPanel cp = new ChannelPanel(name, i, locale, toolBar, labelHelper, logService);
+            ChannelPanel cp = new ChannelPanel(name, i, locale, toolBar, labelHelper, logService, messageDialog, taskJob);
             channelPanels.put(name, cp);
             panel.add(cp.get(), name);
         }
@@ -77,18 +79,30 @@ public class CardPanel {
     @Resource
     private LabelHelper labelHelper;
     @Resource
-    private LogService logService;
+    private StoreHelper logService;
     @Resource
     private ToolBar toolBar;
+    @Resource
+    private TaskJob taskJob;
+    @Resource
+    private MessageDialog messageDialog;
     @Value("${channel.size}")
     private int size;
     private final static Logger logger = LoggerFactory.getLogger(CardPanel.class);
+
+    public void setMessageDialog(MessageDialog messageDialog) {
+        this.messageDialog = messageDialog;
+    }
+
+    public void setTaskJob(TaskJob taskJob) {
+        this.taskJob = taskJob;
+    }
 
     public void setToolBar(ToolBar toolBar) {
         this.toolBar = toolBar;
     }
 
-    public void setLogService(LogService logService) {
+    public void setLogService(StoreHelper logService) {
         this.logService = logService;
     }
 

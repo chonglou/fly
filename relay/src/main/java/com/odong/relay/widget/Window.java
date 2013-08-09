@@ -34,6 +34,7 @@ public class Window {
         container.add(cardPanel.get(), BorderLayout.CENTER);
 
         frame.setJMenuBar(menuBar.get());
+        frame.setIconImage(labelHelper.getIconImage());
 
         initEvent();
         setLocale(Locale.SIMPLIFIED_CHINESE);
