@@ -42,6 +42,9 @@ public abstract class SerialUtil {
     public boolean hasOpen() {
         return !map.isEmpty();
     }
+    public Set<String> getStatus(){
+        return map.keySet();
+    }
 
     protected void put(String portName, SerialPort port) {
         map.put(portName, port);

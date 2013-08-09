@@ -43,7 +43,7 @@ public class OnOffTaskPanel extends TaskPanel {
         title.setText("<html><h1>" + guiHelper.getMessage("channel.task.title") + task.toString() + "</h1></html>");
         onSpace.setText(Integer.toString(task.getOnSpace()));
         offSpace.setText(Integer.toString(task.getOffSpace()));
-        total.setText(task.getTotal()==0?null:Integer.toString(task.getTotal()));
+        total.setText(task.getTotal() == 0 ? null : Integer.toString(task.getTotal()));
         beginTime.setDate(task.getBegin(), 0);
         endTime.setDate(task.getEnd(), 0);
     }

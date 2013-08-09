@@ -1,8 +1,6 @@
 package com.odong.relay.widget;
 
 import com.odong.relay.job.Task;
-import com.odong.relay.job.TaskJob;
-import com.odong.relay.util.GuiHelper;
 import com.odong.relay.util.StoreHelper;
 import com.odong.relay.widget.task.OnOffTaskPanel;
 import com.odong.relay.widget.task.TaskPanel;

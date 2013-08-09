@@ -27,6 +27,7 @@ public class ToolBar {
         toolBar.removeAll();
         toolBar.addSeparator();
 
+
         MouseListener listener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

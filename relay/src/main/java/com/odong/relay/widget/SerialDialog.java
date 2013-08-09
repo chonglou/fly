@@ -1,6 +1,7 @@
 package com.odong.relay.widget;
 
 import com.odong.relay.MyException;
+import com.odong.relay.serial.Command;
 import com.odong.relay.serial.SerialPort;
 import com.odong.relay.serial.SerialUtil;
 import com.odong.relay.util.GuiHelper;
@@ -29,6 +30,7 @@ import java.util.Map;
 public class SerialDialog {
     public void show(String portName) {
         this.portName = portName;
+        dialog.setTitle(guiHelper.getMessage("dialog.serial.title") + "[" + portName + "]");
         dialog.pack();
         dialog.setVisible(true);
     }
@@ -38,7 +40,6 @@ public class SerialDialog {
     }
 
     public void setText() {
-        dialog.setTitle(guiHelper.getMessage("dialog.serial.title"));
         for (String s : labels.keySet()) {
             labels.get(s).setText(guiHelper.getMessage("serial." + s) + "：");
         }
@@ -90,6 +91,7 @@ public class SerialDialog {
         labels = new HashMap<>();
         comboBoxes = new HashMap<>();
 
+        addLine("deviceType", Command.Type.class, Command.Type.values());
         addLine("dataBaud", Integer.class, 9600);
         addLine("dataBits", Integer.class, 8);
         addLine("stopBits", Integer.class, 1);

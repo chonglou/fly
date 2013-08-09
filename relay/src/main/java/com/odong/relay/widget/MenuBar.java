@@ -2,11 +2,11 @@ package com.odong.relay.widget;
 
 
 import com.odong.relay.job.TaskJob;
+import com.odong.relay.serial.SerialUtil;
 import com.odong.relay.util.GuiHelper;
 import com.odong.relay.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -14,9 +14,7 @@ import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,19 +28,16 @@ public class MenuBar {
     void init() {
         menuBar = new JMenuBar();
         menus = new HashMap<>();
-        items = new HashMap<>();
+        menuItems = new HashMap<>();
+        checkBoxMenuItems = new ArrayList<>();
 
-        JMenu file = new JMenu();
-        menuBar.add(file);
-        menus.put("file", file);
+        addMenuItem("file", "exit");
+        Set<String> portNames = serialUtil.getPortNameList();
+        addCheckBoxMenuItem("device", portNames.toArray(new String[portNames.size()]));
+        addRadioMenuItem("lang", "en_US", "zh_CN");
+        addMenuItem("help", "doc", "aboutMe");
 
-        addMenu("file", "open", "close", "exit");
-        addRadioMenu("lang", "en_US", "zh_CN");
-        addMenu("help", "doc", "aboutMe");
-
-        for (String s : items.keySet()) {
-            bindEvent(s);
-        }
+        initEvent();
     }
 
 
@@ -51,17 +46,36 @@ public class MenuBar {
             menus.get(s).setText(guiHelper.getMessage("menu." + s));
         }
 
-        for (String s : items.keySet()) {
-            items.get(s).setText(guiHelper.getMessage("menuItem." + s));
+        for (String s : menuItems.keySet()) {
+            menuItems.get(s).setText(guiHelper.getMessage("menuItem." + s));
         }
-        items.get(guiHelper.getLocale().toString()).setSelected(true);
+        menuItems.get(guiHelper.getLocale().toString()).setSelected(true);
     }
 
     public JMenuBar get() {
         return menuBar;
     }
 
-    private void addRadioMenu(String menu, String... items) {
+
+    private void addCheckBoxMenuItem(String menu, String... items) {
+        JMenu m = new JMenu();
+        menuBar.add(m);
+        menus.put(menu, m);
+
+        for (int i = 0; ; ) {
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(items[i]);
+            item.setName(menu + "-" + items[i]);
+            m.add(item);
+            checkBoxMenuItems.add(item);
+            i++;
+            if (i == items.length) {
+                break;
+            }
+            m.addSeparator();
+        }
+    }
+
+    private void addRadioMenuItem(String menu, String... items) {
         JMenu m = new JMenu();
         menuBar.add(m);
         menus.put(menu, m);
@@ -73,7 +87,7 @@ public class MenuBar {
             item.setName("item-" + items[i]);
             m.add(item);
             group.add(item);
-            this.items.put(items[i], item);
+            this.menuItems.put(items[i], item);
             i++;
             if (i == items.length) {
                 break;
@@ -83,7 +97,7 @@ public class MenuBar {
         }
     }
 
-    private void addMenu(String menu, String... items) {
+    private void addMenuItem(String menu, String... items) {
         JMenu m = new JMenu();
         menuBar.add(m);
         menus.put(menu, m);
@@ -92,7 +106,7 @@ public class MenuBar {
             JMenuItem item = new JMenuItem();
             item.setName("item-" + items[i]);
             m.add(item);
-            this.items.put(items[i], item);
+            this.menuItems.put(items[i], item);
             i++;
             if (i == items.length) {
                 break;
@@ -103,19 +117,34 @@ public class MenuBar {
     }
 
 
-    private void bindEvent(String s) {
-        items.get(s).addActionListener(new ActionListener() {
+    private void initEvent() {
+
+        ActionListener checkBoxListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JCheckBoxMenuItem item = (JCheckBoxMenuItem) e.getSource();
+                if (item.isEnabled()) {
+                    if (item.getName().startsWith("device-")) {
+                        String portName = item.getName().substring(7);
+                        if (item.isSelected()) {
+                            serialDialog.show(portName);
+                        } else {
+                            serialUtil.close(portName);
+                        }
+                        item.setSelected(serialUtil.isOpen(portName));
+                    }
+                }
+            }
+        };
+        for (JCheckBoxMenuItem item : checkBoxMenuItems) {
+            item.addActionListener(checkBoxListener);
+        }
+
+        ActionListener itemListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JMenuItem item = (JMenuItem) e.getSource();
-
                 switch (item.getName().split("\\-")[1]) {
-                    case "open":
-                        //TODO Open
-                        break;
-                    case "close":
-                        //TODO close
-                        break;
                     case "doc":
                         guiHelper.showInfoDialog("doc");
                         break;
@@ -136,12 +165,17 @@ public class MenuBar {
 
                 }
             }
-        });
+        };
+
+        for (String s : menuItems.keySet()) {
+            menuItems.get(s).addActionListener(itemListener);
+        }
     }
 
     private JMenuBar menuBar;
     private Map<String, JMenu> menus;
-    private Map<String, JMenuItem> items;
+    private Map<String, JMenuItem> menuItems;
+    private List<JCheckBoxMenuItem> checkBoxMenuItems;
     @Resource
     private GuiHelper guiHelper;
     @Resource
@@ -149,8 +183,20 @@ public class MenuBar {
     @Resource
     private TaskJob taskJob;
     @Resource
+    private SerialUtil serialUtil;
+    @Resource
+    private SerialDialog serialDialog;
+    @Resource
     private Window window;
     private final static Logger logger = LoggerFactory.getLogger(MenuBar.class);
+
+    public void setSerialDialog(SerialDialog serialDialog) {
+        this.serialDialog = serialDialog;
+    }
+
+    public void setSerialUtil(SerialUtil serialUtil) {
+        this.serialUtil = serialUtil;
+    }
 
     public void setWindow(Window window) {
         this.window = window;

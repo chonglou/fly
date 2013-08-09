@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.sql.*;
 import java.util.ArrayList;

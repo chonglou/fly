@@ -1,8 +1,7 @@
 package com.odong;
 
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import com.odong.relay.Server;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -16,7 +15,6 @@ public class AppTest {
     public void test0() {
 
         try {
-
             Thread.sleep(1000 * 60 * 5);
         } catch (Exception e) {
             e.printStackTrace();
@@ -26,11 +24,11 @@ public class AppTest {
     @BeforeTest
     public void init() {
         try {
-            ctx = new ClassPathXmlApplicationContext("spring/*.xml");
+            Server.get().init();
+            Server.get().start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private ApplicationContext ctx;
 }

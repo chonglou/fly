@@ -16,4 +16,6 @@ public interface Command extends Serializable {
     public enum Type {
         ON_OFF
     }
+
+
 }

@@ -1,6 +1,8 @@
 package com.odong.relay.util;
 
+import com.odong.core.util.JsonHelper;
 import com.odong.relay.MyException;
+import com.odong.relay.Server;
 import com.odong.relay.serial.SerialUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +32,11 @@ public class GuiHelper {
                 JOptionPane.YES_NO_OPTION)) {
             case JOptionPane.YES_OPTION:
                 if (serialUtil.hasOpen()) {
+                    logger.error("当前状态[{}]", jsonHelper.object2json(serialUtil.getStatus()));
                     showErrorDialog("stillOpen");
                 } else {
-                    //TODO 停止Spring容器
-                    logger.info("停止");
-                    System.exit(0);
+                    Server.get().destroy();
+                    Server.get().stop();
                 }
 
                 break;
@@ -103,7 +105,8 @@ public class GuiHelper {
         window = new JFrame();
     }
 
-
+    @Resource
+    private JsonHelper jsonHelper;
     @Resource
     private MessageSource messageSource;
     @Resource
@@ -112,6 +115,9 @@ public class GuiHelper {
     private JFrame window;
     private final static Logger logger = LoggerFactory.getLogger(GuiHelper.class);
 
+    public void setJsonHelper(JsonHelper jsonHelper) {
+        this.jsonHelper = jsonHelper;
+    }
 
     public Locale getLocale() {
         return locale;
