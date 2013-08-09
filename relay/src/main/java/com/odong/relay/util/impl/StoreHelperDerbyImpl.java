@@ -1,5 +1,6 @@
 package com.odong.relay.util.impl;
 
+import com.odong.relay.model.Item;
 import com.odong.relay.model.Log;
 import com.odong.relay.model.Setting;
 import com.odong.relay.util.StoreHelper;
@@ -48,14 +49,39 @@ public class StoreHelperDerbyImpl implements StoreHelper {
     }
 
     @Override
-    public List<Log> list(int port, int size) {
+    public void addItem(String task, String request, String response) {
+        execute(String.format("INSERT INTO %s(task,request,response) VALUES('%s','%s','%s')", itemTableName, task, request, response));
+    }
+
+    @Override
+    public List<Item> listItem(String task) {
+        final List<Item> items = new ArrayList<>();
+        execute(String.format("SELECT id,task,request,response,created FROM '%s' WHERE task='%s' ", itemTableName, task),
+                null,
+                new Callback() {
+                    @Override
+                    public void loop(ResultSet rs) throws SQLException {
+                        Item item = new Item();
+                        item.setId(rs.getLong("id"));
+                        item.setTask(rs.getString("task"));
+                        item.setResponse(rs.getString("request"));
+                        item.setResponse(rs.getString("response"));
+                        item.setCreated(rs.getTimestamp("created"));
+                        items.add(item);
+                    }
+                });
+        return items;  //
+    }
+
+    @Override
+    public List<Log> listLog(int len) {
         final List<Log> logs = new ArrayList<>();
-        execute(String.format("SELECT id,port,message,created FROM %s WHERE port=%d ORDER BY id DESC", logTableName, port), size, new Callback() {
+        execute(String.format("SELECT id,task,message,created FROM %s WHERE ORDER BY id DESC", logTableName), len, new Callback() {
             @Override
             public void loop(ResultSet rs) throws SQLException {
                 Log l = new Log();
                 l.setId(rs.getLong("id"));
-                l.setPort(rs.getInt("port"));
+                l.setTask(rs.getString("task"));
                 l.setMessage(rs.getString("message"));
                 l.setCreated(rs.getTimestamp("created"));
                 logs.add(l);
@@ -65,8 +91,8 @@ public class StoreHelperDerbyImpl implements StoreHelper {
     }
 
     @Override
-    public void add(int port, String message) {
-        execute(String.format("INSERT INTO %s(message, port) VALUES ('%s', %d)", logTableName, message, port));
+    public void addLog(String task, String message) {
+        execute(String.format("INSERT INTO %s(task, message) VALUES ('%s','%s')", logTableName, task, message));
     }
 
     @PostConstruct
@@ -76,8 +102,9 @@ public class StoreHelperDerbyImpl implements StoreHelper {
             connection = DriverManager.getConnection("jdbc:derby:" + dbName + ";create=true");
             logger.info("连接数据库");
 
-            checkTable(logTableName, "id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, port INTEGER, message VARCHAR(8000) NOT NULL, created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
+            checkTable(logTableName, "id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, task VARCHAR(255), message VARCHAR(1024) NOT NULL, created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
             checkTable(settingTableName, "k VARCHAR(255) NOT NULL PRIMARY KEY, v VARCHAR(8000) NOT NULL, created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, version BIGINT NOT NULL DEFAULT 0");
+            checkTable(itemTableName, "id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, task VARCHAR(255) NOT NULL, request VARCHAR(255) NOT NULL, response VARCHAR(1024), created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
 
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException e) {
             logger.error("连接数据库出错", e);
@@ -114,6 +141,20 @@ public class StoreHelperDerbyImpl implements StoreHelper {
         }
     }
 
+    private void execute(String sql, Object... params) {
+        try (PreparedStatement s = connection.prepareStatement(sql)) {
+            for (int i = 1; i <= params.length; i++) {
+                s.setObject(i, params[i]);
+            }
+            s.execute();
+        } catch (SQLException e) {
+
+
+            logger.error("执行SQL[{}]出错", sql, e);
+        }
+    }
+
+
     private void execute(String sql) {
         //logger.debug(sql);
         try (Statement s = connection.createStatement()) {
@@ -123,6 +164,24 @@ public class StoreHelperDerbyImpl implements StoreHelper {
             logger.error("执行SQL[{}]出错", sql, e);
         }
 
+    }
+
+    private void execute(String sql, Object[] params, Integer size, Callback cb) {
+        //logger.debug(sql);
+        try (PreparedStatement s = connection.prepareStatement(sql)) {
+            if (size != null) {
+                s.setMaxRows(size);
+            }
+            for (int i = 1; i <= params.length; i++) {
+                s.setObject(i, params[i]);
+            }
+            ResultSet rs = s.executeQuery(sql);
+            while (rs.next()) {
+                cb.loop(rs);
+            }
+        } catch (SQLException e) {
+            logger.error("查询SQL[{}]出错", sql, e);
+        }
     }
 
     private void execute(String sql, Integer size, Callback cb) {
@@ -149,6 +208,7 @@ public class StoreHelperDerbyImpl implements StoreHelper {
     private final static String dbName = "var/db";
     private final static String logTableName = "LOGS";
     private final static String settingTableName = "ENV";
+    private final static String itemTableName = "ITEMS";
     private final static Logger logger = LoggerFactory.getLogger(StoreHelperDerbyImpl.class);
 
 

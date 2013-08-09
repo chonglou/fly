@@ -1,5 +1,6 @@
 package com.odong.relay.util;
 
+import com.odong.relay.model.Item;
 import com.odong.relay.model.Log;
 
 import java.util.List;
@@ -17,7 +18,11 @@ public interface StoreHelper {
 
     void pop(String key);
 
-    List<Log> list(int port, int size);
+    void addItem(String task, String request, String response);
 
-    void add(int port, String message);
+    List<Item> listItem(String task);
+
+    List<Log> listLog(int len);
+
+    void addLog(String task, String message);
 }

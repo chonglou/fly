@@ -7,16 +7,15 @@ import java.util.List;
 /**
  * Created with IntelliJ IDEA.
  * User: flamen
- * Date: 13-8-8
- * Time: 下午9:16
+ * Date: 13-8-9
+ * Time: 上午8:51
  */
-
-public interface SerialHelper {
+public interface SerialPort {
     boolean isOpen();
 
     void close();
 
-    void send(byte... request) throws MyException;
+    void send(Command command) throws MyException;
 
 
     void open(String portName, int dataBand, Callback callback) throws MyException;

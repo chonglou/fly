@@ -17,16 +17,16 @@ public class Log implements Serializable {
 
     private static final long serialVersionUID = 9201693672487578059L;
     private long id;
-    private Integer port;
+    private String task;
     private Date created;
     private String message;
 
-    public Integer getPort() {
-        return port;
+    public String getTask() {
+        return task;
     }
 
-    public void setPort(Integer port) {
-        this.port = port;
+    public void setTask(String task) {
+        this.task = task;
     }
 
     public long getId() {

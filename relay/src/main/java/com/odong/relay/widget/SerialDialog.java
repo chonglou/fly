@@ -1,8 +1,9 @@
 package com.odong.relay.widget;
 
 import com.odong.relay.MyException;
-import com.odong.relay.serial.SerialHelper;
-import com.odong.relay.util.LabelHelper;
+import com.odong.relay.serial.SerialPort;
+import com.odong.relay.serial.SerialUtil;
+import com.odong.relay.util.GuiHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -27,31 +27,33 @@ import java.util.Map;
  */
 @Component
 public class SerialDialog {
-    public void open() {
+    public void show(String portName) {
+        this.portName = portName;
         dialog.pack();
         dialog.setVisible(true);
     }
 
-    public void close() {
+    public void hide() {
         dialog.setVisible(false);
-        cardPanel.hide();
+        guiHelper.showCard(null);
     }
 
-    public void setLocale(Locale locale) {
-        dialog.setTitle(labelHelper.getMessage("dialog.serial.title", locale));
+    public void setText() {
+        dialog.setTitle(guiHelper.getMessage("dialog.serial.title"));
         for (String s : labels.keySet()) {
-            labels.get(s).setText(labelHelper.getMessage("serial." + s, locale) + "：");
+            labels.get(s).setText(guiHelper.getMessage("serial." + s) + "：");
         }
 
         for (String s : new String[]{"submit", "cancel"}) {
-            buttons.get(s).setText(labelHelper.getMessage("button." + s, locale));
+            buttons.get(s).setText(guiHelper.getMessage("button." + s));
         }
     }
 
     @PostConstruct
     void init() {
-        dialog = new JDialog(window.get(), "", true);
-        dialog.setIconImage(labelHelper.getIconImage());
+        JFrame window = guiHelper.getWindow();
+        dialog = new JDialog(window, "", true);
+        dialog.setIconImage(guiHelper.getIconImage());
         Container container = dialog.getContentPane();
         container.setLayout(new BorderLayout(20, 20));
 
@@ -66,7 +68,7 @@ public class SerialDialog {
 
         initEvents();
 
-        dialog.setLocationRelativeTo(window.get());
+        dialog.setLocationRelativeTo(window);
         dialog.setResizable(false);
     }
 
@@ -89,7 +91,6 @@ public class SerialDialog {
         labels = new HashMap<>();
         comboBoxes = new HashMap<>();
 
-        addLine("commPort", String.class, serialHelper.listPortNames().toArray(new String[1]));
         addLine("dataBaud", Integer.class, 9600);
         addLine("dataBits", Integer.class, 8);
         addLine("stopBits", Integer.class, 1);
@@ -110,7 +111,6 @@ public class SerialDialog {
     }
 
     private void initEvents() {
-        //dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         dialog.addWindowListener(new WindowAdapter() {
             @Override
@@ -125,28 +125,29 @@ public class SerialDialog {
                 if (e.getSource() == buttons.get("submit")) {
 
                     try {
-                        serialHelper.open(
-                                (String) comboBoxes.get("commPort").getSelectedItem(),
+                        serialUtil.open(
+                                portName,
                                 (Integer) comboBoxes.get("dataBaud").getSelectedItem(),
-                                new SerialHelper.Callback() {
+                                new SerialPort.Callback() {
                                     @Override
                                     public void process(byte[] buffer) {
-                                        //TODO
+                                        //TODO 处理返回
                                         logger.debug("返回: " + new String(buffer));
                                     }
                                 });
                     } catch (Exception ex) {
                         logger.debug("打开端口出错", ex);
                         if (ex instanceof MyException) {
-                            messageDialog.error(((MyException) ex).getType());
+                            guiHelper.showErrorDialog(((MyException) ex).getType());
                         }
                     }
 
-                    if (serialHelper.isOpen()) {
-                        close();
+                    if (serialUtil.isOpen(portName)) {
+                        //操作成功 返回
+                        hide();
                     }
                 } else {
-                    close();
+                    hide();
                 }
 
             }
@@ -156,40 +157,23 @@ public class SerialDialog {
         }
     }
 
+    private String portName;
     private JDialog dialog;
     private JPanel mainP;
-    @Resource
-    private LabelHelper labelHelper;
-    @Resource
-    private Window window;
-    @Resource
-    private CardPanel cardPanel;
-    @Resource
-    private SerialHelper serialHelper;
-    @Resource
-    private MessageDialog messageDialog;
     private Map<String, JLabel> labels;
     private Map<String, JButton> buttons;
     private Map<String, JComboBox> comboBoxes;
+    @Resource
+    private GuiHelper guiHelper;
+    @Resource
+    private SerialUtil serialUtil;
     private final static Logger logger = LoggerFactory.getLogger(SerialDialog.class);
 
-    public void setMessageDialog(MessageDialog messageDialog) {
-        this.messageDialog = messageDialog;
+    public void setGuiHelper(GuiHelper guiHelper) {
+        this.guiHelper = guiHelper;
     }
 
-    public void setSerialHelper(SerialHelper serialHelper) {
-        this.serialHelper = serialHelper;
-    }
-
-    public void setCardPanel(CardPanel cardPanel) {
-        this.cardPanel = cardPanel;
-    }
-
-    public void setWindow(Window window) {
-        this.window = window;
-    }
-
-    public void setLabelHelper(LabelHelper labelHelper) {
-        this.labelHelper = labelHelper;
+    public void setSerialUtil(SerialUtil serialUtil) {
+        this.serialUtil = serialUtil;
     }
 }

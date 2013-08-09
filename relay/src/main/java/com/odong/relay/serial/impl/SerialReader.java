@@ -1,6 +1,6 @@
 package com.odong.relay.serial.impl;
 
-import com.odong.relay.serial.SerialHelper;
+import com.odong.relay.serial.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import java.io.InputStream;
  * Time: 下午10:00
  */
 public class SerialReader implements SerialPortEventListener {
-    public SerialReader(InputStream in, SerialHelper.Callback callback) {
+    public SerialReader(InputStream in, SerialPort.Callback callback) {
         this.in = in;
         this.callback = callback;
     }
@@ -42,7 +42,7 @@ public class SerialReader implements SerialPortEventListener {
     }
 
     private InputStream in;
-    private SerialHelper.Callback callback;
+    private SerialPort.Callback callback;
     private byte[] buffer = new byte[1024];
     private final static Logger logger = LoggerFactory.getLogger(SerialReader.class);
 

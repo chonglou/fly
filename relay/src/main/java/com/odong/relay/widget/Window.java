@@ -1,6 +1,6 @@
 package com.odong.relay.widget;
 
-import com.odong.relay.util.LabelHelper;
+import com.odong.relay.util.GuiHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,10 +23,7 @@ import java.util.Locale;
 public class Window {
     @PostConstruct
     void init() {
-
-        initLookAndFeel();
-
-        frame = new JFrame();
+        JFrame frame = guiHelper.getWindow();
         frame.setLayout(new BorderLayout());
 
         Container container = frame.getContentPane();
@@ -34,7 +31,7 @@ public class Window {
         container.add(cardPanel.get(), BorderLayout.CENTER);
 
         frame.setJMenuBar(menuBar.get());
-        frame.setIconImage(labelHelper.getIconImage());
+        frame.setIconImage(guiHelper.getIconImage());
 
         initEvent();
         setLocale(Locale.SIMPLIFIED_CHINESE);
@@ -44,17 +41,17 @@ public class Window {
 
 
     public void setLocale(Locale locale) {
-        frame.setTitle(labelHelper.getMessage("title", locale));
-        cardPanel.setLocale(locale);
-        toolBar.setLocale(locale);
-        menuBar.setLocale(locale);
-        exitDialog.setLocale(locale);
-        messageDialog.setLocale(locale);
-        serialDialog.setLocale(locale);
-        taskTray.setLocale(locale);
+        guiHelper.setLocale(locale);
+        cardPanel.setText();
+        toolBar.setText();
+        menuBar.setText();
+        exitDialog.setText();
+        serialDialog.setText();
+        taskTray.setText();
     }
 
     public void show(boolean visible) {
+        JFrame frame = guiHelper.getWindow();
         if (visible) {
             //frame.setLocationRelativeTo( null);
             Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -68,39 +65,9 @@ public class Window {
         frame.setVisible(visible);
     }
 
-    public JFrame get() {
-        return frame;
-    }
-
-    private void initLookAndFeel() {
-
-
-        // JFrame.setDefaultLookAndFeelDecorated(true);
-        //  JDialog.setDefaultLookAndFeelDecorated(true);
-
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            logger.error("加载系统风格失败", e);
-        }
-        /*
-        Font f = new Font(Font.MONOSPACED, Font.PLAIN, 20);
-        Enumeration<Object> keys = UIManager.getDefaults().keys();
-        while (keys.hasMoreElements()) {
-            Object key = keys.nextElement();
-            Object value = UIManager.get(key);
-            if (value instanceof FontUIResource)
-
-                UIManager.put(key, f);
-
-        }
-
-        */
-
-    }
-
 
     private void initEvent() {
+        JFrame frame = guiHelper.getWindow();
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -116,13 +83,8 @@ public class Window {
     }
 
 
-    private JFrame frame;
-
-    private final static Logger logger = LoggerFactory.getLogger(Window.class);
     @Resource
-    private MessageDialog messageDialog;
-    @Resource
-    private LabelHelper labelHelper;
+    private GuiHelper guiHelper;
     @Resource
     private ToolBar toolBar;
     @Resource
@@ -135,36 +97,34 @@ public class Window {
     private SerialDialog serialDialog;
     @Resource
     private TaskTray taskTray;
+    private final static Logger logger = LoggerFactory.getLogger(Window.class);
 
-    public void setTaskTray(TaskTray taskTray) {
-        this.taskTray = taskTray;
-    }
 
-    public void setSerialDialog(SerialDialog serialDialog) {
-        this.serialDialog = serialDialog;
-    }
-
-    public void setMessageDialog(MessageDialog messageDialog) {
-        this.messageDialog = messageDialog;
-    }
-
-    public void setExitDialog(ExitDialog exitDialog) {
-        this.exitDialog = exitDialog;
-    }
-
-    public void setMenuBar(MenuBar menuBar) {
-        this.menuBar = menuBar;
-    }
-
-    public void setCardPanel(CardPanel cardPanel) {
-        this.cardPanel = cardPanel;
+    public void setGuiHelper(GuiHelper guiHelper) {
+        this.guiHelper = guiHelper;
     }
 
     public void setToolBar(ToolBar toolBar) {
         this.toolBar = toolBar;
     }
 
-    public void setLabelHelper(LabelHelper labelHelper) {
-        this.labelHelper = labelHelper;
+    public void setCardPanel(CardPanel cardPanel) {
+        this.cardPanel = cardPanel;
+    }
+
+    public void setMenuBar(MenuBar menuBar) {
+        this.menuBar = menuBar;
+    }
+
+    public void setExitDialog(ExitDialog exitDialog) {
+        this.exitDialog = exitDialog;
+    }
+
+    public void setSerialDialog(SerialDialog serialDialog) {
+        this.serialDialog = serialDialog;
+    }
+
+    public void setTaskTray(TaskTray taskTray) {
+        this.taskTray = taskTray;
     }
 }

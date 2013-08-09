@@ -19,4 +19,6 @@
     <bean id="encryptHelper" init-method="init" class="com.odong.core.util.EncryptHelper">
         <property name="appKey" value="${app.key}"/>
     </bean>
+    <bean id="serialUtil" init-method="init" destroy-method="destroy"
+          class="com.odong.relay.serial.impl.SerialUtilDemoImpl"/>
 </beans>

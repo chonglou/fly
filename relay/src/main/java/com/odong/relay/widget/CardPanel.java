@@ -1,7 +1,7 @@
 package com.odong.relay.widget;
 
 import com.odong.relay.job.TaskJob;
-import com.odong.relay.util.LabelHelper;
+import com.odong.relay.util.GuiHelper;
 import com.odong.relay.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +77,7 @@ public class CardPanel {
     private Map<String, ChannelPanel> channelPanels;
     private Locale locale;
     @Resource
-    private LabelHelper labelHelper;
+    private GuiHelper labelHelper;
     @Resource
     private StoreHelper logService;
     @Resource
@@ -110,7 +110,7 @@ public class CardPanel {
         this.size = size;
     }
 
-    public void setLabelHelper(LabelHelper labelHelper) {
+    public void setLabelHelper(GuiHelper labelHelper) {
         this.labelHelper = labelHelper;
     }
 

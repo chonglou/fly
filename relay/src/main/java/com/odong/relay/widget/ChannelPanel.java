@@ -3,7 +3,7 @@ package com.odong.relay.widget;
 import com.odong.relay.job.Task;
 import com.odong.relay.job.TaskJob;
 import com.odong.relay.model.Log;
-import com.odong.relay.util.LabelHelper;
+import com.odong.relay.util.GuiHelper;
 import com.odong.relay.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class ChannelPanel {
     public ChannelPanel(String name, int port,
                         Locale locale,
                         ToolBar toolBar,
-                        LabelHelper labelHelper,
+                        GuiHelper labelHelper,
                         StoreHelper logService,
                         MessageDialog messageDialog,
                         TaskJob taskJob) {
@@ -254,8 +254,8 @@ public class ChannelPanel {
     private DefaultListModel<String> logModel;
     private JLabel title;
     private ToolBar toolBar;
-    private MessageDialog messageDialog;
-    private LabelHelper labelHelper;
+
+    private GuiHelper labelHelper;
     private StoreHelper logService;
     private TaskJob taskJob;
     private final static Logger logger = LoggerFactory.getLogger(ChannelPanel.class);

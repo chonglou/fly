@@ -2,7 +2,7 @@ package com.odong.relay.widget;
 
 
 import com.odong.relay.serial.SerialHelper;
-import com.odong.relay.util.LabelHelper;
+import com.odong.relay.util.GuiHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -151,7 +151,8 @@ public class MenuBar {
     private Map<String, JMenu> menus;
     private Map<String, JMenuItem> items;
     @Resource
-    private LabelHelper labelHelper;
+    private GuiHelper labelHelper;
+    /*
     @Resource
     private Window window;
     @Resource
@@ -166,6 +167,7 @@ public class MenuBar {
     private ToolBar toolBar;
     @Resource
     private SerialHelper serialHelper;
+    */
     private final static Logger logger = LoggerFactory.getLogger(MenuBar.class);
 
     public void setSerialHelper(SerialHelper serialHelper) {
@@ -200,7 +202,7 @@ public class MenuBar {
         return menuBar;
     }
 
-    public void setLabelHelper(LabelHelper labelHelper) {
+    public void setLabelHelper(GuiHelper labelHelper) {
         this.labelHelper = labelHelper;
     }
 }

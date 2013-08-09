@@ -1,9 +1,9 @@
 package com.odong.relay.widget;
 
-import com.odong.relay.util.LabelHelper;
+import com.odong.relay.job.TaskJob;
+import com.odong.relay.util.GuiHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -14,7 +14,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -25,6 +24,12 @@ import java.util.Map;
  */
 @Component
 public class ToolBar {
+
+    public void setText() {
+        for (String s : buttons.keySet()) {
+            buttons.get(s).setText(labelHelper.getMessage("button.port", locale) + getButtonPort(s));
+        }
+    }
 
     @PostConstruct
     void init() {
@@ -47,7 +52,7 @@ public class ToolBar {
     }
 
     private String getButtonName(int port) {
-        return "button_" + port;
+        return "toolbar_" + port;
     }
 
     private int getButtonPort(String name) {
@@ -59,18 +64,6 @@ public class ToolBar {
         buttons.get(getButtonName(i)).setBackground(on ? Color.green : new JButton().getBackground());
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
-        for (String s : buttons.keySet()) {
-            buttons.get(s).setEnabled(enable);
-        }
-    }
-
-    public void setLocale(Locale locale) {
-        for (String s : buttons.keySet()) {
-            buttons.get(s).setText(labelHelper.getMessage("button.port", locale) + getButtonPort(s));
-        }
-    }
 
     private void initEvents() {
         MouseListener listener = new MouseAdapter() {
@@ -94,28 +87,17 @@ public class ToolBar {
 
     private JToolBar toolBar;
     private Map<String, JButton> buttons;
-    private boolean enable;
-    @Value("${channel.size}")
-    private int size;
     @Resource
-    private LabelHelper labelHelper;
+    private GuiHelper guiHelper;
     @Resource
-    private CardPanel cardPanel;
+    private TaskJob taskJob;
     private final static Logger logger = LoggerFactory.getLogger(ToolBar.class);
 
-    public void setCardPanel(CardPanel cardPanel) {
-        this.cardPanel = cardPanel;
+    public void setGuiHelper(GuiHelper guiHelper) {
+        this.guiHelper = guiHelper;
     }
 
-    public JToolBar get() {
-        return toolBar;
-    }
-
-    public void setLabelHelper(LabelHelper labelHelper) {
-        this.labelHelper = labelHelper;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
+    public void setTaskJob(TaskJob taskJob) {
+        this.taskJob = taskJob;
     }
 }

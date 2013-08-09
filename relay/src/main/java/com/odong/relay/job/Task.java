@@ -10,6 +10,18 @@ import java.util.Date;
  * Time: 下午11:30
  */
 public class Task implements Serializable {
+    public static String getName(String portName, int channel) {
+        return String.format("serial://%s/%d", portName, channel);
+    }
+
+    public static String getPortName(String name) {
+        return name.split("/")[2];
+    }
+
+    public static int getChannel(String name) {
+        return Integer.parseInt(name.split("/")[3]);
+    }
+
     public enum Type {
         ON_OFF
     }
@@ -19,7 +31,9 @@ public class Task implements Serializable {
     }
 
     private static final long serialVersionUID = -6708892526002678347L;
-    private int port;
+    private String id;
+    private String portName;
+    private int channel;
     private int onSpace;
     private int offSpace;
     private Date begin;
@@ -30,6 +44,14 @@ public class Task implements Serializable {
     private Integer total;
     private int version;
     private State state;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public State getState() {
         return state;
@@ -63,12 +85,20 @@ public class Task implements Serializable {
         this.type = type;
     }
 
-    public int getPort() {
-        return port;
+    public String getPortName() {
+        return portName;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public void setPortName(String portName) {
+        this.portName = portName;
+    }
+
+    public int getChannel() {
+        return channel;
+    }
+
+    public void setChannel(int channel) {
+        this.channel = channel;
     }
 
     public int getOnSpace() {

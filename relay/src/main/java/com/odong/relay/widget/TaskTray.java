@@ -1,6 +1,6 @@
 package com.odong.relay.widget;
 
-import com.odong.relay.util.LabelHelper;
+import com.odong.relay.util.GuiHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -94,7 +94,7 @@ public class TaskTray {
     private String lblShow;
     private String lblHide;
     @Resource
-    private LabelHelper labelHelper;
+    private GuiHelper labelHelper;
     @Resource
     private ExitDialog exitDialog;
     @Resource
@@ -109,7 +109,7 @@ public class TaskTray {
         this.exitDialog = exitDialog;
     }
 
-    public void setLabelHelper(LabelHelper labelHelper) {
+    public void setLabelHelper(GuiHelper labelHelper) {
         this.labelHelper = labelHelper;
     }
 }

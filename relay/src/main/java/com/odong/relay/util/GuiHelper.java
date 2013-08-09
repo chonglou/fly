@@ -1,0 +1,127 @@
+package com.odong.relay.util;
+
+import com.odong.relay.MyException;
+import com.odong.relay.serial.Command;
+import com.odong.relay.serial.SerialUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.swing.*;
+import java.awt.*;
+import java.util.Locale;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: flamen
+ * Date: 13-8-7
+ * Time: 上午11:17
+ */
+@Component
+public class GuiHelper {
+    public void showCard(Command.Type type) {
+        if (type == null) {
+            cardPanel.setVisible(false);
+            return;
+        }
+        //FIXME 显示选项卡页面
+    }
+
+    public void showExitDialog() {
+        switch (JOptionPane.showConfirmDialog(
+                window,
+                getMessage("dialog.exit.message"),
+                getMessage("dialog.exit.title"),
+                JOptionPane.YES_NO_OPTION)) {
+            case JOptionPane.YES_OPTION:
+                if (serialUtil.hasOpen()) {
+                    showErrorDialog("stillOpen");
+                } else {
+                    //TODO 停止Spring容器
+                    logger.info("停止");
+                    System.exit(0);
+                }
+
+                break;
+        }
+    }
+
+    public void showErrorDialog(MyException.Type type) {
+        JOptionPane.showMessageDialog(window,
+                getMessage("exception." + type.name()),
+                type.name(),
+                JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void showErrorDialog(String key) {
+        JOptionPane.showMessageDialog(window,
+                getMessage("dialog." + key + ".message"),
+                getMessage("dialog." + key + ".title"),
+                JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void showInfoDialog(String key) {
+        JOptionPane.showMessageDialog(window,
+                getMessage("dialog." + key + ".message"),
+                getMessage("dialog." + key + ".title"),
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+
+    public Image getIconImage() {
+        return Toolkit.getDefaultToolkit().getImage(getClass().getResource("/tray.png"));
+    }
+
+    public String getMessage(String key) {
+        return messageSource.getMessage("lbl." + key, null, locale);
+    }
+
+    @PostConstruct
+    void init() {
+        locale = Locale.SIMPLIFIED_CHINESE;
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            logger.error("加载系统风格失败", e);
+        }
+        window = new JFrame();
+
+        //FIXME 初始化cardPanel
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+        this.window.setTitle(getMessage("title"));
+    }
+
+    @Resource
+    private MessageSource messageSource;
+    @Resource
+    private SerialUtil serialUtil;
+    private Locale locale;
+    private JFrame window;
+    private JPanel cardPanel;
+    private final static Logger logger = LoggerFactory.getLogger(GuiHelper.class);
+
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public JFrame getWindow() {
+        return window;
+    }
+
+    public void setSerialUtil(SerialUtil serialUtil) {
+        this.serialUtil = serialUtil;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
+}
