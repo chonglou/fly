@@ -46,7 +46,7 @@ public class Task implements Serializable {
     private Date lastRun;
     private Date created;
     private Type type;
-    private Integer total;
+    private int total;
     private int version;
     private State state;
 
@@ -66,11 +66,11 @@ public class Task implements Serializable {
         this.state = state;
     }
 
-    public Integer getTotal() {
+    public int getTotal() {
         return total;
     }
 
-    public void setTotal(Integer total) {
+    public void setTotal(int total) {
         this.total = total;
     }
 

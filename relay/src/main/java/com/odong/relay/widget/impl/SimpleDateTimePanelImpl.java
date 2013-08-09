@@ -125,7 +125,6 @@ public class SimpleDateTimePanelImpl extends DateTimePanel {
         comboBoxes.get(name).setSelectedItem(val);
     }
 
-    private JPanel panel;
     private Map<String, JLabel> labels;
     private Map<String, JComboBox> comboBoxes;
 

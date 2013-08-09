@@ -29,7 +29,7 @@ import java.util.Map;
  * Date: 13-8-9
  * Time: 下午12:46
  */
-@Component("task.panel.on_off")
+@Component
 public class OnOffTaskPanel extends TaskPanel {
     public OnOffTaskPanel() {
         super();
@@ -37,7 +37,15 @@ public class OnOffTaskPanel extends TaskPanel {
 
     @Override
     public void show(Task task) {
+        this.taskId = task.getId();
+        this.portName = task.getPortName();
+        this.channel = task.getChannel();
         title.setText("<html><h1>" + guiHelper.getMessage("channel.task.title") + task.toString() + "</h1></html>");
+        onSpace.setText(Integer.toString(task.getOnSpace()));
+        offSpace.setText(Integer.toString(task.getOffSpace()));
+        total.setText(task.getTotal()==0?null:Integer.toString(task.getTotal()));
+        beginTime.setDate(task.getBegin(), 0);
+        endTime.setDate(task.getEnd(), 0);
     }
 
     @PostConstruct
@@ -75,11 +83,11 @@ public class OnOffTaskPanel extends TaskPanel {
     private void setOn(boolean on) {
         if (on) {
             try {
-                int total = Integer.parseInt(this.total.getText());
+                String total = this.total.getText();
                 taskJob.putTask(portName, channel, beginTime.getDate(), endTime.getDate(),
                         Integer.parseInt(onSpace.getText()),
                         Integer.parseInt(offSpace.getText()),
-                        total == 0 ? null : total);
+                        total == null ? 0 : Integer.parseInt(total));
             } catch (Exception e) {
                 logger.error("添加任务出错", e);
                 guiHelper.showErrorDialog("inputNonValid");
@@ -250,7 +258,6 @@ public class OnOffTaskPanel extends TaskPanel {
     private Map<String, JButton> buttons;
     private DateTimePanel beginTime;
     private DateTimePanel endTime;
-    private JPanel panel;
     private JTextField onSpace;
     private JTextField offSpace;
     private JTextField total;

@@ -42,11 +42,11 @@ public class Window {
 
     public void setLocale(Locale locale) {
         guiHelper.setLocale(locale);
-        cardPanel.setText();
         toolBar.setText();
         menuBar.setText();
         serialDialog.setText();
         taskTray.setText();
+        cardPanel.setText();
     }
 
 

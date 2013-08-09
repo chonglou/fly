@@ -29,7 +29,7 @@ public class TaskRunner implements Runnable {
         if (serialUtil.isOpen(task.getPortName())) {
             if (now.compareTo(task.getBegin()) >= 0 && now.compareTo(task.getEnd()) <= 0) {
                 //超过运行次数
-                if (task.getTotal() != null && task.getTotal() >= task.getVersion()) {
+                if (task.getTotal() != 0 && task.getTotal() >= task.getVersion()) {
                     return;
                 }
                 //时间间隔

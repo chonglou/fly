@@ -25,7 +25,6 @@ import java.util.Map;
  * Time: 上午11:36
  */
 @Component
-@Lazy
 public class MenuBar {
     @PostConstruct
     void init() {

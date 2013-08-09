@@ -24,7 +24,7 @@ import java.util.UUID;
 @Component("job.taskTarget")
 public class TaskJob {
     public String[] getTaskList() {
-        return tasks.toArray(new String[1]);
+        return tasks.toArray(new String[tasks.size()]);
     }
 
     public void putTask(String portName, int channel, Date begin, Date end, int onSpace, int offSpace, Integer total) {

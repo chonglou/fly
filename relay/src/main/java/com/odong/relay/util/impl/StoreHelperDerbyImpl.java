@@ -157,7 +157,7 @@ public class StoreHelperDerbyImpl implements StoreHelper {
         }
     }
 
-
+    /*
     @PreDestroy
     void destroy() {
         try {
@@ -168,6 +168,7 @@ public class StoreHelperDerbyImpl implements StoreHelper {
             logger.error("关闭数据库出错", e);
         }
     }
+    */
 
     private void execute(String sql, Object... params) {
         try (PreparedStatement s = connection.prepareStatement(sql)) {

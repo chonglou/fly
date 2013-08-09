@@ -51,7 +51,6 @@ public class CardPanel {
         layout = new CardLayout();
         panel.setLayout(layout);
 
-        onOffPanel = new OnOffTaskPanel();
         panel.add(onOffPanel.get(), onOffPanel.name());
         panel.setVisible(false);
     }
@@ -67,25 +66,18 @@ public class CardPanel {
 
     private JPanel panel;
     private CardLayout layout;
+    @Resource
     private OnOffTaskPanel onOffPanel;
     @Resource
-    private GuiHelper guiHelper;
-    @Resource
     private StoreHelper storeHelper;
-    @Resource
-    private TaskJob taskJob;
     private final static Logger logger = LoggerFactory.getLogger(CardPanel.class);
 
-
-    public void setGuiHelper(GuiHelper guiHelper) {
-        this.guiHelper = guiHelper;
+    public void setOnOffPanel(OnOffTaskPanel onOffPanel) {
+        this.onOffPanel = onOffPanel;
     }
 
     public void setStoreHelper(StoreHelper storeHelper) {
         this.storeHelper = storeHelper;
     }
 
-    public void setTaskJob(TaskJob taskJob) {
-        this.taskJob = taskJob;
-    }
 }
