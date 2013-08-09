@@ -13,7 +13,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -31,7 +30,7 @@ public class TaskTray {
             return;
         }
 
-        Image img = labelHelper.getIconImage();
+        Image img = guiHelper.getIconImage();
 
         items = new HashMap<>();
         PopupMenu menu = new PopupMenu();
@@ -51,17 +50,17 @@ public class TaskTray {
         }
     }
 
-    public void setLocale(Locale locale) {
-        icon.setToolTip(labelHelper.getMessage("title", locale));
-        items.get("exit").setLabel(labelHelper.getMessage("trayItem.exit", locale));
-        items.get("win").setLabel(labelHelper.getMessage("trayItem.hide", locale));
-        lblShow = labelHelper.getMessage("trayItem.show", locale);
-        lblHide = labelHelper.getMessage("trayItem.hide", locale);
+    public void setText() {
+        icon.setToolTip(guiHelper.getMessage("title"));
+        items.get("exit").setLabel(guiHelper.getMessage("trayItem.exit"));
+        items.get("win").setLabel(guiHelper.getMessage("trayItem.hide"));
+        lblShow = guiHelper.getMessage("trayItem.show");
+        lblHide = guiHelper.getMessage("trayItem.hide");
     }
 
     public void show() {
-        boolean show = window.get().isVisible();
-        window.show(!show);
+        boolean show = guiHelper.getWindow().isVisible();
+        guiHelper.show(!show);
         items.get("win").setLabel(show ? lblShow : lblHide);
     }
 
@@ -70,7 +69,7 @@ public class TaskTray {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == items.get("exit")) {
-                    exitDialog.show();
+                    guiHelper.showExitDialog();
                 } else if (e.getSource() == items.get("win")) {
                     show();
                 }
@@ -94,22 +93,10 @@ public class TaskTray {
     private String lblShow;
     private String lblHide;
     @Resource
-    private GuiHelper labelHelper;
-    @Resource
-    private ExitDialog exitDialog;
-    @Resource
-    private Window window;
+    private GuiHelper guiHelper;
     private final static Logger logger = LoggerFactory.getLogger(TaskTray.class);
 
-    public void setWindow(Window window) {
-        this.window = window;
-    }
-
-    public void setExitDialog(ExitDialog exitDialog) {
-        this.exitDialog = exitDialog;
-    }
-
-    public void setLabelHelper(GuiHelper labelHelper) {
-        this.labelHelper = labelHelper;
+    public void setGuiHelper(GuiHelper guiHelper) {
+        this.guiHelper = guiHelper;
     }
 }

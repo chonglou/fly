@@ -35,8 +35,8 @@ public class Window {
 
         initEvent();
         setLocale(Locale.SIMPLIFIED_CHINESE);
-        show(true);
 
+        guiHelper.show(true);
     }
 
 
@@ -45,24 +45,8 @@ public class Window {
         cardPanel.setText();
         toolBar.setText();
         menuBar.setText();
-        exitDialog.setText();
         serialDialog.setText();
         taskTray.setText();
-    }
-
-    public void show(boolean visible) {
-        JFrame frame = guiHelper.getWindow();
-        if (visible) {
-            //frame.setLocationRelativeTo( null);
-            Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-            //frame.setSize(d.width / 2, d.height / 2);
-            frame.setSize(800, 600);
-            frame.setLocation(d.width / 4, d.height / 4);
-
-            //frame.pack();
-
-        }
-        frame.setVisible(visible);
     }
 
 
@@ -77,7 +61,7 @@ public class Window {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                exitDialog.show();
+                guiHelper.showExitDialog();
             }
         });
     }
@@ -91,8 +75,6 @@ public class Window {
     private CardPanel cardPanel;
     @Resource
     private MenuBar menuBar;
-    @Resource
-    private ExitDialog exitDialog;
     @Resource
     private SerialDialog serialDialog;
     @Resource
@@ -114,10 +96,6 @@ public class Window {
 
     public void setMenuBar(MenuBar menuBar) {
         this.menuBar = menuBar;
-    }
-
-    public void setExitDialog(ExitDialog exitDialog) {
-        this.exitDialog = exitDialog;
     }
 
     public void setSerialDialog(SerialDialog serialDialog) {

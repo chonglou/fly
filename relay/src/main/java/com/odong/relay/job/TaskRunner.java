@@ -16,8 +16,8 @@ import java.util.Date;
  * Time: 上午11:18
  */
 public class TaskRunner implements Runnable {
-    public TaskRunner(Task task, StoreHelper storeHelper, SerialUtil serialUtil) {
-        this.task = task;
+    public TaskRunner(String tid, StoreHelper storeHelper, SerialUtil serialUtil) {
+        this.tid = tid;
         this.serialUtil = serialUtil;
         this.storeHelper = storeHelper;
     }
@@ -25,6 +25,7 @@ public class TaskRunner implements Runnable {
     @Override
     public void run() {
         final Date now = new Date();
+        Task task = storeHelper.getTask(tid);
         if (serialUtil.isOpen(task.getPortName())) {
             if (now.compareTo(task.getBegin()) >= 0 && now.compareTo(task.getEnd()) <= 0) {
                 //超过运行次数
@@ -65,6 +66,6 @@ public class TaskRunner implements Runnable {
 
     private SerialUtil serialUtil;
     private StoreHelper storeHelper;
-    private Task task;
+    private String tid;
     private final static Logger logger = LoggerFactory.getLogger(TaskRunner.class);
 }

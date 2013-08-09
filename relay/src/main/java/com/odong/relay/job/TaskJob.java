@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -23,10 +23,14 @@ import java.util.UUID;
  */
 @Component("job.taskTarget")
 public class TaskJob {
-    public void putTask(String portName, int channel, Date begin, Date end, int onSpace, int offSpace, Integer total) {
+    public String[] getTaskList() {
+        return tasks.toArray(new String[1]);
+    }
 
+    public void putTask(String portName, int channel, Date begin, Date end, int onSpace, int offSpace, Integer total) {
         Task t = new Task();
-        t.setId(UUID.randomUUID().toString());
+        String id = UUID.randomUUID().toString();
+        t.setId(id);
         t.setPortName(portName);
         t.setChannel(channel);
         t.setBegin(begin);
@@ -37,28 +41,29 @@ public class TaskJob {
         t.setCreated(new Date());
         t.setType(Task.Type.ON_OFF);
         t.setState(Task.State.OFF);
-        taskMap.put(Task.getName(portName, channel), t);
+        storeHelper.addTask(t);
+        tasks.add(id);
     }
 
 
-    public void popTask(String portName, int channel) {
-        taskMap.remove(Task.getName(portName, channel));
+    public void popTask(String id) {
+        tasks.remove(id);
     }
 
     public void execute() {
         //logger.debug(jsonHelper.object2json(taskMap));
-        for (Task t : taskMap.values()) {
-            taskExecutor.execute(new TaskRunner(t, storeHelper, serialUtil));
+        for (String tid : tasks) {
+            taskExecutor.execute(new TaskRunner(tid, storeHelper, serialUtil));
         }
     }
 
 
     @PostConstruct
     void init() {
-        taskMap = new HashMap<>();
+        tasks = new LinkedHashSet<>();
     }
 
-    Map<String, Task> taskMap;
+    private Set<String> tasks;
     @Resource
     private StoreHelper storeHelper;
     @Resource

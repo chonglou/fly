@@ -1,8 +1,10 @@
 package com.odong.relay.util;
 
+import com.odong.relay.job.Task;
 import com.odong.relay.model.Item;
 import com.odong.relay.model.Log;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,15 +14,21 @@ import java.util.List;
  * Time: 下午10:34
  */
 public interface StoreHelper {
+    void addTask(Task t);
+
+    Task getTask(String id);
+
+    List<Task> listTask(Date begin, Date end);
+
     void put(String key, String val);
 
     String get(String key);
 
     void pop(String key);
 
-    void addItem(String task, String request, String response);
+    void addItem(String taskId, String request, String response);
 
-    List<Item> listItem(String task);
+    List<Item> listItem(String taskId);
 
     List<Log> listLog(int len);
 

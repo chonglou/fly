@@ -35,7 +35,6 @@ public class SerialDialog {
 
     public void hide() {
         dialog.setVisible(false);
-        guiHelper.showCard(null);
     }
 
     public void setText() {

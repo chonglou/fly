@@ -10,6 +10,11 @@ import java.util.Date;
  * Time: 下午11:30
  */
 public class Task implements Serializable {
+    @Override
+    public String toString() {
+        return portName + ":" + channel;
+    }
+
     public static String getName(String portName, int channel) {
         return String.format("serial://%s/%d", portName, channel);
     }

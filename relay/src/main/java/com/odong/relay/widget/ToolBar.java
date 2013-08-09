@@ -1,7 +1,9 @@
 package com.odong.relay.widget;
 
+import com.odong.relay.job.Task;
 import com.odong.relay.job.TaskJob;
 import com.odong.relay.util.GuiHelper;
+import com.odong.relay.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -9,12 +11,9 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,74 +23,61 @@ import java.util.Map;
  */
 @Component
 public class ToolBar {
+    public void show() {
+        toolBar.removeAll();
+        toolBar.addSeparator();
+
+        MouseListener listener = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JButton btn = (JButton) e.getSource();
+                cardPanel.show(btn.getName());
+            }
+        };
+        for (String tid : taskJob.getTaskList()) {
+            Task task = storeHelper.getTask(tid);
+            JButton btn = new JButton(task.toString());
+            btn.setName(task.getId());
+            btn.addMouseListener(listener);
+            toolBar.add(btn);
+        }
+
+        toolBar.addSeparator();
+    }
 
     public void setText() {
-        for (String s : buttons.keySet()) {
-            buttons.get(s).setText(labelHelper.getMessage("button.port", locale) + getButtonPort(s));
-        }
+
+    }
+
+    public JToolBar get() {
+        return toolBar;
     }
 
     @PostConstruct
     void init() {
         toolBar = new JToolBar();
         toolBar.setFloatable(false);
-        toolBar.addSeparator();
-
-        buttons = new HashMap<>();
-        for (int i = 0; i < size; i++) {
-            JButton btn = new JButton();
-            String name = getButtonName(i + 1);
-            btn.setName(name);
-            toolBar.add(btn);
-            toolBar.addSeparator();
-            buttons.put(name, btn);
-        }
-
-        initEvents();
-
-    }
-
-    private String getButtonName(int port) {
-        return "toolbar_" + port;
-    }
-
-    private int getButtonPort(String name) {
-        return Integer.parseInt(name.split("_")[1]);
-    }
-
-    public void setOn(int i, boolean on) {
-
-        buttons.get(getButtonName(i)).setBackground(on ? Color.green : new JButton().getBackground());
-    }
-
-
-    private void initEvents() {
-        MouseListener listener = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                JButton btn = (JButton) e.getSource();
-
-                if (btn.isEnabled()) {
-                    cardPanel.show(getButtonPort(btn.getName()));
-                    setEnable(enable);
-                    btn.setEnabled(false);
-
-                }
-
-            }
-        };
-        for (String s : buttons.keySet()) {
-            buttons.get(s).addMouseListener(listener);
-        }
+        show();
     }
 
     private JToolBar toolBar;
-    private Map<String, JButton> buttons;
     @Resource
     private GuiHelper guiHelper;
     @Resource
     private TaskJob taskJob;
+    @Resource
+    private CardPanel cardPanel;
+    @Resource
+    private StoreHelper storeHelper;
     private final static Logger logger = LoggerFactory.getLogger(ToolBar.class);
+
+    public void setCardPanel(CardPanel cardPanel) {
+        this.cardPanel = cardPanel;
+    }
+
+    public void setStoreHelper(StoreHelper storeHelper) {
+        this.storeHelper = storeHelper;
+    }
 
     public void setGuiHelper(GuiHelper guiHelper) {
         this.guiHelper = guiHelper;

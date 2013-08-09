@@ -1,7 +1,6 @@
 package com.odong.relay.util;
 
 import com.odong.relay.MyException;
-import com.odong.relay.serial.Command;
 import com.odong.relay.serial.SerialUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +21,6 @@ import java.util.Locale;
  */
 @Component
 public class GuiHelper {
-    public void showCard(Command.Type type) {
-        if (type == null) {
-            cardPanel.setVisible(false);
-            return;
-        }
-        //FIXME 显示选项卡页面
-    }
 
     public void showExitDialog() {
         switch (JOptionPane.showConfirmDialog(
@@ -79,6 +71,26 @@ public class GuiHelper {
         return messageSource.getMessage("lbl." + key, null, locale);
     }
 
+
+    public void show(boolean visible) {
+        if (visible) {
+            //frame.setLocationRelativeTo( null);
+            Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+            //frame.setSize(d.width / 2, d.height / 2);
+            window.setSize(800, 600);
+            window.setLocation(d.width / 4, d.height / 4);
+
+            //frame.pack();
+
+        }
+        window.setVisible(visible);
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+        this.window.setTitle(getMessage("title"));
+    }
+
     @PostConstruct
     void init() {
         locale = Locale.SIMPLIFIED_CHINESE;
@@ -89,14 +101,8 @@ public class GuiHelper {
             logger.error("加载系统风格失败", e);
         }
         window = new JFrame();
-
-        //FIXME 初始化cardPanel
     }
 
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-        this.window.setTitle(getMessage("title"));
-    }
 
     @Resource
     private MessageSource messageSource;
@@ -104,7 +110,6 @@ public class GuiHelper {
     private SerialUtil serialUtil;
     private Locale locale;
     private JFrame window;
-    private JPanel cardPanel;
     private final static Logger logger = LoggerFactory.getLogger(GuiHelper.class);
 
 

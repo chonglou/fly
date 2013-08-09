@@ -1,5 +1,7 @@
 package com.odong.relay.util.impl;
 
+import com.odong.core.util.JsonHelper;
+import com.odong.relay.job.Task;
 import com.odong.relay.model.Item;
 import com.odong.relay.model.Log;
 import com.odong.relay.model.Setting;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +25,31 @@ import java.util.List;
  */
 @Service
 public class StoreHelperDerbyImpl implements StoreHelper {
+    @Override
+    public void addTask(Task t) {
+        put(taskId2Key(t.getId()), jsonHelper.object2json(t));
+    }
+
+    @Override
+    public Task getTask(String id) {
+        return jsonHelper.json2object(get(taskId2Key(id)), Task.class);  //
+    }
+
+    @Override
+    public List<Task> listTask(java.util.Date begin, java.util.Date end) {
+        final List<Task> tasks = new ArrayList<>();
+        execute(String.format("SELECT k,v FROM %s WHERE k LIKE '%s%%' AND created>=? AND created<=?", settingTableName, "task://"),
+                new Object[]{begin, end},
+                null,
+                new Callback() {
+                    @Override
+                    public void loop(ResultSet rs) throws SQLException {
+                        tasks.add(jsonHelper.json2object(rs.getString("v"), Task.class));
+                    }
+                });
+        return tasks;  //
+    }
+
     @Override
     public void put(String key, String val) {
         execute(get(key) == null ?
@@ -49,14 +77,14 @@ public class StoreHelperDerbyImpl implements StoreHelper {
     }
 
     @Override
-    public void addItem(String task, String request, String response) {
-        execute(String.format("INSERT INTO %s(task,request,response) VALUES('%s','%s','%s')", itemTableName, task, request, response));
+    public void addItem(String taskId, String request, String response) {
+        execute(String.format("INSERT INTO %s(task,request,response) VALUES('%s','%s','%s')", itemTableName, taskId, request, response));
     }
 
     @Override
-    public List<Item> listItem(String task) {
+    public List<Item> listItem(String taskId) {
         final List<Item> items = new ArrayList<>();
-        execute(String.format("SELECT id,task,request,response,created FROM '%s' WHERE task='%s' ", itemTableName, task),
+        execute(String.format("SELECT id,task,request,response,created FROM '%s' WHERE task='%s' ", itemTableName, taskId),
                 null,
                 new Callback() {
                     @Override
@@ -199,6 +227,10 @@ public class StoreHelperDerbyImpl implements StoreHelper {
         }
     }
 
+    private String taskId2Key(String id) {
+        return "task://" + id;
+    }
+
     interface Callback {
         void loop(ResultSet rs) throws SQLException;
     }
@@ -209,7 +241,11 @@ public class StoreHelperDerbyImpl implements StoreHelper {
     private final static String logTableName = "LOGS";
     private final static String settingTableName = "ENV";
     private final static String itemTableName = "ITEMS";
+    @Resource
+    private JsonHelper jsonHelper;
     private final static Logger logger = LoggerFactory.getLogger(StoreHelperDerbyImpl.class);
 
-
+    public void setJsonHelper(JsonHelper jsonHelper) {
+        this.jsonHelper = jsonHelper;
+    }
 }

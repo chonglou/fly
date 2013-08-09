@@ -1,10 +1,12 @@
 package com.odong.relay.widget;
 
 
-import com.odong.relay.serial.SerialHelper;
+import com.odong.relay.job.TaskJob;
 import com.odong.relay.util.GuiHelper;
+import com.odong.relay.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -23,6 +25,7 @@ import java.util.Map;
  * Time: 上午11:36
  */
 @Component
+@Lazy
 public class MenuBar {
     @PostConstruct
     void init() {
@@ -41,21 +44,22 @@ public class MenuBar {
         for (String s : items.keySet()) {
             bindEvent(s);
         }
-
-        showOpenClose();
     }
 
 
-    public void setLocale(Locale locale) {
+    public void setText() {
         for (String s : menus.keySet()) {
-            menus.get(s).setText(labelHelper.getMessage("menu." + s, locale));
+            menus.get(s).setText(guiHelper.getMessage("menu." + s));
         }
 
         for (String s : items.keySet()) {
-            items.get(s).setText(labelHelper.getMessage("menuItem." + s, locale));
+            items.get(s).setText(guiHelper.getMessage("menuItem." + s));
         }
-        //logger.debug(locale.toString());
-        items.get(locale.toString()).setSelected(true);
+        items.get(guiHelper.getLocale().toString()).setSelected(true);
+    }
+
+    public JMenuBar get() {
+        return menuBar;
     }
 
     private void addRadioMenu(String menu, String... items) {
@@ -100,38 +104,27 @@ public class MenuBar {
     }
 
 
-    public void showOpenClose() {
-        boolean enable = serialHelper.isOpen();
-        items.get("open").setEnabled(!enable);
-        items.get("close").setEnabled(enable);
-        toolBar.setEnable(enable);
-    }
-
     private void bindEvent(String s) {
         items.get(s).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JMenuItem item = (JMenuItem) e.getSource();
 
-
                 switch (item.getName().split("\\-")[1]) {
                     case "open":
-                        serialDialog.open();
-                        showOpenClose();
+                        //TODO Open
                         break;
                     case "close":
-                        cardPanel.close();
-                        serialDialog.close();
-                        showOpenClose();
+                        //TODO close
                         break;
                     case "doc":
-                        messageDialog.info("doc");
+                        guiHelper.showInfoDialog("doc");
                         break;
                     case "aboutMe":
-                        messageDialog.info("aboutMe");
+                        guiHelper.showInfoDialog("aboutMe");
                         break;
                     case "exit":
-                        exitDialog.show();
+                        guiHelper.showExitDialog();
                         break;
                     case "en_US":
                         window.setLocale(Locale.US);
@@ -151,58 +144,28 @@ public class MenuBar {
     private Map<String, JMenu> menus;
     private Map<String, JMenuItem> items;
     @Resource
-    private GuiHelper labelHelper;
-    /*
+    private GuiHelper guiHelper;
+    @Resource
+    private StoreHelper storeHelper;
+    @Resource
+    private TaskJob taskJob;
     @Resource
     private Window window;
-    @Resource
-    private ExitDialog exitDialog;
-    @Resource
-    private SerialDialog serialDialog;
-    @Resource
-    private MessageDialog messageDialog;
-    @Resource
-    private CardPanel cardPanel;
-    @Resource
-    private ToolBar toolBar;
-    @Resource
-    private SerialHelper serialHelper;
-    */
     private final static Logger logger = LoggerFactory.getLogger(MenuBar.class);
-
-    public void setSerialHelper(SerialHelper serialHelper) {
-        this.serialHelper = serialHelper;
-    }
-
-    public void setCardPanel(CardPanel cardPanel) {
-        this.cardPanel = cardPanel;
-    }
-
-    public void setToolBar(ToolBar toolBar) {
-        this.toolBar = toolBar;
-    }
-
-    public void setSerialDialog(SerialDialog serialDialog) {
-        this.serialDialog = serialDialog;
-    }
-
-    public void setMessageDialog(MessageDialog messageDialog) {
-        this.messageDialog = messageDialog;
-    }
-
-    public void setExitDialog(ExitDialog exitDialog) {
-        this.exitDialog = exitDialog;
-    }
 
     public void setWindow(Window window) {
         this.window = window;
     }
 
-    public JMenuBar get() {
-        return menuBar;
+    public void setGuiHelper(GuiHelper guiHelper) {
+        this.guiHelper = guiHelper;
     }
 
-    public void setLabelHelper(GuiHelper labelHelper) {
-        this.labelHelper = labelHelper;
+    public void setStoreHelper(StoreHelper storeHelper) {
+        this.storeHelper = storeHelper;
+    }
+
+    public void setTaskJob(TaskJob taskJob) {
+        this.taskJob = taskJob;
     }
 }

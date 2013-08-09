@@ -16,7 +16,16 @@ import java.util.Map;
  * Date: 13-8-9
  * Time: 上午10:28
  */
-public class SimpleDateTimePanelImpl implements DateTimePanel {
+public class SimpleDateTimePanelImpl extends DateTimePanel {
+
+    public SimpleDateTimePanelImpl() {
+        super();
+        labels = new HashMap<>();
+        comboBoxes = new HashMap<>();
+        initPanel();
+        bindEvent();
+    }
+
     @Override
     public void setText(Map<String, String> map) {
         for (String s : labels.keySet()) {
@@ -48,16 +57,9 @@ public class SimpleDateTimePanelImpl implements DateTimePanel {
                 .toDate();
     }
 
-    public SimpleDateTimePanelImpl() {
-        labels = new HashMap<>();
-        comboBoxes = new HashMap<>();
-        initPanel();
-        bindEvent();
-    }
 
-    private void initPanel(){
-
-        panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    private void initPanel() {
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
         java.util.List<Integer> list = new ArrayList<>();
         for (int i = 2013; i <= 2050; i++) {
@@ -97,7 +99,8 @@ public class SimpleDateTimePanelImpl implements DateTimePanel {
         }
         addItem("second", list.toArray(new Integer[1]));
     }
-    private void bindEvent(){
+
+    private void bindEvent() {
         //TODO 月份 天数对应
     }
 

@@ -1,20 +1,19 @@
 package com.odong.relay.widget;
 
+import com.odong.relay.job.Task;
 import com.odong.relay.job.TaskJob;
 import com.odong.relay.util.GuiHelper;
 import com.odong.relay.util.StoreHelper;
+import com.odong.relay.widget.task.OnOffTaskPanel;
+import com.odong.relay.widget.task.TaskPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,97 +23,69 @@ import java.util.Map;
  */
 @Component
 public class CardPanel {
-    public synchronized void close() {
-        for (String s : channelPanels.keySet()) {
-            ChannelPanel cp = channelPanels.get(s);
-            if (cp.isOn()) {
-                cp.setOn(false);
-            }
-        }
-    }
 
     public synchronized void hide() {
         panel.setVisible(false);
     }
 
-    public synchronized void show(int port) {
-        String name = port2name(port);
+    public synchronized void show(String taskId) {
+        Task task = storeHelper.getTask(taskId);
+        String name = task.getType().name();
         layout.show(panel, name);
         panel.setVisible(true);
-        channelPanels.get(name).refreshLogList();
 
+        TaskPanel tp;
+        switch (task.getType()) {
+            case ON_OFF:
+                tp = onOffPanel;
+                break;
+            default:
+                return;
+        }
+        tp.show(task);
     }
 
     @PostConstruct
     void init() {
-        channelPanels = new HashMap<>();
         panel = new JPanel();
         layout = new CardLayout();
         panel.setLayout(layout);
-        for (int i = 1; i <= size; i++) {
-            String name = port2name(i);
-            ChannelPanel cp = new ChannelPanel(name, i, locale, toolBar, labelHelper, logService, messageDialog, taskJob);
-            channelPanels.put(name, cp);
-            panel.add(cp.get(), name);
-        }
+
+        onOffPanel = new OnOffTaskPanel();
+        panel.add(onOffPanel.get(), onOffPanel.name());
         panel.setVisible(false);
     }
 
-    public void setLocale(Locale locale) {
-        for (String s : channelPanels.keySet()) {
-            channelPanels.get(s).setLocale(locale);
-        }
-        this.locale = locale;
-
+    public void setText() {
+        onOffPanel.setText();
     }
 
-    private String port2name(int port) {
-        return "panel-" + port;
+
+    public JPanel get() {
+        return panel;
     }
 
     private JPanel panel;
     private CardLayout layout;
-    private Map<String, ChannelPanel> channelPanels;
-    private Locale locale;
+    private OnOffTaskPanel onOffPanel;
     @Resource
-    private GuiHelper labelHelper;
+    private GuiHelper guiHelper;
     @Resource
-    private StoreHelper logService;
-    @Resource
-    private ToolBar toolBar;
+    private StoreHelper storeHelper;
     @Resource
     private TaskJob taskJob;
-    @Resource
-    private MessageDialog messageDialog;
-    @Value("${channel.size}")
-    private int size;
     private final static Logger logger = LoggerFactory.getLogger(CardPanel.class);
 
-    public void setMessageDialog(MessageDialog messageDialog) {
-        this.messageDialog = messageDialog;
+
+    public void setGuiHelper(GuiHelper guiHelper) {
+        this.guiHelper = guiHelper;
+    }
+
+    public void setStoreHelper(StoreHelper storeHelper) {
+        this.storeHelper = storeHelper;
     }
 
     public void setTaskJob(TaskJob taskJob) {
         this.taskJob = taskJob;
-    }
-
-    public void setToolBar(ToolBar toolBar) {
-        this.toolBar = toolBar;
-    }
-
-    public void setLogService(StoreHelper logService) {
-        this.logService = logService;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public void setLabelHelper(GuiHelper labelHelper) {
-        this.labelHelper = labelHelper;
-    }
-
-    public JPanel get() {
-        return panel;
     }
 }

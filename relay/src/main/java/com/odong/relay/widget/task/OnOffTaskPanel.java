@@ -1,105 +1,110 @@
-package com.odong.relay.widget;
+package com.odong.relay.widget.task;
 
 import com.odong.relay.job.Task;
 import com.odong.relay.job.TaskJob;
-import com.odong.relay.model.Log;
+import com.odong.relay.model.Item;
+import com.odong.relay.serial.Command;
 import com.odong.relay.util.GuiHelper;
 import com.odong.relay.util.StoreHelper;
+import com.odong.relay.widget.DateTimePanel;
+import com.odong.relay.widget.ToolBar;
+import com.odong.relay.widget.impl.SimpleDateTimePanelImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
  * User: flamen
- * Date: 13-8-7
- * Time: 下午7:29
+ * Date: 13-8-9
+ * Time: 下午12:46
  */
-public class ChannelPanel {
+@Component("task.panel.on_off")
+public class OnOffTaskPanel extends TaskPanel {
+    public OnOffTaskPanel() {
+        super();
+    }
 
-    public ChannelPanel(String name, int port,
-                        Locale locale,
-                        ToolBar toolBar,
-                        GuiHelper labelHelper,
-                        StoreHelper logService,
-                        MessageDialog messageDialog,
-                        TaskJob taskJob) {
-        this.port = port;
-        this.toolBar = toolBar;
-        this.labelHelper = labelHelper;
-        this.logService = logService;
-        this.messageDialog = messageDialog;
-        this.taskJob = taskJob;
+    @Override
+    public void show(Task task) {
+        title.setText("<html><h1>" + guiHelper.getMessage("channel.task.title") + task.toString() + "</h1></html>");
+    }
 
-        panel = new JPanel(new GridBagLayout());
-        panel.setName(name);
-
-        initTaskPanel();
-        initEvents();
-
-        setLocale(locale);
+    @PostConstruct
+    void init() {
 
         buttons.get("on").setEnabled(true);
         buttons.get("off").setEnabled(false);
     }
 
-    public void setLocale(Locale locale) {
+    @Override
+    public String name() {
+        return Command.Type.ON_OFF.name();
+    }
+
+    @Override
+    public void setText() {
         for (String s : labels.keySet()) {
-            labels.get(s).setText(labelHelper.getMessage("channel.task." + s, locale) + "：");
+            labels.get(s).setText(guiHelper.getMessage("channel.task." + s) + "：");
         }
-        beginTime.setLocale(locale);
-        endTime.setLocale(locale);
+
+        Map<String, String> map = new HashMap<>();
+        for (String s : new String[]{"year", "month", "day", "hour", "minute", "second"}) {
+            map.put(s, guiHelper.getMessage("dateTimeP." + s));
+        }
+        beginTime.setText(map);
+        endTime.setText(map);
 
         for (String s : buttons.keySet()) {
-            buttons.get(s).setText(labelHelper.getMessage("button." + s, locale));
+            buttons.get(s).setText(guiHelper.getMessage("button." + s));
         }
 
-        title.setText("<html><h1>" + labelHelper.getMessage("channel.task.title", locale) + port + "</h1></html>");
     }
 
 
-    public void refreshLogList() {
-        logModel.removeAllElements();
-        for (Log l : logService.list(port, 100)) {
-            logModel.addElement(l.toString());
-        }
-    }
-
-    public void setOn(boolean on) {
+    private void setOn(boolean on) {
         if (on) {
             try {
                 int total = Integer.parseInt(this.total.getText());
-                taskJob.putOnOffTask(port, beginTime.toDate(), endTime.toDate(),
+                taskJob.putTask(portName, channel, beginTime.getDate(), endTime.getDate(),
                         Integer.parseInt(onSpace.getText()),
                         Integer.parseInt(offSpace.getText()),
                         total == 0 ? null : total);
             } catch (Exception e) {
-                messageDialog.error("inputNonValid");
                 logger.error("添加任务出错", e);
+                guiHelper.showErrorDialog("inputNonValid");
                 return;
             }
         } else {
-            taskJob.popOnOffTask(port);
+            taskJob.popTask(taskId);
         }
 
         buttons.get("on").setEnabled(!on);
         buttons.get("off").setEnabled(on);
-        toolBar.setOn(port, on);
+
+        toolBar.show();
     }
 
-    public boolean isOn() {
-        return taskJob.getTaskName(port, Task.Type.ON_OFF) == null;
+
+    private void refreshLogList() {
+        logModel.removeAllElements();
+        for (Item l : storeHelper.listItem(taskId)) {
+            logModel.addElement(l.toString());
+        }
     }
 
-    private void initEvents() {
+    @Override
+    protected void initEvents() {
         MouseListener listener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -123,13 +128,13 @@ public class ChannelPanel {
 
     }
 
-
-    private void initTaskPanel() {
+    @Override
+    protected void initPanel() {
         labels = new HashMap<>();
         buttons = new HashMap<>();
 
-        endTime = new DateTimePanel(labelHelper);
-        beginTime = new DateTimePanel(labelHelper);
+        endTime = new SimpleDateTimePanelImpl();
+        beginTime = new SimpleDateTimePanelImpl();
         total = new JTextField("0");
         onSpace = new JTextField("3");
         offSpace = new JTextField("3");
@@ -241,8 +246,6 @@ public class ChannelPanel {
         panel.add(title, c);
     }
 
-
-    private int port;
     private Map<String, JLabel> labels;
     private Map<String, JButton> buttons;
     private DateTimePanel beginTime;
@@ -253,16 +256,32 @@ public class ChannelPanel {
     private JTextField total;
     private DefaultListModel<String> logModel;
     private JLabel title;
-    private ToolBar toolBar;
-
-    private GuiHelper labelHelper;
-    private StoreHelper logService;
+    private int channel;
+    private String portName;
+    private String taskId;
+    @Resource
+    private GuiHelper guiHelper;
+    @Resource
+    private StoreHelper storeHelper;
+    @Resource
     private TaskJob taskJob;
-    private final static Logger logger = LoggerFactory.getLogger(ChannelPanel.class);
+    @Resource
+    private ToolBar toolBar;
+    private final static Logger logger = LoggerFactory.getLogger(OnOffTaskPanel.class);
 
-    public JPanel get() {
-        return panel;
+    public void setToolBar(ToolBar toolBar) {
+        this.toolBar = toolBar;
     }
 
+    public void setTaskJob(TaskJob taskJob) {
+        this.taskJob = taskJob;
+    }
 
+    public void setGuiHelper(GuiHelper guiHelper) {
+        this.guiHelper = guiHelper;
+    }
+
+    public void setStoreHelper(StoreHelper storeHelper) {
+        this.storeHelper = storeHelper;
+    }
 }

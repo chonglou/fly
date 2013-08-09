@@ -1,5 +1,6 @@
 package com.odong.relay.widget;
 
+import javax.swing.*;
 import java.util.Date;
 import java.util.Map;
 
@@ -10,10 +11,21 @@ import java.util.Map;
  * Time: 下午6:20
  */
 
-public interface DateTimePanel {
-    void setText(Map<String, String> map);
+public abstract class DateTimePanel {
 
-    void setDate(Date date, int space);
+    public abstract void setText(Map<String, String> map);
 
-    Date getDate();
+    public abstract void setDate(Date date, int space);
+
+    public abstract Date getDate();
+
+    public DateTimePanel() {
+        this.panel = new JPanel();
+    }
+
+    public JPanel get() {
+        return panel;
+    }
+
+    protected JPanel panel;
 }
