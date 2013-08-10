@@ -1,6 +1,7 @@
 package com.odong.relay.widget;
 
 import com.odong.relay.job.Task;
+import com.odong.relay.serial.Command;
 import com.odong.relay.util.StoreHelper;
 import com.odong.relay.widget.task.OnOffTaskPanel;
 import com.odong.relay.widget.task.TaskPanel;
@@ -26,9 +27,25 @@ public class CardPanel {
         panel.setVisible(false);
     }
 
-    public synchronized void show(String taskId) {
+    public synchronized void showPort(String portName, Command.Type type) {
+        layout.show(panel, type.name());
+        panel.setVisible(true);
+
+        TaskPanel tp;
+        switch (type) {
+            case ON_OFF:
+                tp = onOffPanel;
+                break;
+            default:
+                return;
+        }
+        tp.show(portName);
+    }
+
+    public synchronized void showTask(String taskId) {
         Task task = storeHelper.getTask(taskId);
         String name = task.getType().name();
+
         layout.show(panel, name);
         panel.setVisible(true);
 

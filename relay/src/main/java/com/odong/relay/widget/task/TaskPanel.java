@@ -13,6 +13,8 @@ import java.awt.*;
  */
 public abstract class TaskPanel {
 
+    public abstract void show(String portName);
+
     public abstract void show(Task task);
 
     public abstract String name();

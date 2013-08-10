@@ -15,7 +15,7 @@ public abstract class DateTimePanel {
 
     public abstract void setText(Map<String, String> map);
 
-    public abstract void setDate(Date date, int space);
+    public abstract void setDate(Date date);
 
     public abstract Date getDate();
 

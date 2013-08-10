@@ -144,8 +144,8 @@ public class SerialDialog {
                     }
 
                     if (serialUtil.isOpen(portName)) {
-                        //操作成功 返回
                         hide();
+                        cardPanel.showPort(portName, (Command.Type) comboBoxes.get("deviceType").getSelectedItem());
                     }
                 } else {
                     hide();
@@ -165,10 +165,17 @@ public class SerialDialog {
     private Map<String, JButton> buttons;
     private Map<String, JComboBox> comboBoxes;
     @Resource
+    private CardPanel cardPanel;
+    @Resource
     private GuiHelper guiHelper;
     @Resource
     private SerialUtil serialUtil;
     private final static Logger logger = LoggerFactory.getLogger(SerialDialog.class);
+
+
+    public void setCardPanel(CardPanel cardPanel) {
+        this.cardPanel = cardPanel;
+    }
 
     public void setGuiHelper(GuiHelper guiHelper) {
         this.guiHelper = guiHelper;

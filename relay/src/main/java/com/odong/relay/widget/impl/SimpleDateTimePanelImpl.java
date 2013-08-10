@@ -34,8 +34,8 @@ public class SimpleDateTimePanelImpl extends DateTimePanel {
     }
 
     @Override
-    public void setDate(Date date, int space) {
-        DateTime dt = new DateTime(date.getTime() + space * 1000);
+    public void setDate(Date date) {
+        DateTime dt = new DateTime(date.getTime());
         setComboBox("year", dt.getYear());
         setComboBox("month", dt.getMonthOfYear());
         setComboBox("day", dt.getDayOfMonth());

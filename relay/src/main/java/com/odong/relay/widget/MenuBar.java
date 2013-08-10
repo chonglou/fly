@@ -132,6 +132,7 @@ public class MenuBar {
                             serialUtil.close(portName);
                         }
                         item.setSelected(serialUtil.isOpen(portName));
+                        toolBar.refresh();
                     }
                 }
             }
@@ -188,7 +189,13 @@ public class MenuBar {
     private SerialDialog serialDialog;
     @Resource
     private Window window;
+    @Resource
+    private ToolBar toolBar;
     private final static Logger logger = LoggerFactory.getLogger(MenuBar.class);
+
+    public void setToolBar(ToolBar toolBar) {
+        this.toolBar = toolBar;
+    }
 
     public void setSerialDialog(SerialDialog serialDialog) {
         this.serialDialog = serialDialog;

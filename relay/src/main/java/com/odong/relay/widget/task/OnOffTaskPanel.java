@@ -20,8 +20,10 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.
@@ -36,17 +38,36 @@ public class OnOffTaskPanel extends TaskPanel {
     }
 
     @Override
-    public void show(Task task) {
-        this.taskId = task.getId();
-        this.portName = task.getPortName();
-        this.channel = task.getChannel();
-        title.setText("<html><h1>" + guiHelper.getMessage("channel.task.title") + task.toString() + "</h1></html>");
-        onSpace.setText(Integer.toString(task.getOnSpace()));
-        offSpace.setText(Integer.toString(task.getOffSpace()));
-        total.setText(task.getTotal() == 0 ? null : Integer.toString(task.getTotal()));
-        beginTime.setDate(task.getBegin(), 0);
-        endTime.setDate(task.getEnd(), 0);
+    public void show(String portName) {
+        Date now = new Date();
+        this.show(guiHelper.getMessage("channel.task.title") + portName,
+                UUID.randomUUID().toString(), portName, 1,
+                now, new Date(now.getTime() + 1000 * 60 * 60 * 24), 3, 3,
+                0);
     }
+
+    @Override
+    public void show(Task task) {
+        this.show(guiHelper.getMessage("channel.task.title") + task.toString(),
+                task.getId(), task.getPortName(), task.getChannel(),
+                task.getBegin(), task.getEnd(), task.getOnSpace(), task.getOffSpace(),
+                task.getTotal());
+    }
+
+
+    private void show(String title, String taskId, String portName, int channel, Date begin, Date end, int onSpace, int offSpace, int total) {
+        this.taskId = taskId;
+        this.portName = portName;
+
+        this.channelCB.setSelectedItem(channel);
+        this.title.setText("<html><h1>" + title + "</h1></html>");
+        this.beginTime.setDate(begin);
+        this.endTime.setDate(end);
+        this.onSpace.setText(Integer.toString(onSpace));
+        this.offSpace.setText(Integer.toString(offSpace));
+        this.total.setText(total == 0 ? null : Integer.toString(total));
+    }
+
 
     @PostConstruct
     void init() {
@@ -84,10 +105,10 @@ public class OnOffTaskPanel extends TaskPanel {
         if (on) {
             try {
                 String total = this.total.getText();
-                taskJob.putTask(portName, channel, beginTime.getDate(), endTime.getDate(),
+                taskJob.putTask(portName, (Integer)channelCB.getSelectedItem(), beginTime.getDate(), endTime.getDate(),
                         Integer.parseInt(onSpace.getText()),
                         Integer.parseInt(offSpace.getText()),
-                        total == null ? 0 : Integer.parseInt(total));
+                        "".equals(total) ? 0 : Integer.parseInt(total));
             } catch (Exception e) {
                 logger.error("添加任务出错", e);
                 guiHelper.showErrorDialog("inputNonValid");
@@ -100,7 +121,7 @@ public class OnOffTaskPanel extends TaskPanel {
         buttons.get("on").setEnabled(!on);
         buttons.get("off").setEnabled(on);
 
-        toolBar.show();
+        toolBar.refresh();
     }
 
 
@@ -143,9 +164,16 @@ public class OnOffTaskPanel extends TaskPanel {
 
         endTime = new SimpleDateTimePanelImpl();
         beginTime = new SimpleDateTimePanelImpl();
-        total = new JTextField("0");
-        onSpace = new JTextField("3");
-        offSpace = new JTextField("3");
+
+        Integer[] ii = new Integer[32];
+        for(int i=1; i<=ii.length;i++){
+            ii[i-1]= i;
+        }
+        channelCB = new JComboBox<>(ii);
+
+        total = new JTextField();
+        onSpace = new JTextField();
+        offSpace = new JTextField();
         logModel = new DefaultListModel<>();
 
 
@@ -153,79 +181,83 @@ public class OnOffTaskPanel extends TaskPanel {
         c.fill = GridBagConstraints.BOTH;
         c.insets = new Insets(20, 20, 20, 20);
         c.weightx = 0.3;
-        c.weighty = 1.0;
+        c.weighty = 0.5;
+        c.gridx = 0;
+        c.gridy = 0;
 
         JLabel lbl;
         JPanel p;
         JButton btn;
 
 
+        title = new JLabel();
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridheight = 1;
+        c.gridwidth = 2;
+        panel.add(title, c);
+
+
+        c.gridx=0;
+        c.gridy++;
+        c.gridwidth=1;
+        c.gridheight=1;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
-        c.gridx = 0;
-        c.gridy = 1;
         panel.add(lbl, c);
+        labels.put("channel", lbl);
+        c.gridx++;
+        panel.add(channelCB, c);
+
+        c.gridx=0;
+        c.gridy++;
+        lbl = new JLabel();
+        lbl.setHorizontalAlignment(SwingConstants.RIGHT);
+        panel.add(lbl, c);
+        c.gridx++;
         labels.put("beginTime", lbl);
-        c.gridx = 1;
-        c.gridy = 1;
         panel.add(beginTime.get(), c);
 
 
+        c.gridx=0;
+        c.gridy++;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
-        c.gridx = 0;
-        c.gridy = 2;
         panel.add(lbl, c);
         labels.put("endTime", lbl);
-        c.gridx = 1;
-        c.gridy = 2;
+        c.gridx++;
         panel.add(endTime.get(), c);
 
+        c.gridx=0;
+        c.gridy++;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
-        c.gridx = 0;
-        c.gridy = 3;
         panel.add(lbl, c);
         labels.put("onSpace", lbl);
-        c.gridx = 1;
-        c.gridy = 3;
+        c.gridx++;
         panel.add(onSpace, c);
 
+        c.gridx=0;
+        c.gridy++;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
-        c.gridx = 0;
-        c.gridy = 4;
         panel.add(lbl, c);
         labels.put("offSpace", lbl);
-        c.gridx = 1;
-        c.gridy = 4;
+        c.gridx++;
         panel.add(offSpace, c);
 
+        c.gridx=0;
+        c.gridy++;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
-        c.gridx = 0;
-        c.gridy = 5;
         panel.add(lbl, c);
         labels.put("total", lbl);
-        c.gridx = 1;
-        c.gridy = 5;
+        c.gridx++;
         panel.add(total, c);
 
-        p = new JPanel(new BorderLayout());
-        lbl = new JLabel();
-        p.add(lbl, BorderLayout.PAGE_START);
-        labels.put("logList", lbl);
-        JList logList = new JList<>(logModel);
-        JScrollPane jp = new JScrollPane(logList);
-        p.add(jp, BorderLayout.CENTER);
-        c.gridx = 2;
-        c.gridy = 0;
-        c.gridheight = 7;
-        c.gridwidth = 2;
-        c.weightx = 1.0;
-        panel.add(p, c);
-        c.weightx = 0.3;
-
+        c.gridx=0;
+        c.gridy++;
         p = new JPanel(new FlowLayout());
         btn = new JButton();
         btn.setName("btn-on");
@@ -240,18 +272,25 @@ public class OnOffTaskPanel extends TaskPanel {
         p.add(btn);
         buttons.put("refresh", btn);
         c.gridheight = 1;
-        c.gridx = 0;
-        c.gridy = 6;
         c.gridwidth = 2;
         panel.add(p, c);
 
-        title = new JLabel();
-        title.setHorizontalAlignment(SwingConstants.CENTER);
-        c.gridx = 0;
+
+        c.gridheight = 8;
+        c.gridwidth = 2;
+        c.gridx = 2;
         c.gridy = 0;
-        c.gridheight = 1;
-        c.gridwidth = 3;
-        panel.add(title, c);
+        c.weightx = 1.0;
+        c.weighty=1.0;
+        p = new JPanel(new BorderLayout());
+        lbl = new JLabel();
+        p.add(lbl, BorderLayout.PAGE_START);
+        labels.put("logList", lbl);
+        JList logList = new JList<>(logModel);
+        JScrollPane jp = new JScrollPane(logList);
+        p.add(jp, BorderLayout.CENTER);
+        panel.add(p, c);
+        c.weightx = 0.3;
     }
 
     private Map<String, JLabel> labels;
@@ -261,9 +300,9 @@ public class OnOffTaskPanel extends TaskPanel {
     private JTextField onSpace;
     private JTextField offSpace;
     private JTextField total;
+    private JComboBox<Integer> channelCB;
     private DefaultListModel<String> logModel;
     private JLabel title;
-    private int channel;
     private String portName;
     private String taskId;
     @Resource
