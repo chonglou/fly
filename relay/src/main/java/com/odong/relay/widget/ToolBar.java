@@ -17,7 +17,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,41 +26,45 @@ import java.util.Set;
  */
 @Component
 public class ToolBar {
-    public void refresh(){
+    public void refresh() {
         toolBar.addSeparator();
-        for(JButton btn : ports){
+        for (JButton btn : ports) {
             toolBar.remove(btn);
         }
         ports.clear();
-        for(JButton btn : tasks){
+        for (JButton btn : tasks) {
             toolBar.remove(btn);
         }
         tasks.clear();
 
-        for(String portName : serialUtil.getStatus()){
+        for (String portName : serialUtil.getStatus()) {
             JButton btn = new JButton(portName);
-            btn.setName("port://"+portName);
+            btn.setName("port://" + portName);
             ports.add(btn);
         }
-        for(String tid : taskJob.getTaskList()){
+        for (String tid : taskJob.getTaskList()) {
             Task task = storeHelper.getTask(tid);
             JButton btn = new JButton(task.toString());
-            btn.setName("task://"+task.getId());
+            btn.setName("task://" + task.getId());
             tasks.add(btn);
         }
 
-        for(JButton btn : tasks){
-            toolBar.add(btn,0);
+        for (JButton btn : tasks) {
+            btn.addMouseListener(btnMouseListener);
+            toolBar.add(btn, 0);
         }
 
-        for(JButton btn : ports){
-            toolBar.add(btn,0);
+        for (JButton btn : ports) {
+            btn.addMouseListener(btnMouseListener);
+            toolBar.add(btn, 0);
         }
+        toolBar.revalidate();
 
     }
 
     public void setText() {
         exit.setText(guiHelper.getMessage("button.exit"));
+        help.setText(guiHelper.getMessage("button.help"));
     }
 
     public JToolBar get() {
@@ -76,6 +79,17 @@ public class ToolBar {
         this.tasks = new ArrayList<>();
         toolBar.addSeparator();
 
+
+        help = new JButton();
+        help.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cardPanel.showHelp();
+            }
+        });
+        toolBar.add(help);
+        toolBar.addSeparator();
+
         exit = new JButton();
         exit.addMouseListener(new MouseAdapter() {
             @Override
@@ -87,6 +101,17 @@ public class ToolBar {
         toolBar.addSeparator();
     }
 
+    private MouseListener btnMouseListener = new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            String name = ((JButton) e.getSource()).getName();
+            if (name.startsWith("task://")) {
+                cardPanel.showTask(name.substring(7));
+            } else if (name.startsWith("port://")) {
+                cardPanel.showPort(name.substring(7));
+            }
+        }
+    };
     private JToolBar toolBar;
     @Resource
     private GuiHelper guiHelper;
@@ -101,6 +126,7 @@ public class ToolBar {
     private List<JButton> ports;
     private List<JButton> tasks;
     private JButton exit;
+    private JButton help;
     private final static Logger logger = LoggerFactory.getLogger(ToolBar.class);
 
     public void setSerialUtil(SerialUtil serialUtil) {

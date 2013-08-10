@@ -1,4 +1,4 @@
-package com.odong.relay.widget.task;
+package com.odong.relay.widget.card;
 
 import com.odong.relay.job.Task;
 
@@ -13,7 +13,7 @@ import java.awt.*;
  */
 public abstract class TaskPanel {
 
-    public abstract void show(String portName);
+    public abstract void show(String portName, int channel);
 
     public abstract void show(Task task);
 

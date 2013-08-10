@@ -1,10 +1,10 @@
 package com.odong.relay.widget;
 
 
+import com.odong.relay.MyException;
 import com.odong.relay.job.TaskJob;
 import com.odong.relay.serial.SerialUtil;
 import com.odong.relay.util.GuiHelper;
-import com.odong.relay.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -129,7 +129,12 @@ public class MenuBar {
                         if (item.isSelected()) {
                             serialDialog.show(portName);
                         } else {
-                            serialUtil.close(portName);
+                            if (taskJob.isPortInUse(portName)) {
+                                guiHelper.showErrorDialog(MyException.Type.SERIAL_PORT_IN_USE);
+                            } else {
+                                serialUtil.close(portName);
+                                cardPanel.showHelp();
+                            }
                         }
                         item.setSelected(serialUtil.isOpen(portName));
                         toolBar.refresh();
@@ -147,7 +152,7 @@ public class MenuBar {
                 JMenuItem item = (JMenuItem) e.getSource();
                 switch (item.getName().split("\\-")[1]) {
                     case "doc":
-                        guiHelper.showInfoDialog("doc");
+                        cardPanel.showHelp();
                         break;
                     case "aboutMe":
                         guiHelper.showInfoDialog("aboutMe");
@@ -177,10 +182,11 @@ public class MenuBar {
     private Map<String, JMenu> menus;
     private Map<String, JMenuItem> menuItems;
     private List<JCheckBoxMenuItem> checkBoxMenuItems;
+
+    @Resource
+    private CardPanel cardPanel;
     @Resource
     private GuiHelper guiHelper;
-    @Resource
-    private StoreHelper storeHelper;
     @Resource
     private TaskJob taskJob;
     @Resource
@@ -192,6 +198,10 @@ public class MenuBar {
     @Resource
     private ToolBar toolBar;
     private final static Logger logger = LoggerFactory.getLogger(MenuBar.class);
+
+    public void setCardPanel(CardPanel cardPanel) {
+        this.cardPanel = cardPanel;
+    }
 
     public void setToolBar(ToolBar toolBar) {
         this.toolBar = toolBar;
@@ -213,9 +223,6 @@ public class MenuBar {
         this.guiHelper = guiHelper;
     }
 
-    public void setStoreHelper(StoreHelper storeHelper) {
-        this.storeHelper = storeHelper;
-    }
 
     public void setTaskJob(TaskJob taskJob) {
         this.taskJob = taskJob;

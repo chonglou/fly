@@ -35,7 +35,7 @@ public class Server {
         }
     }
 
-    public void destroy(){
+    public void destroy() {
         ((ClassPathXmlApplicationContext) ctx).stop();
 
     }

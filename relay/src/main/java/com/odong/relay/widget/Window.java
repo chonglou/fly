@@ -37,6 +37,7 @@ public class Window {
         setLocale(Locale.SIMPLIFIED_CHINESE);
 
         guiHelper.show(true);
+        cardPanel.showHelp();
     }
 
 

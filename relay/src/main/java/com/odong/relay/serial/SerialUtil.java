@@ -2,6 +2,7 @@ package com.odong.relay.serial;
 
 import com.odong.relay.MyException;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -23,40 +24,52 @@ public abstract class SerialUtil {
     public abstract Set<String> getPortNameList();
 
     public boolean isOpen(String portName) {
-        return map.containsKey(portName);
+        return portMap.containsKey(portName);
+    }
+
+    public void setType(String portName, SerialPort.Type type) {
+        typeMap.put(portName, type);
+    }
+
+    public SerialPort.Type getType(String portName) {
+        return typeMap.get(portName);
     }
 
     public void init() {
-        map = new LinkedHashMap<>();
+        portMap = new LinkedHashMap<>();
+        typeMap = new HashMap<>();
     }
 
     public void destroy() {
-        for (SerialPort sp : map.values()) {
+        for (SerialPort sp : portMap.values()) {
             if (sp != null && sp.isOpen()) {
                 sp.close();
             }
         }
-        map.clear();
+        portMap.clear();
+        typeMap.clear();
     }
 
     public boolean hasOpen() {
-        return !map.isEmpty();
+        return !portMap.isEmpty();
     }
-    public Set<String> getStatus(){
-        return map.keySet();
+
+    public Set<String> getStatus() {
+        return portMap.keySet();
     }
 
     protected void put(String portName, SerialPort port) {
-        map.put(portName, port);
+        portMap.put(portName, port);
     }
 
     protected void pop(String portName) {
-        map.remove(portName);
+        portMap.remove(portName);
     }
 
     protected SerialPort get(String portName) {
-        return map.get(portName);
+        return portMap.get(portName);
     }
 
-    private Map<String, SerialPort> map;
+    private Map<String, SerialPort> portMap;
+    private Map<String, SerialPort.Type> typeMap;
 }

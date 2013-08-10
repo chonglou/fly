@@ -1,6 +1,7 @@
 package com.odong.relay.job;
 
 import com.odong.core.util.JsonHelper;
+import com.odong.relay.serial.SerialPort;
 import com.odong.relay.serial.SerialUtil;
 import com.odong.relay.util.StoreHelper;
 import org.slf4j.Logger;
@@ -23,31 +24,55 @@ import java.util.UUID;
  */
 @Component("job.taskTarget")
 public class TaskJob {
+    public boolean isPortInUse(String portName) {
+        for (String tid : tasks) {
+            if (storeHelper.getTask(tid).getPortName().equals(portName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String[] getTaskList() {
         return tasks.toArray(new String[tasks.size()]);
     }
 
-    public void putTask(String portName, int channel, Date begin, Date end, int onSpace, int offSpace, Integer total) {
-        Task t = new Task();
-        String id = UUID.randomUUID().toString();
-        t.setId(id);
-        t.setPortName(portName);
-        t.setChannel(channel);
-        t.setBegin(begin);
-        t.setEnd(end);
-        t.setOnSpace(onSpace);
-        t.setOffSpace(offSpace);
-        t.setTotal(total);
-        t.setCreated(new Date());
-        t.setType(Task.Type.ON_OFF);
-        t.setState(Task.State.OFF);
-        storeHelper.addTask(t);
-        tasks.add(id);
+    public synchronized void putTask(String portName, int channel, Date begin, Date end, int onSpace, int offSpace, Integer total) {
+        if (getTask(portName, channel) == null) {
+            Task t = new Task();
+            String id = UUID.randomUUID().toString();
+            t.setId(id);
+            t.setPortName(portName);
+            t.setChannel(channel);
+            t.setBegin(begin);
+            t.setEnd(end);
+            t.setOnSpace(onSpace);
+            t.setOffSpace(offSpace);
+            t.setTotal(total);
+            t.setCreated(new Date());
+            t.setType(SerialPort.Type.ON_OFF);
+            t.setState(Task.State.OFF);
+            storeHelper.addTask(t);
+            tasks.add(id);
+            return;
+        }
+        logger.error("重复的任务[{}]", jsonHelper.object2json(tasks));
+
     }
 
 
     public void popTask(String id) {
         tasks.remove(id);
+    }
+
+    public Task getTask(String portName, int channel) {
+        for (String tid : tasks) {
+            Task task = storeHelper.getTask(tid);
+            if (task.getPortName().equals(portName) && task.getChannel() == channel) {
+                return task;
+            }
+        }
+        return null;
     }
 
     public void execute() {

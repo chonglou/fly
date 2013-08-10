@@ -24,8 +24,8 @@ public class OnOff implements Command {
     }
 
     @Override
-    public Type getType() {
-        return Type.ON_OFF;
+    public SerialPort.Type getType() {
+        return SerialPort.Type.ON_OFF;
     }
 
     @Override

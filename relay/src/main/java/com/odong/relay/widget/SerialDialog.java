@@ -1,7 +1,6 @@
 package com.odong.relay.widget;
 
 import com.odong.relay.MyException;
-import com.odong.relay.serial.Command;
 import com.odong.relay.serial.SerialPort;
 import com.odong.relay.serial.SerialUtil;
 import com.odong.relay.util.GuiHelper;
@@ -91,7 +90,7 @@ public class SerialDialog {
         labels = new HashMap<>();
         comboBoxes = new HashMap<>();
 
-        addLine("deviceType", Command.Type.class, Command.Type.values());
+        addLine("deviceType", SerialPort.Type.class, SerialPort.Type.values());
         addLine("dataBaud", Integer.class, 9600);
         addLine("dataBits", Integer.class, 8);
         addLine("stopBits", Integer.class, 1);
@@ -136,6 +135,7 @@ public class SerialDialog {
                                         logger.debug("返回: " + new String(buffer));
                                     }
                                 });
+                        serialUtil.setType(portName, (SerialPort.Type) comboBoxes.get("deviceType").getSelectedItem());
                     } catch (Exception ex) {
                         logger.debug("打开端口出错", ex);
                         if (ex instanceof MyException) {
@@ -145,7 +145,7 @@ public class SerialDialog {
 
                     if (serialUtil.isOpen(portName)) {
                         hide();
-                        cardPanel.showPort(portName, (Command.Type) comboBoxes.get("deviceType").getSelectedItem());
+                        cardPanel.showPort(portName);
                     }
                 } else {
                     hide();

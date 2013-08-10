@@ -2,9 +2,13 @@ package com.odong.relay.widget.impl;
 
 import com.odong.relay.widget.DateTimePanel;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,7 +33,7 @@ public class SimpleDateTimePanelImpl extends DateTimePanel {
     @Override
     public void setText(Map<String, String> map) {
         for (String s : labels.keySet()) {
-            labels.get(s).setText(map.get("s"));
+            labels.get(s).setText(map.get(s));
         }
     }
 
@@ -101,7 +105,47 @@ public class SimpleDateTimePanelImpl extends DateTimePanel {
     }
 
     private void bindEvent() {
-        //TODO 月份 天数对应
+        ItemListener yearMonthListener = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    Integer year = (Integer) comboBoxes.get("year").getSelectedItem();
+                    Integer month = (Integer) comboBoxes.get("month").getSelectedItem();
+                    int days;
+                    switch (month) {
+                        case 1:
+                        case 3:
+                        case 5:
+                        case 7:
+                        case 8:
+                        case 10:
+                        case 12:
+                            days = 31;
+                            break;
+                        case 4:
+                        case 6:
+                        case 9:
+                        case 11:
+                            days = 30;
+                            break;
+                        case 2:
+                            days = (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)) ? 29 : 28;
+                            break;
+                        default:
+                            throw new IllegalArgumentException("月份不正确");
+
+
+                    }
+                    JComboBox<Integer> dayCB = comboBoxes.get("day");
+                    dayCB.removeAllItems();
+                    for (int i = 1; i <= days; i++) {
+                        dayCB.addItem(i);
+                    }
+                }
+            }
+        };
+        comboBoxes.get("year").addItemListener(yearMonthListener);
+        comboBoxes.get("month").addItemListener(yearMonthListener);
     }
 
     private void addItem(String key, Integer... items) {
@@ -126,7 +170,8 @@ public class SimpleDateTimePanelImpl extends DateTimePanel {
     }
 
     private Map<String, JLabel> labels;
-    private Map<String, JComboBox> comboBoxes;
+    private Map<String, JComboBox<Integer>> comboBoxes;
+    private final static Logger logger = LoggerFactory.getLogger(SimpleDateTimePanelImpl.class);
 
     public JPanel get() {
         return panel;

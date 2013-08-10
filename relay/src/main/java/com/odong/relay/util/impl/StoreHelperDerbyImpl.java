@@ -83,7 +83,7 @@ public class StoreHelperDerbyImpl implements StoreHelper {
     @Override
     public List<Item> listItem(String taskId) {
         final List<Item> items = new ArrayList<>();
-        execute(String.format("SELECT id,task,request,response,created FROM '%s' WHERE task='%s' ", itemTableName, taskId),
+        execute(String.format("SELECT id,task,request,response,created FROM %s WHERE task='%s' ", itemTableName, taskId),
                 null,
                 new Callback() {
                     @Override

@@ -28,4 +28,14 @@ public interface SerialPort {
     public interface Callback {
         void process(byte[] buffer);
     }
+
+    /**
+     * Created with IntelliJ IDEA.
+     * User: flamen
+     * Date: 13-8-9
+     * Time: 下午10:43
+     */
+    enum Type {
+        ON_OFF
+    }
 }

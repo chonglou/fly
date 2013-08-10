@@ -1,9 +1,9 @@
-package com.odong.relay.widget.task;
+package com.odong.relay.widget.card;
 
 import com.odong.relay.job.Task;
 import com.odong.relay.job.TaskJob;
 import com.odong.relay.model.Item;
-import com.odong.relay.serial.Command;
+import com.odong.relay.serial.SerialPort;
 import com.odong.relay.util.GuiHelper;
 import com.odong.relay.util.StoreHelper;
 import com.odong.relay.widget.DateTimePanel;
@@ -17,9 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,12 +36,17 @@ public class OnOffTaskPanel extends TaskPanel {
     }
 
     @Override
-    public void show(String portName) {
-        Date now = new Date();
-        this.show(guiHelper.getMessage("channel.task.title") + portName,
-                UUID.randomUUID().toString(), portName, 1,
-                now, new Date(now.getTime() + 1000 * 60 * 60 * 24), 3, 3,
-                0);
+    public void show(String portName, int channel) {
+        Task t = taskJob.getTask(portName, channel);
+        if (t == null) {
+            Date now = new Date();
+            this.show(guiHelper.getMessage("channel.task.title") + portName,
+                    UUID.randomUUID().toString(), portName, channel,
+                    now, new Date(now.getTime() + 1000 * 60 * 60 * 24), 3, 3,
+                    0);
+        } else {
+            show(t);
+        }
     }
 
     @Override
@@ -71,14 +74,12 @@ public class OnOffTaskPanel extends TaskPanel {
 
     @PostConstruct
     void init() {
-
-        buttons.get("on").setEnabled(true);
-        buttons.get("off").setEnabled(false);
+        setButtonOn(false);
     }
 
     @Override
     public String name() {
-        return Command.Type.ON_OFF.name();
+        return SerialPort.Type.ON_OFF.name();
     }
 
     @Override
@@ -105,7 +106,12 @@ public class OnOffTaskPanel extends TaskPanel {
         if (on) {
             try {
                 String total = this.total.getText();
-                taskJob.putTask(portName, (Integer)channelCB.getSelectedItem(), beginTime.getDate(), endTime.getDate(),
+                Date begin = beginTime.getDate();
+                Date end = endTime.getDate();
+                if (begin.compareTo(end) >= 0) {
+                    throw new IllegalArgumentException("起始时间必须小于结束时间");
+                }
+                taskJob.putTask(portName, (Integer) channelCB.getSelectedItem(), beginTime.getDate(), endTime.getDate(),
                         Integer.parseInt(onSpace.getText()),
                         Integer.parseInt(offSpace.getText()),
                         "".equals(total) ? 0 : Integer.parseInt(total));
@@ -114,16 +120,20 @@ public class OnOffTaskPanel extends TaskPanel {
                 guiHelper.showErrorDialog("inputNonValid");
                 return;
             }
+
         } else {
             taskJob.popTask(taskId);
         }
 
-        buttons.get("on").setEnabled(!on);
-        buttons.get("off").setEnabled(on);
-
+        setButtonOn(on);
         toolBar.refresh();
     }
 
+    private void setButtonOn(boolean on) {
+
+        buttons.get("on").setEnabled(!on);
+        buttons.get("off").setEnabled(on);
+    }
 
     private void refreshLogList() {
         logModel.removeAllElements();
@@ -155,6 +165,17 @@ public class OnOffTaskPanel extends TaskPanel {
             buttons.get(s).addMouseListener(listener);
         }
 
+        channelCB.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    int ch = (Integer) ((JComboBox) e.getSource()).getSelectedItem();
+                    Task t = taskJob.getTask(portName, ch);
+                    setButtonOn(t != null);
+                }
+            }
+        });
+
     }
 
     @Override
@@ -165,11 +186,10 @@ public class OnOffTaskPanel extends TaskPanel {
         endTime = new SimpleDateTimePanelImpl();
         beginTime = new SimpleDateTimePanelImpl();
 
-        Integer[] ii = new Integer[32];
-        for(int i=1; i<=ii.length;i++){
-            ii[i-1]= i;
+        channelCB = new JComboBox<>();
+        for (int i = 1; i <= 32; i++) {
+            channelCB.addItem(i);
         }
-        channelCB = new JComboBox<>(ii);
 
         total = new JTextField();
         onSpace = new JTextField();
@@ -199,10 +219,10 @@ public class OnOffTaskPanel extends TaskPanel {
         panel.add(title, c);
 
 
-        c.gridx=0;
+        c.gridx = 0;
         c.gridy++;
-        c.gridwidth=1;
-        c.gridheight=1;
+        c.gridwidth = 1;
+        c.gridheight = 1;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
         panel.add(lbl, c);
@@ -210,7 +230,7 @@ public class OnOffTaskPanel extends TaskPanel {
         c.gridx++;
         panel.add(channelCB, c);
 
-        c.gridx=0;
+        c.gridx = 0;
         c.gridy++;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -220,7 +240,7 @@ public class OnOffTaskPanel extends TaskPanel {
         panel.add(beginTime.get(), c);
 
 
-        c.gridx=0;
+        c.gridx = 0;
         c.gridy++;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -229,7 +249,7 @@ public class OnOffTaskPanel extends TaskPanel {
         c.gridx++;
         panel.add(endTime.get(), c);
 
-        c.gridx=0;
+        c.gridx = 0;
         c.gridy++;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -238,7 +258,7 @@ public class OnOffTaskPanel extends TaskPanel {
         c.gridx++;
         panel.add(onSpace, c);
 
-        c.gridx=0;
+        c.gridx = 0;
         c.gridy++;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -247,7 +267,7 @@ public class OnOffTaskPanel extends TaskPanel {
         c.gridx++;
         panel.add(offSpace, c);
 
-        c.gridx=0;
+        c.gridx = 0;
         c.gridy++;
         lbl = new JLabel();
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -256,7 +276,7 @@ public class OnOffTaskPanel extends TaskPanel {
         c.gridx++;
         panel.add(total, c);
 
-        c.gridx=0;
+        c.gridx = 0;
         c.gridy++;
         p = new JPanel(new FlowLayout());
         btn = new JButton();
@@ -281,7 +301,7 @@ public class OnOffTaskPanel extends TaskPanel {
         c.gridx = 2;
         c.gridy = 0;
         c.weightx = 1.0;
-        c.weighty=1.0;
+        c.weighty = 1.0;
         p = new JPanel(new BorderLayout());
         lbl = new JLabel();
         p.add(lbl, BorderLayout.PAGE_START);
@@ -292,6 +312,7 @@ public class OnOffTaskPanel extends TaskPanel {
         panel.add(p, c);
         c.weightx = 0.3;
     }
+
 
     private Map<String, JLabel> labels;
     private Map<String, JButton> buttons;
@@ -313,6 +334,8 @@ public class OnOffTaskPanel extends TaskPanel {
     private TaskJob taskJob;
     @Resource
     private ToolBar toolBar;
+
+
     private final static Logger logger = LoggerFactory.getLogger(OnOffTaskPanel.class);
 
     public void setToolBar(ToolBar toolBar) {

@@ -32,7 +32,7 @@ public class GuiHelper {
                 JOptionPane.YES_NO_OPTION)) {
             case JOptionPane.YES_OPTION:
                 if (serialUtil.hasOpen()) {
-                    logger.error("当前状态[{}]", jsonHelper.object2json(serialUtil.getStatus()));
+                    logger.error("当前端口状态[{}]", jsonHelper.object2json(serialUtil.getStatus()));
                     showErrorDialog("stillOpen");
                 } else {
                     Server.get().destroy();

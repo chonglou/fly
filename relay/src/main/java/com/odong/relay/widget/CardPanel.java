@@ -1,10 +1,12 @@
 package com.odong.relay.widget;
 
 import com.odong.relay.job.Task;
-import com.odong.relay.serial.Command;
+import com.odong.relay.serial.SerialPort;
+import com.odong.relay.serial.SerialUtil;
 import com.odong.relay.util.StoreHelper;
-import com.odong.relay.widget.task.OnOffTaskPanel;
-import com.odong.relay.widget.task.TaskPanel;
+import com.odong.relay.widget.card.HelpPanel;
+import com.odong.relay.widget.card.OnOffTaskPanel;
+import com.odong.relay.widget.card.TaskPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -22,12 +24,17 @@ import java.awt.*;
  */
 @Component
 public class CardPanel {
+    public synchronized void showHelp() {
+        layout.show(panel, "doc");
+        panel.setVisible(true);
+    }
 
     public synchronized void hide() {
         panel.setVisible(false);
     }
 
-    public synchronized void showPort(String portName, Command.Type type) {
+    public synchronized void showPort(String portName) {
+        SerialPort.Type type = serialUtil.getType(portName);
         layout.show(panel, type.name());
         panel.setVisible(true);
 
@@ -39,7 +46,7 @@ public class CardPanel {
             default:
                 return;
         }
-        tp.show(portName);
+        tp.show(portName, 1);
     }
 
     public synchronized void showTask(String taskId) {
@@ -67,11 +74,13 @@ public class CardPanel {
         panel.setLayout(layout);
 
         panel.add(onOffPanel.get(), onOffPanel.name());
+        panel.add(helpPanel.get(), "doc");
         panel.setVisible(false);
     }
 
     public void setText() {
         onOffPanel.setText();
+        helpPanel.setText();
     }
 
 
@@ -85,7 +94,19 @@ public class CardPanel {
     private OnOffTaskPanel onOffPanel;
     @Resource
     private StoreHelper storeHelper;
+    @Resource
+    private SerialUtil serialUtil;
+    @Resource
+    private HelpPanel helpPanel;
     private final static Logger logger = LoggerFactory.getLogger(CardPanel.class);
+
+    public void setHelpPanel(HelpPanel helpPanel) {
+        this.helpPanel = helpPanel;
+    }
+
+    public void setSerialUtil(SerialUtil serialUtil) {
+        this.serialUtil = serialUtil;
+    }
 
     public void setOnOffPanel(OnOffTaskPanel onOffPanel) {
         this.onOffPanel = onOffPanel;

@@ -1,5 +1,7 @@
 package com.odong.relay.job;
 
+import com.odong.relay.serial.SerialPort;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,6 +12,21 @@ import java.util.Date;
  * Time: 下午11:30
  */
 public class Task implements Serializable {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Task)) return false;
+
+        Task task = (Task) o;
+
+        return id != null && id.equals(task.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
     @Override
     public String toString() {
         return portName + ":" + channel;
@@ -27,10 +44,6 @@ public class Task implements Serializable {
         return Integer.parseInt(name.split("/")[3]);
     }
 
-    public enum Type {
-        ON_OFF
-    }
-
     public enum State {
         ON, OFF
     }
@@ -45,7 +58,7 @@ public class Task implements Serializable {
     private Date end;
     private Date lastRun;
     private Date created;
-    private Type type;
+    private SerialPort.Type type;
     private int total;
     private int version;
     private State state;
@@ -82,11 +95,11 @@ public class Task implements Serializable {
         this.version = version;
     }
 
-    public Type getType() {
+    public SerialPort.Type getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(SerialPort.Type type) {
         this.type = type;
     }
 

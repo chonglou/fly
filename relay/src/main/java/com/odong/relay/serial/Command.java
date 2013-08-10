@@ -11,11 +11,6 @@ import java.io.Serializable;
 public interface Command extends Serializable {
     byte[] toBytes();
 
-    Type getType();
-
-    public enum Type {
-        ON_OFF
-    }
-
+    SerialPort.Type getType();
 
 }
