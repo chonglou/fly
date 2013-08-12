@@ -22,7 +22,6 @@ import java.util.List;
  * Date: 13-8-7
  * Time: 下午10:35
  */
-@Service
 public class StoreHelperDerbyImpl implements StoreHelper {
     @Override
     public void addTask(Task t) {
