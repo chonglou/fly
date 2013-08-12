@@ -75,16 +75,6 @@ public class GuiHelper {
 
 
     public void show(boolean visible) {
-        if (visible) {
-            //frame.setLocationRelativeTo( null);
-            Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-            //frame.setSize(d.width / 2, d.height / 2);
-            window.setSize(800, 600);
-            window.setLocation(d.width / 4, d.height / 4);
-
-            //frame.pack();
-
-        }
         window.setVisible(visible);
     }
 
