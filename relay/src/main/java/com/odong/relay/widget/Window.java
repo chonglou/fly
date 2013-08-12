@@ -51,7 +51,7 @@ public class Window {
         cardPanel.setText();
     }
 
-    private void initStyle(){
+    private void initStyle() {
         JFrame frame = guiHelper.getWindow();
         /*
         //菜单栏bug

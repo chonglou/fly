@@ -13,26 +13,25 @@ import org.testng.annotations.Test;
 public class AppTest {
 
     //@Test
-    void testDb(){
-        try{
+    void testDb() {
+        try {
             StoreHelper sh = Server.get().getBean(StoreHelper.class);
-            for(int i=0;i<100;i++){
-                sh.addLog("task://aaa", "message "+i);
+            for (int i = 0; i < 100; i++) {
+                sh.addLog("task://aaa", "message " + i);
             }
-            for(Log l : sh.listLog(100)){
-                System.out.println(l.getId()+"\t"+l.getMessage()+"\t"+l.getCreated());
+            for (Log l : sh.listLog(100)) {
+                System.out.println(l.getId() + "\t" + l.getMessage() + "\t" + l.getCreated());
             }
             System.out.println("###############################");
-            for(Log l : sh.listLog(6)){
-                System.out.println(l.getId()+"\t"+l.getMessage()+"\t"+l.getCreated());
+            for (Log l : sh.listLog(6)) {
+                System.out.println(l.getId() + "\t" + l.getMessage() + "\t" + l.getCreated());
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    //@Test
+    @Test
     public void testGUI() {
 
         try {

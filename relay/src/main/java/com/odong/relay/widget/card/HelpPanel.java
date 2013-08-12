@@ -17,16 +17,18 @@ import java.awt.*;
 @Component
 public class HelpPanel {
     @PostConstruct
-    void init(){
-        panel = new JPanel(new GridLayout(1,1));
+    void init() {
+        panel = new JPanel(new GridLayout(1, 1));
         content = new JLabel();
         content.setVerticalAlignment(SwingConstants.TOP);
         panel.add(content);
     }
-    public void setText(){
-        content.setText("<html>"+guiHelper.getMessage("help.doc")+"</html>");
+
+    public void setText() {
+        content.setText("<html>" + guiHelper.getMessage("help.doc") + "</html>");
     }
-    public JPanel get(){
+
+    public JPanel get() {
         return panel;
     }
 
