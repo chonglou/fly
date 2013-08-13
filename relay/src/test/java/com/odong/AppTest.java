@@ -2,6 +2,7 @@ package com.odong;
 
 
 import com.odong.core.file.csv.Csv;
+import com.odong.core.util.EncryptHelper;
 import com.odong.relay.Server;
 import com.odong.core.file.excel.Cell;
 import com.odong.core.file.excel.Column;
@@ -17,9 +18,23 @@ import org.testng.annotations.Test;
  * Unit test for simple App.
  */
 public class AppTest {
+    @Test
+    public void testEncrypt(){
+        try{
+            EncryptHelper eh = Server.get().getBean(EncryptHelper.class);
+            String msg = "123654";
+            System.out.println(eh.encrypt(msg) );
 
+            String code = eh.encode(msg);
+            System.out.println(code);
+            System.out.println(eh.decode(code));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
     //@Test
-    void testDb() {
+    public void testDb() {
         try {
             StoreHelper sh = Server.get().getBean(StoreHelper.class);
             for (int i = 0; i < 100; i++) {
@@ -55,7 +70,7 @@ public class AppTest {
             e.printStackTrace();
         }
     }
-   // @Test
+   //@Test
     public    void testExcel(){
         try{
             FileHelper fh = Server.get().getBean(FileHelper.class);
@@ -80,7 +95,7 @@ public class AppTest {
         }
     }
 
-    //@Test
+    @Test
     public void testGUI() {
 
         try {

@@ -85,6 +85,7 @@ public class SerialPortRxtxImpl implements SerialPort {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<String> listPortNames() {
         List<String> list = new ArrayList<>();
         Enumeration<CommPortIdentifier> portEnum = CommPortIdentifier.getPortIdentifiers();
