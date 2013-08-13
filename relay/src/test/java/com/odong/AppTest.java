@@ -1,8 +1,14 @@
 package com.odong;
 
 
+import com.odong.core.file.csv.Csv;
 import com.odong.relay.Server;
+import com.odong.core.file.excel.Cell;
+import com.odong.core.file.excel.Column;
+import com.odong.core.file.excel.Excel;
+import com.odong.core.file.excel.Table;
 import com.odong.relay.model.Log;
+import com.odong.core.file.FileHelper;
 import com.odong.relay.util.StoreHelper;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -30,8 +36,51 @@ public class AppTest {
             e.printStackTrace();
         }
     }
+    //@Test
+    public void testCsv(){
+        try{
+            FileHelper fh = Server.get().getBean(FileHelper.class);
+            int size = 5;
+            Csv csv = new Csv("/tmp/测试.csv", 100);
+            for(int i=0; i<size;i++){
+                com.odong.core.file.csv.Column column = new com.odong.core.file.csv.Column("列-"+i, com.odong.core.file.csv.Column.Type.STRING);
+                for(int j=0; j<100; j++){
+                    column.addItem(String.format("(%02d, %02d)", j, i));
+                }
+                csv.addColumn(column);
+            }
+            fh.write(csv);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+   // @Test
+    public    void testExcel(){
+        try{
+            FileHelper fh = Server.get().getBean(FileHelper.class);
+            Excel excel = new Excel("/tmp/测试.xls");
+            int size = 100;
+            for(int i=0; i<3;i++){
+                Table table = new Table("表格-"+i, size);
+                for(int j=0; j<5;j++){
+                    Column column = new Column("列"+j);
+                    for(int k=0;k<size;k++){
+                        column.addCell(new Cell(String.format("(页-%02d,列-%02d,行-%02d)", i, j, k)));
+                    }
+                    table.addColumn(column);
+                }
+                excel.addTable(table);
+            }
 
-    @Test
+            fh.write(excel);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    //@Test
     public void testGUI() {
 
         try {
