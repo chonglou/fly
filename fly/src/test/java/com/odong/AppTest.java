@@ -93,8 +93,8 @@ public class AppTest
         }
     }
 
-    @Test
-    public void testGUI() {
+    //@Test
+    public void testWindow() {
 
         try {
             Thread.sleep(1000 * 60 * 5);

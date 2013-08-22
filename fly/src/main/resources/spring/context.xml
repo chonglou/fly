@@ -4,15 +4,7 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     <context:component-scan base-package="com.odong.*"/>
-    <!--
-    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:config.properties</value>
-            </list>
-        </property>
-    </bean>
-    -->
+
     <context:property-placeholder location="config.properties"/>
     <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
         <property name="basename" value="messages"/>
@@ -22,8 +14,11 @@
     <bean id="encryptHelper" init-method="init" class="com.odong.core.util.EncryptHelper">
         <property name="appKey" value="${app.key}"/>
     </bean>
+
+    <!--测试or发布-->
     <bean id="serialUtil" init-method="init" destroy-method="destroy"
           class="com.odong.fly.serial.impl.SerialUtilDemoImpl"/>
+    <bean id="cameraUtil" class="com.odong.fly.camera.impl.CameraUtilDemoImpl"/>
 
     <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
         <property name="driverClass" value="${db.driver}"/>

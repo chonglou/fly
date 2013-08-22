@@ -1,0 +1,6 @@
+1:Install both runtime components of Microsoft Visual C++ 2010
+Microsoft Visual C++ 2010 Redistributable Package (x86): http://www.microsoft.com/download/en/details.aspx?id=5555
+Microsoft Visual C++ 2010 Redistributable Package (x64): http://www.microsoft.com/download/en/details.aspx?id=14632
+
+2:Extract OpenCV-2.4.5.exe(http://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.4.5/OpenCV-2.4.5.exe/download) inside the root directory C:\
+
