@@ -70,8 +70,9 @@ public class SerialDialog {
         dialog.setLocationRelativeTo(window);
         dialog.setResizable(false);
     }
+
     @SafeVarargs
-    private final  <T> void addLine(String name, Class<T> clazz, T... items) {
+    private final <T> void addLine(String name, Class<T> clazz, T... items) {
         JLabel lbl = new JLabel();
         mainP.add(lbl);
         lbl.setHorizontalAlignment(SwingConstants.RIGHT);

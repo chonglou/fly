@@ -4,6 +4,7 @@ import com.odong.core.util.JsonHelper;
 import com.odong.fly.job.Task;
 import com.odong.fly.model.Item;
 import com.odong.fly.model.Log;
+import com.odong.fly.model.Photo;
 import com.odong.fly.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,6 +137,16 @@ public class StoreHelperJdbcImpl implements StoreHelper {
     @Override
     public void addLog(String task, String message) {
         jdbcTemplate.update("INSERT INTO LOGS(task, message) VALUES (?,?)", task, message);
+    }
+
+    @Override
+    public Photo getPhoto(long id) {
+        return null;  //
+    }
+
+    @Override
+    public void addPhoto(byte[] image) {
+        //
     }
 
     @PostConstruct

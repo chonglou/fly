@@ -12,32 +12,36 @@ import java.util.List;
  * Time: 下午6:38
  */
 public class Column implements Serializable {
-    public int size(){
+    public int size() {
         return items.size();
     }
-    public Object item(int i){
+
+    public Object item(int i) {
         return items.get(i);
     }
-    public void addItem(Object obj){
-        if(
-                (type == Type.STRING && obj instanceof String)||
-                (type == Type.DATE && obj instanceof Date)||
-                (type == Type.BOOL && obj instanceof Boolean)
-                ){
+
+    public void addItem(Object obj) {
+        if (
+                (type == Type.STRING && obj instanceof String) ||
+                        (type == Type.DATE && obj instanceof Date) ||
+                        (type == Type.BOOL && obj instanceof Boolean)
+                ) {
             this.items.add(obj);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("参数类型错误");
         }
     }
-    public enum Type{
-        DATE,BOOL,STRING
+
+    public enum Type {
+        DATE, BOOL, STRING
     }
+
     public Column(String name, Type type) {
         this.name = name;
         this.type = type;
         this.items = new ArrayList<>();
     }
+
     @Deprecated
     public Column() {
     }
@@ -76,6 +80,7 @@ public class Column implements Serializable {
     public List<Object> getItems() {
         return items;
     }
+
     @Deprecated
     public void setItems(List<Object> items) {
         this.items = items;

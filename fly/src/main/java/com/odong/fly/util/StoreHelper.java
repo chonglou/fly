@@ -3,6 +3,7 @@ package com.odong.fly.util;
 import com.odong.fly.job.Task;
 import com.odong.fly.model.Item;
 import com.odong.fly.model.Log;
+import com.odong.fly.model.Photo;
 
 import java.util.Date;
 import java.util.List;
@@ -33,4 +34,8 @@ public interface StoreHelper {
     List<Log> listLog(int len);
 
     void addLog(String task, String message);
+
+    Photo getPhoto(long id);
+
+    void addPhoto(byte[] image);
 }

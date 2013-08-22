@@ -12,15 +12,18 @@ import java.util.List;
  * Time: 下午4:58
  */
 public class Column implements Serializable {
-    public Cell cell(int i){
+    public Cell cell(int i) {
         return cells.get(i);
     }
-    public int size(){
+
+    public int size() {
         return cells.size();
     }
-    public void addCell(Cell...cells){
+
+    public void addCell(Cell... cells) {
         this.cells.addAll(Arrays.asList(cells));
     }
+
     @Deprecated
     public Column() {
     }
@@ -56,6 +59,7 @@ public class Column implements Serializable {
     public List<Cell> getCells() {
         return cells;
     }
+
     @Deprecated
     public void setCells(List<Cell> cells) {
         this.cells = cells;

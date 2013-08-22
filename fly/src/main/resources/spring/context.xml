@@ -18,7 +18,8 @@
     <!--测试or发布-->
     <bean id="serialUtil" init-method="init" destroy-method="destroy"
           class="com.odong.fly.serial.impl.SerialUtilDemoImpl"/>
-    <bean id="cameraUtil" class="com.odong.fly.camera.impl.CameraUtilDemoImpl"/>
+    <bean id="cameraUtil" init-method="init" destroy-method="destroy"
+          class="com.odong.fly.camera.impl.CameraUtilDemoImpl"/>
 
     <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
         <property name="driverClass" value="${db.driver}"/>

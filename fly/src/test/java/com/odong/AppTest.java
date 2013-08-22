@@ -7,6 +7,7 @@ import com.odong.core.file.excel.Column;
 import com.odong.core.file.excel.Excel;
 import com.odong.core.file.excel.Table;
 import com.odong.core.util.EncryptHelper;
+import com.odong.core.util.JsonHelper;
 import com.odong.fly.Server;
 import com.odong.fly.model.Log;
 import com.odong.fly.util.StoreHelper;
@@ -16,6 +17,11 @@ import org.testng.annotations.Test;
 public class AppTest
 
 {
+    @Test
+    void testOs() {
+        log(System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"));
+    }
+
     //@Test
     public void testEncrypt() {
         try {
@@ -110,6 +116,13 @@ public class AppTest
             Server.get().start();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void log(Object... objects) {
+        JsonHelper jh = Server.get().getBean(JsonHelper.class);
+        for (Object obj : objects) {
+            System.out.println(jh.object2json(obj));
         }
     }
 }

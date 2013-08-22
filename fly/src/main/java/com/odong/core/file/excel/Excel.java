@@ -12,17 +12,19 @@ import java.util.List;
  * Time: 下午4:55
  */
 public class Excel implements Serializable {
-    public void addTable(Table...tables){
+    public void addTable(Table... tables) {
         this.tables.addAll(Arrays.asList(tables));
     }
+
     public Excel(String name) {
         this.name = name;
         this.tables = new ArrayList<>();
     }
 
     @Deprecated
-    public Excel(){
+    public Excel() {
     }
+
     private static final long serialVersionUID = -3092853476405553295L;
     private String name;
     private List<Table> tables;

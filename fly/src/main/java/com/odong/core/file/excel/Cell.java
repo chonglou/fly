@@ -13,7 +13,7 @@ public class Cell implements Serializable {
         this.value = value;
     }
 
-    public Cell( Object value, String link) {
+    public Cell(Object value, String link) {
         this.link = link;
         this.value = value;
     }

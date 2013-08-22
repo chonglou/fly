@@ -14,9 +14,7 @@ import org.supercsv.cellprocessor.FmtDate;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.CsvListWriter;
-import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.io.ICsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
@@ -35,9 +33,9 @@ import java.util.List;
  */
 @Component
 public class FileHelper {
-    private CellProcessor getCellProcessor(Column column){
+    private CellProcessor getCellProcessor(Column column) {
         CellProcessor type = null;
-        switch (column.getType()){
+        switch (column.getType()) {
 
             case BOOL:
                 type = new FmtBool("Y", "N");
@@ -50,32 +48,33 @@ public class FileHelper {
                 (column.isOptional() ? new Optional() : new NotNull()) :
                 (column.isOptional() ? new Optional(type) : new NotNull(type));
     }
-    public void write(Csv csv){
-        try(ICsvListWriter writer = new CsvListWriter(new FileWriter(csv.getName()), CsvPreference.STANDARD_PREFERENCE)){
-            int cols=csv.getColumns().size();
+
+    public void write(Csv csv) {
+        try (ICsvListWriter writer = new CsvListWriter(new FileWriter(csv.getName()), CsvPreference.STANDARD_PREFERENCE)) {
+            int cols = csv.getColumns().size();
             CellProcessor[] processors = new CellProcessor[cols];
             String[] headers = new String[cols];
-            for(int i=0; i<cols; i++){
+            for (int i = 0; i < cols; i++) {
                 Column column = csv.getColumns().get(i);
                 processors[i] = getCellProcessor(column);
                 headers[i] = column.getName();
             }
             writer.writeHeader(headers);
             //遍历（列）
-            for(int i=0; i<csv.getSize();i++){
+            for (int i = 0; i < csv.getSize(); i++) {
                 List<Object> objects = new ArrayList<>();
                 //遍历（行）
-                for(int j=0; j<cols;j++){
+                for (int j = 0; j < cols; j++) {
                     objects.add(csv.getColumns().get(j).item(i));
                 }
                 writer.write(objects, processors);
             }
 
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             logger.error("生成csv文件出错", e);
         }
     }
+
     public void write(Excel excel) {
         HSSFWorkbook book = new HSSFWorkbook();
 
@@ -103,37 +102,35 @@ public class FileHelper {
         */
 
 
-        for(Table table : excel.getTables()){
+        for (Table table : excel.getTables()) {
             HSSFSheet sheet = book.createSheet(table.getName());
 
 
             // 创建Excel的sheet的一行
             HSSFRow head = sheet.createRow(0);
             //head.setHeight((short) 300);// 设定行的高度
-            for(int i=0; i<table.getColumns().size(); i++){
+            for (int i = 0; i < table.getColumns().size(); i++) {
                 // 创建一个Excel的单元格
                 HSSFCell cell = head.createCell(i);
                 //cell.setCellStyle(headStyle);
                 cell.setCellValue(table.getColumns().get(i).getName());
             }
             //遍历（行）
-            for(int i=0; i<table.getSize();i++){
-                HSSFRow row = sheet.createRow(i+1);
+            for (int i = 0; i < table.getSize(); i++) {
+                HSSFRow row = sheet.createRow(i + 1);
                 //遍历（列）
-                for(int j=0; j<table.getColumns().size();j++){
+                for (int j = 0; j < table.getColumns().size(); j++) {
                     HSSFCell cell = row.createCell(j);
                     Cell c = table.getColumns().get(j).cell(i);
 
-                    if(c.getValue() instanceof Date ){
-                        cell.setCellValue((Date)c.getValue());
+                    if (c.getValue() instanceof Date) {
+                        cell.setCellValue((Date) c.getValue());
+                    } else if (c.getValue() instanceof Number) {
+                        cell.setCellValue((Double) c.getValue());
+                    } else {
+                        cell.setCellValue((String) c.getValue());
                     }
-                    else if(c.getValue() instanceof Number){
-                        cell.setCellValue((Double)c.getValue());
-                    }
-                    else{
-                        cell.setCellValue((String)c.getValue());
-                    }
-                    if(c.getLink() != null){
+                    if (c.getLink() != null) {
                         HSSFHyperlink link = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
                         link.setAddress(c.getLink());
                         cell.setHyperlink(link);
@@ -141,17 +138,16 @@ public class FileHelper {
                 }
             }
             //设置excel每列宽度
-            for(int i=0; i<table.getColumns().size();i++){
+            for (int i = 0; i < table.getColumns().size(); i++) {
                 //sheet.setColumnWidth(i, table.getColumns().get(i).getWidth());
                 sheet.autoSizeColumn(i);
             }
 
         }
 
-        try(FileOutputStream os = new FileOutputStream(excel.getName())){
+        try (FileOutputStream os = new FileOutputStream(excel.getName())) {
             book.write(os);
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             logger.error("生成Excel文件出错", e);
         }
     }
