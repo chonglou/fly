@@ -11,23 +11,19 @@ import com.odong.core.util.JsonHelper;
 import com.odong.fly.Server;
 import com.odong.fly.camera.CameraUtil;
 import com.odong.fly.model.Log;
-import com.odong.fly.model.Task;
-import com.odong.fly.util.StoreHelper;
+import com.odong.fly.service.StoreHelper;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
-import java.net.URI;
-import java.net.URL;
 
 public class AppTest
 
 {
 
     //@Test
-    public void testCamera(){
-        try{
-        CameraUtil cu = Server.get().bean(CameraUtil.class);
-            int device=10;
+    public void testCamera() {
+        try {
+            CameraUtil cu = Server.get().bean(CameraUtil.class);
+            int device = 10;
             String dvi = cu.randomName();
             cu.open(device);
             cu.start(device, dvi, 15);
@@ -37,11 +33,11 @@ public class AppTest
             cu.close(device);
 
             log(dvi, png);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     //@Test
     public void testOs() {
         log(System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"));

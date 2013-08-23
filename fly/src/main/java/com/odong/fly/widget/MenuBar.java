@@ -4,8 +4,8 @@ package com.odong.fly.widget;
 import com.odong.fly.MyException;
 import com.odong.fly.model.Task;
 import com.odong.fly.serial.SerialUtil;
+import com.odong.fly.service.StoreHelper;
 import com.odong.fly.util.GuiHelper;
-import com.odong.fly.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ public class MenuBar {
         menuItems = new HashMap<>();
         checkBoxMenuItems = new ArrayList<>();
 
-        addMenuItem("file", "exit");
+        addMenuItem("file", "gc", "exit");
         Set<String> portNames = serialUtil.getPortNameList();
         addCheckBoxMenuItem("device", portNames.toArray(new String[portNames.size()]));
         addRadioMenuItem("lang", "en_US", "zh_CN");
@@ -157,6 +157,13 @@ public class MenuBar {
                         break;
                     case "aboutMe":
                         guiHelper.showInfoDialog("aboutMe");
+                        break;
+                    case "gc":
+                        if (guiHelper.showConfirmDialog("gc")) {
+                            logger.info("内存整理");
+                            System.gc();
+                            guiHelper.showInfoDialog("success");
+                        }
                         break;
                     case "exit":
                         guiHelper.showExitDialog();

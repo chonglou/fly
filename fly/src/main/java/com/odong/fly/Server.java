@@ -1,10 +1,12 @@
 package com.odong.fly;
 
+import com.odong.fly.widget.ProgressBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -22,18 +24,21 @@ public class Server {
     }
 
     public void init() {
+        ProgressBar.get().show(true);
         logger.info("正在设置运行环境");
         System.setProperty("derby.stream.error.file", "var/derby.log");
         try {
-            FileLock lock = new RandomAccessFile(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "relay.lock", "rw").getChannel().tryLock();
+            FileLock lock = new RandomAccessFile(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + ".fly.lock", "rw").getChannel().tryLock();
             if (lock == null) {
                 logger.error("不能重复启动");
+                ProgressBar.get().message("duplicateBoot");
                 System.exit(-1);
             }
 
         } catch (IOException e) {
             logger.error("锁文件出错", e);
         }
+        ProgressBar.get().set(5);
 
         for (String path : new String[]{"var/camera"}) {
             File file = new File(path);
@@ -52,6 +57,7 @@ public class Server {
     }
 
     public void start() {
+        ProgressBar.get().set(10);
         logger.info("正在启动...");
         ctx = new ClassPathXmlApplicationContext("spring/*.xml");
     }
@@ -76,4 +82,5 @@ public class Server {
 
     private static Server instance;
     private final static Logger logger = LoggerFactory.getLogger(Server.class);
+
 }

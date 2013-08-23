@@ -1,4 +1,4 @@
-package com.odong.fly.util.impl;
+package com.odong.fly.service.impl;
 
 import com.odong.core.util.JsonHelper;
 import com.odong.fly.model.Log;
@@ -9,7 +9,8 @@ import com.odong.fly.model.request.OnOffRequest;
 import com.odong.fly.model.request.PhotoRequest;
 import com.odong.fly.model.request.Request;
 import com.odong.fly.model.request.VideoRequest;
-import com.odong.fly.util.StoreHelper;
+import com.odong.fly.service.StoreHelper;
+import com.odong.fly.widget.ProgressBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,10 +19,11 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -32,7 +34,7 @@ import java.util.Date;
  * Date: 13-8-12
  * Time: 下午3:05
  */
-@Repository
+@Service
 public class StoreHelperJdbcImpl implements StoreHelper {
 
 
@@ -69,10 +71,10 @@ public class StoreHelperJdbcImpl implements StoreHelper {
     public Task getAvailSerialTask(String portName, int channel) {
 
         for (Task t : listAvailableTask(Task.Type.ON_OFF)) {
-                OnOffRequest r = (OnOffRequest) t.getRequest();
-                if (r.getPortName().equals(portName) && r.getChannel() == channel) {
-                    return t;
-                }
+            OnOffRequest r = (OnOffRequest) t.getRequest();
+            if (r.getPortName().equals(portName) && r.getChannel() == channel) {
+                return t;
+            }
         }
         return null;
     }
@@ -96,10 +98,10 @@ public class StoreHelperJdbcImpl implements StoreHelper {
     public void setOnOffTaskInfo(String taskId, Date begin, Date end, long total, int onSpace, int offSpace) {
         Task task = getTask(taskId);
 
-        OnOffRequest request = (OnOffRequest)task.getRequest();
+        OnOffRequest request = (OnOffRequest) task.getRequest();
         request.setOffSpace(offSpace);
         request.setOnSpace(onSpace);
-        jdbcTemplate.update("UPDATE TASKS set begin_=?,end_=?,total=?,request=? WHERE id=?",begin,end,total, jsonHelper.object2json(request), taskId);
+        jdbcTemplate.update("UPDATE TASKS set begin_=?,end_=?,total=?,request=? WHERE id=?", begin, end, total, jsonHelper.object2json(request), taskId);
     }
 
     @Override
@@ -129,16 +131,16 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
     @Override
     public List<Task> listAvailableTask(Task.Type... types) {
-        String[] ss = new String[types.length+1];
+        String[] ss = new String[types.length + 1];
         String sql = "SELECT * FROM TASKS WHERE (";
-        for(int i=0; i<types.length;i++){
+        for (int i = 0; i < types.length; i++) {
             ss[i] = types[i].name();
-            if(i>0){
-                sql+=" OR ";
+            if (i > 0) {
+                sql += " OR ";
             }
             sql += " type_=? ";
         }
-        sql+=") AND state!=?";
+        sql += ") AND state!=?";
         ss[types.length] = Task.State.DELETE.name();
 
         return jdbcTemplate.query(sql, mapperTask(), ss);
@@ -146,16 +148,16 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
     @Override
     public List<Task> listRunnerTask(Task.Type... types) {
-        String[] ss = new String[types.length+2];
+        String[] ss = new String[types.length + 2];
         String sql = "SELECT * FROM TASKS WHERE (";
-        for(int i=0; i<types.length;i++){
+        for (int i = 0; i < types.length; i++) {
             ss[i] = types[i].name();
-            if(i>0){
-                sql+=" OR ";
+            if (i > 0) {
+                sql += " OR ";
             }
             sql += " type_=? ";
         }
-        sql+=") AND (state=? OR state=?)";
+        sql += ") AND (state=? OR state=?)";
         ss[types.length] = Task.State.SUBMIT.name();
         ss[types.length] = Task.State.PROCESSING.name();
 
@@ -227,6 +229,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
     @PostConstruct
     synchronized void init() {
+        ProgressBar.get().set(50);
         jdbcTemplate.execute(new ConnectionCallback<Object>() {
             @Override
             public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
@@ -394,7 +397,6 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
     private String databaseProductName;
     private String databaseProductVersion;
-    @Resource
     private JdbcTemplate jdbcTemplate;
     @Resource
     private JsonHelper jsonHelper;
@@ -410,7 +412,8 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         this.jsonHelper = jsonHelper;
     }
 
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    @Resource
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 }

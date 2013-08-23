@@ -1,7 +1,7 @@
 package com.odong.fly.job;
 
 import com.odong.fly.serial.SerialUtil;
-import com.odong.fly.util.StoreHelper;
+import com.odong.fly.service.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -347,7 +347,9 @@
         <profile>
             <id>linux</id>
             <activation>
-                <os><name>linux</name></os>
+                <os>
+                    <name>linux</name>
+                </os>
             </activation>
             <properties>
                 <os.name>linux</os.name>
@@ -356,7 +358,9 @@
         <profile>
             <id>macosx</id>
             <activation>
-                <os><name>mac os x</name></os>
+                <os>
+                    <name>mac os x</name>
+                </os>
             </activation>
             <properties>
                 <os.name>macosx</os.name>
@@ -365,7 +369,9 @@
         <profile>
             <id>windows</id>
             <activation>
-                <os><family>windows</family></os>
+                <os>
+                    <family>windows</family>
+                </os>
             </activation>
             <properties>
                 <os.name>windows</os.name>
@@ -374,7 +380,9 @@
         <profile>
             <id>i386</id>
             <activation>
-                <os><arch>i386</arch></os>
+                <os>
+                    <arch>i386</arch>
+                </os>
             </activation>
             <properties>
                 <os.arch>x86</os.arch>
@@ -383,7 +391,9 @@
         <profile>
             <id>i486</id>
             <activation>
-                <os><arch>i486</arch></os>
+                <os>
+                    <arch>i486</arch>
+                </os>
             </activation>
             <properties>
                 <os.arch>x86</os.arch>
@@ -392,7 +402,9 @@
         <profile>
             <id>i586</id>
             <activation>
-                <os><arch>i586</arch></os>
+                <os>
+                    <arch>i586</arch>
+                </os>
             </activation>
             <properties>
                 <os.arch>x86</os.arch>
@@ -401,7 +413,9 @@
         <profile>
             <id>i686</id>
             <activation>
-                <os><arch>i686</arch></os>
+                <os>
+                    <arch>i686</arch>
+                </os>
             </activation>
             <properties>
                 <os.arch>x86</os.arch>
@@ -410,7 +424,9 @@
         <profile>
             <id>amd64</id>
             <activation>
-                <os><arch>amd64</arch></os>
+                <os>
+                    <arch>amd64</arch>
+                </os>
             </activation>
             <properties>
                 <os.arch>x86_64</os.arch>
@@ -419,7 +435,9 @@
         <profile>
             <id>x86-64</id>
             <activation>
-                <os><arch>x86-64</arch></os>
+                <os>
+                    <arch>x86-64</arch>
+                </os>
             </activation>
             <properties>
                 <os.arch>x86_64</os.arch>

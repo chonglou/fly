@@ -4,6 +4,7 @@ import com.odong.core.util.JsonHelper;
 import com.odong.fly.MyException;
 import com.odong.fly.Server;
 import com.odong.fly.serial.SerialUtil;
+import com.odong.fly.widget.ProgressBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -43,6 +44,11 @@ public class GuiHelper {
         }
     }
 
+    public boolean showConfirmDialog(String key) {
+        return JOptionPane.showConfirmDialog(window, getMessage("dialog." + key + ".message"),
+                getMessage("dialog." + key + ".title"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+    }
+
     public void showErrorDialog(MyException.Type type) {
         JOptionPane.showMessageDialog(window,
                 getMessage("exception." + type.name()),
@@ -75,7 +81,9 @@ public class GuiHelper {
 
 
     public void show(boolean visible) {
+        ProgressBar.get().set(95);
         window.setVisible(visible);
+        ProgressBar.get().show(false);
     }
 
     public void setLocale(Locale locale) {

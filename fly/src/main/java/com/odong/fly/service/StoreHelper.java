@@ -1,4 +1,4 @@
-package com.odong.fly.util;
+package com.odong.fly.service;
 
 import com.odong.fly.model.Log;
 import com.odong.fly.model.Task;
@@ -14,6 +14,7 @@ import java.util.List;
  * Date: 13-8-7
  * Time: 下午10:34
  */
+
 public interface StoreHelper {
 
     void addOnOffTask(String id, String portName, int channel, Date begin, Date end, long total, int onSpace, int offSpace);

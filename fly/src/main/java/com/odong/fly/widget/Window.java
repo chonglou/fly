@@ -35,7 +35,7 @@ public class Window {
 
         initStyle();
         initEvent();
-        setLocale(Locale.SIMPLIFIED_CHINESE);
+        setLocale(Locale.getDefault());
 
         guiHelper.show(true);
         cardPanel.showHelp();
@@ -53,14 +53,9 @@ public class Window {
 
     private void initStyle() {
         JFrame frame = guiHelper.getWindow();
-        /*
-        //菜单栏bug
-        frame.setLocationByPlatform(true);
-         */
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setLocation(d.width / 4, d.height / 4);
         frame.setSize(800, 600);
-        //frame.pack();
     }
 
 
