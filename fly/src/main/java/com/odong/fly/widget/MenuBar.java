@@ -2,9 +2,10 @@ package com.odong.fly.widget;
 
 
 import com.odong.fly.MyException;
-import com.odong.fly.job.TaskJob;
+import com.odong.fly.model.Task;
 import com.odong.fly.serial.SerialUtil;
 import com.odong.fly.util.GuiHelper;
+import com.odong.fly.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -129,7 +130,7 @@ public class MenuBar {
                         if (item.isSelected()) {
                             serialDialog.show(portName);
                         } else {
-                            if (serialUtil.isOpen(portName)) {
+                            if (storeHelper.listRunnerTask(Task.Type.ON_OFF).size() > 0) {
                                 guiHelper.showErrorDialog(MyException.Type.SERIAL_PORT_IN_USE);
                             } else {
                                 serialUtil.close(portName);
@@ -195,7 +196,14 @@ public class MenuBar {
     private Window window;
     @Resource
     private ToolBar toolBar;
+    @Resource
+    private StoreHelper storeHelper;
+
     private final static Logger logger = LoggerFactory.getLogger(MenuBar.class);
+
+    public void setStoreHelper(StoreHelper storeHelper) {
+        this.storeHelper = storeHelper;
+    }
 
     public void setCardPanel(CardPanel cardPanel) {
         this.cardPanel = cardPanel;

@@ -1,5 +1,10 @@
 package com.odong.fly.model;
 
+import com.odong.fly.model.request.OnOffRequest;
+import com.odong.fly.model.request.PhotoRequest;
+import com.odong.fly.model.request.Request;
+import com.odong.fly.model.request.VideoRequest;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,24 +15,40 @@ import java.util.Date;
  * Time: 下午3:23
  */
 public class Task implements Serializable {
+
+
     public enum Type {
         ON_OFF, VIDEO, PHOTO
     }
 
     public enum State {
-        FAIL,
         PROCESSING,
         SUBMIT,
         DONE,
-        PANIC,
         DELETE
+    }
+
+    @Override
+    public String toString() {
+        switch (type) {
+            case ON_OFF:
+                OnOffRequest oor = (OnOffRequest) request;
+                return oor.getPortName() + ":" + oor.getChannel();
+            case PHOTO:
+                PhotoRequest pr = (PhotoRequest) request;
+                return pr.getName();
+            case VIDEO:
+                VideoRequest vr = (VideoRequest) request;
+                return vr.getName();
+        }
+        return id;
     }
 
     private static final long serialVersionUID = -1674127878261854260L;
     private String id;
     private Type type;
     private State state;
-    private String request;
+    private Request request;
     private String temp;
     private Date begin;
     private Date end;
@@ -78,11 +99,11 @@ public class Task implements Serializable {
         this.state = state;
     }
 
-    public String getRequest() {
+    public Request getRequest() {
         return request;
     }
 
-    public void setRequest(String request) {
+    public void setRequest(Request request) {
         this.request = request;
     }
 

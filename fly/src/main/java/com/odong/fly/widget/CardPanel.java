@@ -24,9 +24,17 @@ import java.awt.*;
  */
 @Component
 public class CardPanel {
-    public synchronized void showPort(String portName){
-        //FIXME
+    public synchronized void showSerialOnOff(String portName) {
+        SerialPort.Type type = serialUtil.getType(portName);
+        layout.show(panel, type.name());
+
+        switch (type) {
+            case ON_OFF:
+                onOffPanel.show(portName);
+                break;
+        }
     }
+
     public synchronized void showHelp() {
         layout.show(panel, "doc");
     }
@@ -77,7 +85,13 @@ public class CardPanel {
     private StoreHelper storeHelper;
     @Resource
     private HelpPanel helpPanel;
+    @Resource
+    private SerialUtil serialUtil;
     private final static Logger logger = LoggerFactory.getLogger(CardPanel.class);
+
+    public void setSerialUtil(SerialUtil serialUtil) {
+        this.serialUtil = serialUtil;
+    }
 
     public void setHelpPanel(HelpPanel helpPanel) {
         this.helpPanel = helpPanel;

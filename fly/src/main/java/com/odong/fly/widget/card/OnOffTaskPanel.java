@@ -1,9 +1,9 @@
 package com.odong.fly.widget.card;
 
-import com.odong.fly.job.TaskJob;
+import com.odong.fly.MyException;
 import com.odong.fly.model.Task;
 import com.odong.fly.model.item.SerialItem;
-import com.odong.fly.serial.SerialPort;
+import com.odong.fly.model.request.OnOffRequest;
 import com.odong.fly.util.GuiHelper;
 import com.odong.fly.util.StoreHelper;
 import com.odong.fly.widget.DateTimePanel;
@@ -17,10 +17,13 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,50 +37,70 @@ public class OnOffTaskPanel extends TaskPanel {
         super();
     }
 
-    public void show(String portName, int channel) {
-        /*
-        FIXME
-        Task t = taskJob.getTask(portName, channel);
-        if (t == null) {
-            Date now = new Date();
-            this.show(guiHelper.getMessage("channel.task.title") + portName,
-                    UUID.randomUUID().toString(), portName, channel,
-                    now, new Date(now.getTime() + 1000 * 60 * 60 * 24), 3, 3,
-                    0);
-        } else {
-            show(t);
-        }
-        */
+    public void show(String portName) {
+
+
+        Date now = new Date();
+        this.show(guiHelper.getMessage("channel.task.title") + portName,
+                null, portName, null,
+                now, new Date(now.getTime() + 1000 * 60 * 60 * 24),
+                0, 3, 3
+        );
+
+        setStart(false);
+        channelCB.setEnabled(true);
+        buttons.get("delete").setVisible(false);
     }
 
     @Override
     public void show(Task task) {
-        /*FIXME
+        OnOffRequest r = (OnOffRequest) task.getRequest();
         this.show(guiHelper.getMessage("channel.task.title") + task.toString(),
-                task.getId(), task.getPortName(), task.getChannel(),
-                task.getBegin(), task.getEnd(), task.getOnSpace(), task.getOffSpace(),
-                task.getTotal());
-                */
+                task.getId(), r.getPortName(), r.getChannel(),
+                task.getBegin(), task.getEnd(), task.getTotal(), r.getOnSpace(), r.getOffSpace()
+        );
+
+        channelCB.setEnabled(false);
+        setStart(task.getState() == Task.State.SUBMIT || task.getState() == Task.State.PROCESSING);
+        buttons.get("delete").setVisible(true);
     }
 
 
-    private void show(String title, String taskId, String portName, int channel, Date begin, Date end, int onSpace, int offSpace, int total) {
+    private void setStart(boolean start) {
+        buttons.get("stop").setEnabled(start);
+
+        buttons.get("on").setEnabled(!start);
+        buttons.get("off").setEnabled(!start);
+        buttons.get("start").setEnabled(!start);
+        buttons.get("delete").setEnabled(!start);
+
+        beginTime.setEnable(!start);
+        endTime.setEnable(!start);
+        onSpace.setEnabled(!start);
+        offSpace.setEnabled(!start);
+        total.setEnabled(!start);
+    }
+
+    private void show(String title, String taskId, String portName, Integer channel, Date begin, Date end, long total, int onSpace, int offSpace) {
         this.taskId = taskId;
         this.portName = portName;
 
-        this.channelCB.setSelectedItem(channel);
+        if (channel != null) {
+            this.channelCB.setSelectedItem(channel);
+        }
+
         this.title.setText("<html><h1>" + title + "</h1></html>");
         this.beginTime.setDate(begin);
         this.endTime.setDate(end);
         this.onSpace.setText(Integer.toString(onSpace));
         this.offSpace.setText(Integer.toString(offSpace));
-        this.total.setText(total == 0 ? null : Integer.toString(total));
+        this.total.setText(Long.toString(total));
     }
 
 
     @PostConstruct
     void init() {
-        setButtonOn(false);
+        setStart(false);
     }
 
     @Override
@@ -105,47 +128,12 @@ public class OnOffTaskPanel extends TaskPanel {
     }
 
 
-    private void setOn(boolean on) {
-        if (on) {
-            try {
-                String total = this.total.getText();
-                Date begin = beginTime.getDate();
-                Date end = endTime.getDate();
-                if (begin.compareTo(end) >= 0) {
-                    throw new IllegalArgumentException("起始时间必须小于结束时间");
-                }
-
-                /*FIXME 启动任务
-                taskJob.putTask(portName, (Integer) channelCB.getSelectedItem(), beginTime.getDate(), endTime.getDate(),
-                        Integer.parseInt(onSpace.getText()),
-                        Integer.parseInt(offSpace.getText()),
-                        "".equals(total) ? 0 : Integer.parseInt(total));
-                        */
-            } catch (Exception e) {
-                logger.error("添加任务出错", e);
-                guiHelper.showErrorDialog("inputNonValid");
-                return;
-            }
-
-        } else {
-            storeHelper.shutDown(taskId, null, Task.State.DONE);
-        }
-
-        setButtonOn(on);
-        toolBar.refresh();
-    }
-
-    private void setButtonOn(boolean on) {
-
-        buttons.get("on").setEnabled(!on);
-        buttons.get("off").setEnabled(on);
-    }
-
     private void refreshLogList() {
         logModel.removeAllElements();
-        for (SerialItem l : storeHelper.listSerialItem(taskId)) {
-            //FIXME
-            logModel.addElement(l.toString());
+        if (taskId != null) {
+            for (SerialItem l : storeHelper.listSerialItem(taskId)) {
+                logModel.addElement(l.getCreated().toString() + ":" + l.getRequest() + "," + l.getResponse());
+            }
         }
     }
 
@@ -157,10 +145,54 @@ public class OnOffTaskPanel extends TaskPanel {
                 JButton btn = (JButton) e.getSource();
                 switch (btn.getName()) {
                     case "btn-on":
-                        setOn(true);
                         break;
                     case "btn-off":
-                        setOn(false);
+                        break;
+                    case "btn-start":
+                        try {
+                            int ch = (Integer) channelCB.getSelectedItem();
+                            Date begin = beginTime.getDate();
+                            Date end = endTime.getDate();
+                            String totalS = total.getText();
+                            long t = "".equals(totalS) ? 0 : Long.parseLong(totalS);
+                            int onS = Integer.parseInt(onSpace.getText());
+                            int offS = Integer.parseInt(offSpace.getText());
+
+                            if (begin.compareTo(end) >= 0 || onS <= 0 || offS <= 0 || t < 0) {
+                                throw new IllegalArgumentException();
+                            }
+                            if (taskId == null) {
+                                if (storeHelper.getAvailSerialTask(portName, ch) != null) {
+                                    guiHelper.showErrorDialog(MyException.Type.SERIAL_CHANNEL_IN_USE);
+                                    return;
+                                }
+
+                                String tid = UUID.randomUUID().toString();
+                                storeHelper.addOnOffTask(tid, portName, ch, begin, end, t, onS, offS);
+                                taskId = tid;
+
+                            } else {
+                                storeHelper.setOnOffTaskInfo(taskId, begin, end, t, onS, offS);
+                                storeHelper.setTaskState(taskId, Task.State.SUBMIT);
+                            }
+                        } catch (Exception ex) {
+                            logger.error("数据输入出错", ex);
+                            guiHelper.showErrorDialog("inputNonValid");
+                        }
+                        if (taskId != null) {
+                            show(storeHelper.getTask(taskId));
+                        }
+                        toolBar.refresh();
+                        break;
+                    case "btn-stop":
+                        storeHelper.setTaskState(taskId, Task.State.DONE);
+                        setStart(false);
+                        toolBar.refresh();
+                        break;
+                    case "btn-delete":
+                        storeHelper.setTaskState(taskId, Task.State.DELETE);
+                        show(portName);
+                        toolBar.refresh();
                         break;
                     case "btn-refresh":
                         refreshLogList();
@@ -172,20 +204,20 @@ public class OnOffTaskPanel extends TaskPanel {
             buttons.get(s).addMouseListener(listener);
         }
 
+        /*
         channelCB.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     int ch = (Integer) ((JComboBox) e.getSource()).getSelectedItem();
-                    /*FIXME
-                    Task t = taskJob.getTask(portName, ch);
-                    setButtonOn(t != null);
-                    */
+                    setStart(storeHelper.getAvailSerialTask(portName, ch) = null);
                 }
             }
         });
+        */
 
     }
+
 
     @Override
     protected void initPanel() {
@@ -288,18 +320,12 @@ public class OnOffTaskPanel extends TaskPanel {
         c.gridx = 0;
         c.gridy++;
         p = new JPanel(new FlowLayout());
-        btn = new JButton();
-        btn.setName("btn-on");
-        p.add(btn);
-        buttons.put("on", btn);
-        btn = new JButton();
-        btn.setName("btn-off");
-        p.add(btn);
-        buttons.put("off", btn);
-        btn = new JButton();
-        btn.setName("btn-refresh");
-        p.add(btn);
-        buttons.put("refresh", btn);
+        for (String s : new String[]{"start", "stop", "delete", "on", "off", "refresh"}) {
+            btn = new JButton();
+            btn.setName("btn-" + s);
+            p.add(btn);
+            buttons.put(s, btn);
+        }
         c.gridheight = 1;
         c.gridwidth = 2;
         panel.add(p, c);
@@ -340,8 +366,6 @@ public class OnOffTaskPanel extends TaskPanel {
     @Resource
     private StoreHelper storeHelper;
     @Resource
-    private TaskJob taskJob;
-    @Resource
     private ToolBar toolBar;
 
 
@@ -351,9 +375,6 @@ public class OnOffTaskPanel extends TaskPanel {
         this.toolBar = toolBar;
     }
 
-    public void setTaskJob(TaskJob taskJob) {
-        this.taskJob = taskJob;
-    }
 
     public void setGuiHelper(GuiHelper guiHelper) {
         this.guiHelper = guiHelper;

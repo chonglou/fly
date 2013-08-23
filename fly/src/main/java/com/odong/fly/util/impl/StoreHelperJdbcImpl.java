@@ -5,6 +5,10 @@ import com.odong.fly.model.Log;
 import com.odong.fly.model.Task;
 import com.odong.fly.model.item.CameraItem;
 import com.odong.fly.model.item.SerialItem;
+import com.odong.fly.model.request.OnOffRequest;
+import com.odong.fly.model.request.PhotoRequest;
+import com.odong.fly.model.request.Request;
+import com.odong.fly.model.request.VideoRequest;
 import com.odong.fly.util.StoreHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +23,8 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.sql.*;
+import java.util.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,25 +37,25 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
 
     @Override
-    public void addOnOffTask(String id, String portName, int channel, Date begin, Date end, Long total, int onSpace, int offSpace) {
+    public void addOnOffTask(String id, String portName, int channel, Date begin, Date end, long total, int onSpace, int offSpace) {
         addTask(id, Task.Type.ON_OFF,
-                String.format("onoff://%s:%d/onSpace=%d&offSpace=%d", portName, channel, onSpace, offSpace),
+                new OnOffRequest(portName, channel, onSpace, offSpace),
                 Boolean.FALSE.toString(),
                 begin, end, total, null);
     }
 
     @Override
-    public void addPhotoTask(String id, int device, Date begin, Date end, Long total, int space) {
+    public void addPhotoTask(String id, int deviceId, String deviceName, Date begin, Date end, long total, int space) {
         addTask(id, Task.Type.PHOTO,
-                String.format("photo://%d", device),
+                new PhotoRequest(deviceId, deviceName),
                 null,
                 begin, end, total, space);
     }
 
     @Override
-    public void addVideoTask(String id, int device, int rate, Date begin, Date end, Long total, int onSpace, int offSpace) {
+    public void addVideoTask(String id, int deviceId, String deviceName, int rate, Date begin, Date end, long total, int onSpace, int offSpace) {
         addTask(id, Task.Type.VIDEO,
-                String.format("video://%d/rate=%d&onSpace=%d%offSpace=%d", device, rate, onSpace, offSpace),
+                new VideoRequest(deviceId, deviceName, rate, onSpace, offSpace),
                 null,
                 begin, end, total, null);
     }
@@ -61,6 +63,43 @@ public class StoreHelperJdbcImpl implements StoreHelper {
     @Override
     public Task getTask(String taskId) {
         return jdbcTemplate.queryForObject("SELECT * FROM TASKS WHERE id=?", mapperTask(), taskId);
+    }
+
+    @Override
+    public Task getAvailSerialTask(String portName, int channel) {
+
+        for (Task t : listAvailableTask(Task.Type.ON_OFF)) {
+                OnOffRequest r = (OnOffRequest) t.getRequest();
+                if (r.getPortName().equals(portName) && r.getChannel() == channel) {
+                    return t;
+                }
+        }
+        return null;
+    }
+
+    @Override
+    public List<Task> listSerialTask(String portName, Task.State... states) {
+        List<Task> tasks = new ArrayList<>();
+
+        for (Task t : listTask(states)) {
+            if (t.getType() == Task.Type.ON_OFF) {
+                OnOffRequest r = (OnOffRequest) t.getRequest();
+                if (r.getPortName().equals(portName)) {
+                    tasks.add(t);
+                }
+            }
+        }
+        return tasks;  //
+    }
+
+    @Override
+    public void setOnOffTaskInfo(String taskId, Date begin, Date end, long total, int onSpace, int offSpace) {
+        Task task = getTask(taskId);
+
+        OnOffRequest request = (OnOffRequest)task.getRequest();
+        request.setOffSpace(offSpace);
+        request.setOnSpace(onSpace);
+        jdbcTemplate.update("UPDATE TASKS set begin_=?,end_=?,total=?,request=? WHERE id=?",begin,end,total, jsonHelper.object2json(request), taskId);
     }
 
     @Override
@@ -74,23 +113,63 @@ public class StoreHelperJdbcImpl implements StoreHelper {
     }
 
     @Override
-    public List<Task> listTask(Task.State state) {
-        return jdbcTemplate.query("SELECT * FROM TASKS WHERE state=?", mapperTask(), state.name());
+    public List<Task> listTask(Task.State... states) {
+
+        String sql = "SELECT * FROM TASKS WHERE ";
+        String[] ss = new String[states.length];
+        for (int i = 0; i < states.length; i++) {
+            if (i > 0) {
+                sql += " OR ";
+            }
+            sql += " state=? ";
+            ss[i] = states[i].name();
+        }
+        return jdbcTemplate.query(sql, mapperTask(), ss);
     }
 
     @Override
-    public List<Task> listTask(Task.Type type) {
-        return jdbcTemplate.query("SELECT * FROM TASKS WHERE type_=?", mapperTask(), type.name());  //
+    public List<Task> listAvailableTask(Task.Type... types) {
+        String[] ss = new String[types.length+1];
+        String sql = "SELECT * FROM TASKS WHERE (";
+        for(int i=0; i<types.length;i++){
+            ss[i] = types[i].name();
+            if(i>0){
+                sql+=" OR ";
+            }
+            sql += " type_=? ";
+        }
+        sql+=") AND state!=?";
+        ss[types.length] = Task.State.DELETE.name();
+
+        return jdbcTemplate.query(sql, mapperTask(), ss);
+    }
+
+    @Override
+    public List<Task> listRunnerTask(Task.Type... types) {
+        String[] ss = new String[types.length+2];
+        String sql = "SELECT * FROM TASKS WHERE (";
+        for(int i=0; i<types.length;i++){
+            ss[i] = types[i].name();
+            if(i>0){
+                sql+=" OR ";
+            }
+            sql += " type_=? ";
+        }
+        sql+=") AND (state=? OR state=?)";
+        ss[types.length] = Task.State.SUBMIT.name();
+        ss[types.length] = Task.State.PROCESSING.name();
+
+        return jdbcTemplate.query(sql, mapperTask(), ss);
     }
 
     @Override
     public void startUp(String taskId) {
-        jdbcTemplate.update("UPDATE TASKS SET state=?,lastStartUp=?,index=index+1 WHERE id=?", Task.State.PROCESSING.name(), taskId, new Date());
+        jdbcTemplate.update("UPDATE TASKS SET state=?,lastStartUp=?,index=index+1 WHERE id=?", Task.State.PROCESSING.name(), new Date(), taskId);
     }
 
     @Override
     public void shutDown(String taskId, String temp, Task.State state) {
-        jdbcTemplate.update("UPDATE TASKS SET temp=?, state=?, lastShutDown=?, WHERE id=?", temp, state.name(), new Date(), taskId);
+        jdbcTemplate.update("UPDATE TASKS SET temp=?, state=?, lastShutDown=? WHERE id=?", temp, state.name(), new Date(), taskId);
     }
 
     @Override
@@ -231,9 +310,9 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         };
     }
 
-    private void addTask(String id, Task.Type type, String request, String temp, Date begin, Date end, Long total, Integer space) {
+    private void addTask(String id, Task.Type type, Request request, String temp, Date begin, Date end, long total, Integer space) {
         jdbcTemplate.update("INSERT INTO TASKS(id,type_,state,request,temp,begin_,end_,total,space_) VALUES(?,?,?,?,?,?,?,?,?)",
-                id, type.name(), Task.State.SUBMIT.name(), request, temp, begin, end, total, space);
+                id, type.name(), Task.State.SUBMIT.name(), jsonHelper.object2json(request), temp, begin, end, total, space);
     }
 
     private RowMapper<SerialItem> mapperSerialItem() {
@@ -284,9 +363,21 @@ public class StoreHelperJdbcImpl implements StoreHelper {
             public Task mapRow(ResultSet resultSet, int i) throws SQLException {
                 Task task = new Task();
                 task.setId(resultSet.getString("id"));
-                task.setType(Task.Type.valueOf(resultSet.getString("type_")));
+                Task.Type type = Task.Type.valueOf(resultSet.getString("type_"));
+                task.setType(type);
                 task.setState(Task.State.valueOf(resultSet.getString("state")));
-                task.setRequest(resultSet.getString("request"));
+                String request = resultSet.getString("request");
+                switch (type) {
+                    case ON_OFF:
+                        task.setRequest(jsonHelper.json2object(request, OnOffRequest.class));
+                        break;
+                    case PHOTO:
+                        task.setRequest(jsonHelper.json2object(request, PhotoRequest.class));
+                        break;
+                    case VIDEO:
+                        task.setRequest(jsonHelper.json2object(request, VideoRequest.class));
+                        break;
+                }
                 task.setTemp(resultSet.getString("temp"));
                 task.setBegin(resultSet.getTimestamp("begin_"));
                 task.setEnd(resultSet.getTimestamp("end_"));

@@ -146,7 +146,7 @@ public class SerialDialog {
 
                     if (serialUtil.isOpen(portName)) {
                         hide();
-                        cardPanel.showPort(portName);
+                        cardPanel.showSerialOnOff(portName);
                     }
                 } else {
                     hide();

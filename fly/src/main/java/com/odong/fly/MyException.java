@@ -22,6 +22,7 @@ public class MyException extends Exception {
     public enum Type {
         SERIAL_PORT_NOT_EXIST,
         SERIAL_PORT_IN_USE,
+        SERIAL_CHANNEL_IN_USE,
         SERIAL_PORT_NOT_VALID,
         SERIAL_PORT_UNSUPPORTED,
         SERIAL_PORT_IO_ERROR,

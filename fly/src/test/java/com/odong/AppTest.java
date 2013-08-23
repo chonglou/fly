@@ -11,25 +11,17 @@ import com.odong.core.util.JsonHelper;
 import com.odong.fly.Server;
 import com.odong.fly.camera.CameraUtil;
 import com.odong.fly.model.Log;
+import com.odong.fly.model.Task;
 import com.odong.fly.util.StoreHelper;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.net.URI;
 import java.net.URL;
 
 public class AppTest
 
 {
-   // @Test
-    public void testUrl(){
-        try{
-            URL url = new URL("task://com1:8/onSpace=3&offSpace=5");
-            log(url.getProtocol(), url.getHost(), url.getPort());
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
     //@Test
     public void testCamera(){

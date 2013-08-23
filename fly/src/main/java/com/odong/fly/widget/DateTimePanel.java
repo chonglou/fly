@@ -12,7 +12,7 @@ import java.util.Map;
  */
 
 public abstract class DateTimePanel {
-
+    public abstract void setEnable(boolean enable);
     public abstract void setText(Map<String, String> map);
 
     public abstract void setDate(Date date);

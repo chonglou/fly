@@ -31,6 +31,13 @@ public class SimpleDateTimePanelImpl extends DateTimePanel {
     }
 
     @Override
+    public void setEnable(boolean enable) {
+        for(JComboBox<Integer> cb : comboBoxes.values()){
+            cb.setEnabled(enable);
+        }
+    }
+
+    @Override
     public void setText(Map<String, String> map) {
         for (String s : labels.keySet()) {
             labels.get(s).setText(map.get(s));

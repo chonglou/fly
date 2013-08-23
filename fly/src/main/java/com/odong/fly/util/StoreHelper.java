@@ -16,21 +16,30 @@ import java.util.List;
  */
 public interface StoreHelper {
 
-    void addOnOffTask(String id, String portName, int channel, Date begin, Date end, Long total, int onSpace, int offSpace);
+    void addOnOffTask(String id, String portName, int channel, Date begin, Date end, long total, int onSpace, int offSpace);
 
-    void addPhotoTask(String id, int device, Date begin, Date end, Long total, int space);
+    void addPhotoTask(String id, int deviceId, String deviceName, Date begin, Date end, long total, int space);
 
-    void addVideoTask(String id, int device, int rate, Date begin, Date end, Long total, int onSpace, int offSpace);
+    void addVideoTask(String id, int deviceId, String deviceName, int rate, Date begin, Date end, long total, int onSpace, int offSpace);
 
     Task getTask(String id);
+
+    Task getAvailSerialTask(String portName, int channel);
+
+    List<Task> listSerialTask(String portName, Task.State... states);
+
+    void setOnOffTaskInfo(String taskId, Date begin, Date end, long total, int onSpace, int offSpace);
 
     void setTaskState(String taskId, Task.State state);
 
     List<Task> listTask(Date begin, Date end);
 
-    List<Task> listTask(Task.State state);
 
-    List<Task> listTask(Task.Type type);
+    List<Task> listTask(Task.State... states);
+
+    List<Task> listAvailableTask(Task.Type... types);
+
+    List<Task> listRunnerTask(Task.Type... types);
 
     void startUp(String taskId);
 

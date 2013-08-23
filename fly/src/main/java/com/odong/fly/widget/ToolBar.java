@@ -1,7 +1,8 @@
 package com.odong.fly.widget;
 
-import com.odong.fly.job.TaskJob;
+import com.odong.core.util.JsonHelper;
 import com.odong.fly.model.Task;
+import com.odong.fly.model.request.OnOffRequest;
 import com.odong.fly.serial.SerialUtil;
 import com.odong.fly.util.GuiHelper;
 import com.odong.fly.util.StoreHelper;
@@ -26,6 +27,7 @@ import java.util.List;
  */
 @Component
 public class ToolBar {
+
     public void refresh() {
         toolBar.addSeparator();
         for (JButton btn : ports) {
@@ -42,12 +44,19 @@ public class ToolBar {
             btn.setName("port://" + portName);
             ports.add(btn);
         }
-        for (Task task : storeHelper.listTask(Task.State.SUBMIT)) {
+        for (Task task : storeHelper.listAvailableTask(Task.Type.ON_OFF)) {
+
+            OnOffRequest r = (OnOffRequest) task.getRequest();
+            if (!serialUtil.isOpen(r.getPortName())) {
+                continue;
+            }
+
             JButton btn = new JButton(task.toString());
             btn.setName("task://" + task.getId());
             tasks.add(btn);
         }
 
+        //TODO 不同状态 不同颜色
         for (JButton btn : tasks) {
             btn.addMouseListener(btnMouseListener);
             toolBar.add(btn, 0);
@@ -106,8 +115,9 @@ public class ToolBar {
             String name = ((JButton) e.getSource()).getName();
             if (name.startsWith("task://")) {
                 cardPanel.showTask(name.substring(7));
-            }
-            else {
+            } else if (name.startsWith("port://")) {
+                cardPanel.showSerialOnOff(name.substring(7));
+            } else {
                 logger.error("未知的工具栏按钮", name);
             }
         }
@@ -120,12 +130,18 @@ public class ToolBar {
     @Resource
     private SerialUtil serialUtil;
     @Resource
+    private JsonHelper jsonHelper;
+    @Resource
     private StoreHelper storeHelper;
     private List<JButton> ports;
     private List<JButton> tasks;
     private JButton exit;
     private JButton help;
     private final static Logger logger = LoggerFactory.getLogger(ToolBar.class);
+
+    public void setJsonHelper(JsonHelper jsonHelper) {
+        this.jsonHelper = jsonHelper;
+    }
 
     public void setSerialUtil(SerialUtil serialUtil) {
         this.serialUtil = serialUtil;
