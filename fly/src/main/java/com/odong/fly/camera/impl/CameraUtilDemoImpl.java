@@ -2,6 +2,8 @@ package com.odong.fly.camera.impl;
 
 import com.odong.fly.camera.CameraUtil;
 import com.odong.fly.util.GuiHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
 import javax.swing.*;
@@ -27,6 +29,7 @@ public class CameraUtilDemoImpl extends CameraUtil {
 
     @Override
     public void start(int device, String name, int rate) throws IOException {
+        logger.debug("开始录像[{}]", device);
         try (FileWriter fw = new FileWriter(name)) {
             fw.write(new Date().toString());
         }
@@ -36,11 +39,13 @@ public class CameraUtilDemoImpl extends CameraUtil {
 
     @Override
     public void stop(int device) throws IOException {
+        logger.debug("停止录像[{}]", device);
         cameraMap.get(device).enable = false;
     }
 
     @Override
     public void photo(int device, String name) throws IOException {
+        logger.debug("开始拍照[{}]", device);
         writeImage(name, new BufferedImage(400, 300, BufferedImage.TYPE_INT_RGB));  //
     }
 
@@ -51,10 +56,9 @@ public class CameraUtilDemoImpl extends CameraUtil {
 
     @Override
     public void open(int device) {
+        logger.debug("打开摄像头[{}]", device);
         JFrame frame = new JFrame();
-        frame.add(new JLabel(guiHelper.getMessage("camera")));
-
-
+        frame.add(new JLabel(guiHelper.getMessage("camera") + device));
         cameraMap.put(device, new Camera(frame));
     }
 
@@ -62,6 +66,7 @@ public class CameraUtilDemoImpl extends CameraUtil {
     public void close(int device) {
         cameraMap.get(device).frame.dispose();
         cameraMap.remove(device);
+        logger.debug("关闭摄像头[{}]", device);
     }
 
     @Override
@@ -107,6 +112,8 @@ public class CameraUtilDemoImpl extends CameraUtil {
         private JFrame frame;
         private boolean enable;
     }
+
+    private final static Logger logger = LoggerFactory.getLogger(CameraUtilDemoImpl.class);
 
 
     public void setGuiHelper(GuiHelper guiHelper) {

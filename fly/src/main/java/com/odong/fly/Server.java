@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
@@ -16,7 +17,7 @@ import java.nio.channels.FileLock;
  * Time: 下午4:00
  */
 public class Server {
-    public <T> T getBean(Class<T> clazz) {
+    public <T> T bean(Class<T> clazz) {
         return ctx.getBean(clazz);
     }
 
@@ -32,6 +33,16 @@ public class Server {
 
         } catch (IOException e) {
             logger.error("锁文件出错", e);
+        }
+
+        for (String path : new String[]{"var/camera"}) {
+            File file = new File(path);
+            if (!file.exists()) {
+                logger.info("创建数据目录[{}]", path);
+                if (!file.mkdirs()) {
+                    logger.error("创建数据目录[{}]失败", path);
+                }
+            }
         }
     }
 

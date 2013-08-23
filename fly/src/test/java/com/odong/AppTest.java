@@ -9,23 +9,56 @@ import com.odong.core.file.excel.Table;
 import com.odong.core.util.EncryptHelper;
 import com.odong.core.util.JsonHelper;
 import com.odong.fly.Server;
+import com.odong.fly.camera.CameraUtil;
 import com.odong.fly.model.Log;
 import com.odong.fly.util.StoreHelper;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.net.URL;
+
 public class AppTest
 
 {
-    @Test
-    void testOs() {
+   // @Test
+    public void testUrl(){
+        try{
+            URL url = new URL("task://com1:8/onSpace=3&offSpace=5");
+            log(url.getProtocol(), url.getHost(), url.getPort());
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    //@Test
+    public void testCamera(){
+        try{
+        CameraUtil cu = Server.get().bean(CameraUtil.class);
+            int device=10;
+            String dvi = cu.randomName();
+            cu.open(device);
+            cu.start(device, dvi, 15);
+            cu.stop(device);
+            String png = cu.randomName();
+            cu.photo(device, png);
+            cu.close(device);
+
+            log(dvi, png);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    //@Test
+    public void testOs() {
         log(System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"));
     }
 
     //@Test
     public void testEncrypt() {
         try {
-            EncryptHelper eh = Server.get().getBean(EncryptHelper.class);
+            EncryptHelper eh = Server.get().bean(EncryptHelper.class);
             String msg = "123654";
             System.out.println(eh.encrypt(msg));
 
@@ -40,9 +73,9 @@ public class AppTest
     //@Test
     public void testDb() {
         try {
-            StoreHelper sh = Server.get().getBean(StoreHelper.class);
+            StoreHelper sh = Server.get().bean(StoreHelper.class);
             for (int i = 0; i < 100; i++) {
-                sh.addLog("task://aaa", "message " + i);
+                sh.addLog("message " + i);
             }
             for (Log l : sh.listLog(100)) {
                 System.out.println(l.getId() + "\t" + l.getMessage() + "\t" + l.getCreated());
@@ -59,7 +92,7 @@ public class AppTest
     //@Test
     public void testCsv() {
         try {
-            FileHelper fh = Server.get().getBean(FileHelper.class);
+            FileHelper fh = Server.get().bean(FileHelper.class);
             int size = 5;
             Csv csv = new Csv("/tmp/测试.csv", 100);
             for (int i = 0; i < size; i++) {
@@ -78,7 +111,7 @@ public class AppTest
     //@Test
     public void testExcel() {
         try {
-            FileHelper fh = Server.get().getBean(FileHelper.class);
+            FileHelper fh = Server.get().bean(FileHelper.class);
             Excel excel = new Excel("/tmp/测试.xls");
             int size = 100;
             for (int i = 0; i < 3; i++) {
@@ -99,7 +132,7 @@ public class AppTest
         }
     }
 
-    //@Test
+    @Test
     public void testWindow() {
 
         try {
@@ -120,7 +153,7 @@ public class AppTest
     }
 
     private void log(Object... objects) {
-        JsonHelper jh = Server.get().getBean(JsonHelper.class);
+        JsonHelper jh = Server.get().bean(JsonHelper.class);
         for (Object obj : objects) {
             System.out.println(jh.object2json(obj));
         }

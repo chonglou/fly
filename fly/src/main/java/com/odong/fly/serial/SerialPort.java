@@ -30,10 +30,7 @@ public interface SerialPort {
     }
 
     /**
-     * Created with IntelliJ IDEA.
-     * User: flamen
-     * Date: 13-8-9
-     * Time: 下午10:43
+     * 串口类型
      */
     enum Type {
         ON_OFF

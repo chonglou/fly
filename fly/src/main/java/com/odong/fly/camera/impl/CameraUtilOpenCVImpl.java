@@ -35,7 +35,7 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
         if (camera.enable) {
             throw new IOException("摄像头[" + device + "]已经在录像");
         }
-
+        logger.debug("开始录像[{}]", device);
         try {
             opencv_core.IplImage image = camera.grabber.grab();
             if (image == null) {
@@ -81,16 +81,18 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
 
     @Override
     public synchronized void stop(int device) throws IOException {
+
         Camera camera = cameraMap.get(device);
         if (!camera.enable) {
             throw new IOException("摄像头[" + device + "]尚未开始录像");
         }
+        logger.debug("停止录像[{}]", device);
         camera.enable = false;
     }
 
     @Override
     public synchronized void photo(int device, String name) throws IOException {
-
+        logger.debug("开始拍照[{}]", device);
         try {
             opencv_core.IplImage iImg = cameraMap.get(device).grabber.grab();
             if (iImg == null) {
@@ -111,7 +113,7 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
 
     @Override
     public synchronized void open(int device) throws IOException {
-
+        logger.debug("打开摄像头[{}]", device);
         try {
             //OpenCV在windows下使用Video，win7下可能无法正常工作，需要启用DirectShow
             FrameGrabber grabber = isWindows ? new VideoInputFrameGrabber(device) : new OpenCVFrameGrabber(device);
@@ -128,6 +130,7 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
 
     @Override
     public synchronized void close(int device) throws IOException {
+        logger.debug("关闭摄像头[{}]", device);
         try {
             Camera camera = cameraMap.get(device);
             camera.frame.dispose();

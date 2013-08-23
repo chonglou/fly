@@ -1,6 +1,6 @@
 package com.odong.fly.widget;
 
-import com.odong.fly.job.Task;
+import com.odong.fly.model.Task;
 import com.odong.fly.serial.SerialPort;
 import com.odong.fly.serial.SerialUtil;
 import com.odong.fly.util.StoreHelper;
@@ -24,29 +24,11 @@ import java.awt.*;
  */
 @Component
 public class CardPanel {
+    public synchronized void showPort(String portName){
+        //FIXME
+    }
     public synchronized void showHelp() {
         layout.show(panel, "doc");
-        panel.setVisible(true);
-    }
-
-    public synchronized void hide() {
-        panel.setVisible(false);
-    }
-
-    public synchronized void showPort(String portName) {
-        SerialPort.Type type = serialUtil.getType(portName);
-        layout.show(panel, type.name());
-        panel.setVisible(true);
-
-        TaskPanel tp;
-        switch (type) {
-            case ON_OFF:
-                tp = onOffPanel;
-                break;
-            default:
-                return;
-        }
-        tp.show(portName, 1);
     }
 
     public synchronized void showTask(String taskId) {
@@ -54,7 +36,6 @@ public class CardPanel {
         String name = task.getType().name();
 
         layout.show(panel, name);
-        panel.setVisible(true);
 
         TaskPanel tp;
         switch (task.getType()) {
@@ -75,7 +56,7 @@ public class CardPanel {
 
         panel.add(onOffPanel.get(), onOffPanel.name());
         panel.add(helpPanel.get(), "doc");
-        panel.setVisible(false);
+        panel.setVisible(true);
     }
 
     public void setText() {
@@ -95,17 +76,11 @@ public class CardPanel {
     @Resource
     private StoreHelper storeHelper;
     @Resource
-    private SerialUtil serialUtil;
-    @Resource
     private HelpPanel helpPanel;
     private final static Logger logger = LoggerFactory.getLogger(CardPanel.class);
 
     public void setHelpPanel(HelpPanel helpPanel) {
         this.helpPanel = helpPanel;
-    }
-
-    public void setSerialUtil(SerialUtil serialUtil) {
-        this.serialUtil = serialUtil;
     }
 
     public void setOnOffPanel(OnOffTaskPanel onOffPanel) {

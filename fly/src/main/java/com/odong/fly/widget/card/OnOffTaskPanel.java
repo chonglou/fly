@@ -1,8 +1,8 @@
 package com.odong.fly.widget.card;
 
-import com.odong.fly.job.Task;
 import com.odong.fly.job.TaskJob;
-import com.odong.fly.model.Item;
+import com.odong.fly.model.Task;
+import com.odong.fly.model.item.SerialItem;
 import com.odong.fly.serial.SerialPort;
 import com.odong.fly.util.GuiHelper;
 import com.odong.fly.util.StoreHelper;
@@ -21,7 +21,6 @@ import java.awt.event.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,8 +34,9 @@ public class OnOffTaskPanel extends TaskPanel {
         super();
     }
 
-    @Override
     public void show(String portName, int channel) {
+        /*
+        FIXME
         Task t = taskJob.getTask(portName, channel);
         if (t == null) {
             Date now = new Date();
@@ -47,14 +47,17 @@ public class OnOffTaskPanel extends TaskPanel {
         } else {
             show(t);
         }
+        */
     }
 
     @Override
     public void show(Task task) {
+        /*FIXME
         this.show(guiHelper.getMessage("channel.task.title") + task.toString(),
                 task.getId(), task.getPortName(), task.getChannel(),
                 task.getBegin(), task.getEnd(), task.getOnSpace(), task.getOffSpace(),
                 task.getTotal());
+                */
     }
 
 
@@ -79,7 +82,7 @@ public class OnOffTaskPanel extends TaskPanel {
 
     @Override
     public String name() {
-        return SerialPort.Type.ON_OFF.name();
+        return Task.Type.ON_OFF.name();
     }
 
     @Override
@@ -111,10 +114,13 @@ public class OnOffTaskPanel extends TaskPanel {
                 if (begin.compareTo(end) >= 0) {
                     throw new IllegalArgumentException("起始时间必须小于结束时间");
                 }
+
+                /*FIXME 启动任务
                 taskJob.putTask(portName, (Integer) channelCB.getSelectedItem(), beginTime.getDate(), endTime.getDate(),
                         Integer.parseInt(onSpace.getText()),
                         Integer.parseInt(offSpace.getText()),
                         "".equals(total) ? 0 : Integer.parseInt(total));
+                        */
             } catch (Exception e) {
                 logger.error("添加任务出错", e);
                 guiHelper.showErrorDialog("inputNonValid");
@@ -122,7 +128,7 @@ public class OnOffTaskPanel extends TaskPanel {
             }
 
         } else {
-            taskJob.popTask(taskId);
+            storeHelper.shutDown(taskId, null, Task.State.DONE);
         }
 
         setButtonOn(on);
@@ -137,7 +143,8 @@ public class OnOffTaskPanel extends TaskPanel {
 
     private void refreshLogList() {
         logModel.removeAllElements();
-        for (Item l : storeHelper.listItem(taskId)) {
+        for (SerialItem l : storeHelper.listSerialItem(taskId)) {
+            //FIXME
             logModel.addElement(l.toString());
         }
     }
@@ -170,8 +177,10 @@ public class OnOffTaskPanel extends TaskPanel {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     int ch = (Integer) ((JComboBox) e.getSource()).getSelectedItem();
+                    /*FIXME
                     Task t = taskJob.getTask(portName, ch);
                     setButtonOn(t != null);
+                    */
                 }
             }
         });

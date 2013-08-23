@@ -1,6 +1,7 @@
 package com.odong.fly.widget.card;
 
-import com.odong.fly.job.Task;
+
+import com.odong.fly.model.Task;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,8 +13,6 @@ import java.awt.*;
  * Time: 下午12:46
  */
 public abstract class TaskPanel {
-
-    public abstract void show(String portName, int channel);
 
     public abstract void show(Task task);
 

@@ -129,7 +129,7 @@ public class MenuBar {
                         if (item.isSelected()) {
                             serialDialog.show(portName);
                         } else {
-                            if (taskJob.isPortInUse(portName)) {
+                            if (serialUtil.isOpen(portName)) {
                                 guiHelper.showErrorDialog(MyException.Type.SERIAL_PORT_IN_USE);
                             } else {
                                 serialUtil.close(portName);
@@ -188,8 +188,6 @@ public class MenuBar {
     @Resource
     private GuiHelper guiHelper;
     @Resource
-    private TaskJob taskJob;
-    @Resource
     private SerialUtil serialUtil;
     @Resource
     private SerialDialog serialDialog;
@@ -223,8 +221,4 @@ public class MenuBar {
         this.guiHelper = guiHelper;
     }
 
-
-    public void setTaskJob(TaskJob taskJob) {
-        this.taskJob = taskJob;
-    }
 }

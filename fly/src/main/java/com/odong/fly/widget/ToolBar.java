@@ -1,7 +1,7 @@
 package com.odong.fly.widget;
 
-import com.odong.fly.job.Task;
 import com.odong.fly.job.TaskJob;
+import com.odong.fly.model.Task;
 import com.odong.fly.serial.SerialUtil;
 import com.odong.fly.util.GuiHelper;
 import com.odong.fly.util.StoreHelper;
@@ -42,8 +42,7 @@ public class ToolBar {
             btn.setName("port://" + portName);
             ports.add(btn);
         }
-        for (String tid : taskJob.getTaskList()) {
-            Task task = storeHelper.getTask(tid);
+        for (Task task : storeHelper.listTask(Task.State.SUBMIT)) {
             JButton btn = new JButton(task.toString());
             btn.setName("task://" + task.getId());
             tasks.add(btn);
@@ -107,16 +106,15 @@ public class ToolBar {
             String name = ((JButton) e.getSource()).getName();
             if (name.startsWith("task://")) {
                 cardPanel.showTask(name.substring(7));
-            } else if (name.startsWith("port://")) {
-                cardPanel.showPort(name.substring(7));
+            }
+            else {
+                logger.error("未知的工具栏按钮", name);
             }
         }
     };
     private JToolBar toolBar;
     @Resource
     private GuiHelper guiHelper;
-    @Resource
-    private TaskJob taskJob;
     @Resource
     private CardPanel cardPanel;
     @Resource
@@ -145,7 +143,4 @@ public class ToolBar {
         this.guiHelper = guiHelper;
     }
 
-    public void setTaskJob(TaskJob taskJob) {
-        this.taskJob = taskJob;
-    }
 }
