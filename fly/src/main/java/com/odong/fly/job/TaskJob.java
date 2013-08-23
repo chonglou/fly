@@ -26,12 +26,12 @@ public class TaskJob {
     public void execute() {
         Date now = new Date();
         for (Task task : storeHelper.listTask(Task.State.SUBMIT)) {
+            //只判断起始截止时间及总运行次数
             if (now.compareTo(task.getBegin()) >= 0 &&
                     now.compareTo(task.getEnd()) <= 0 &&
                     (task.getTotal() == null || task.getTotal() > task.getIndex())
                     ) {
-                logger.debug("开始运行任务[{}]", task.getId());
-                storeHelper.startUp(task.getId());
+                logger.debug("开始调度任务[{}]", task.getId());
                 switch (task.getType()) {
                     case ON_OFF:
                         taskExecutor.execute(new OnOffRunner(task.getId(), storeHelper, serialUtil));

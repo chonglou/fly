@@ -34,6 +34,70 @@ public class SerialPortRxtxImpl implements SerialPort {
     }
 
     @Override
+    public synchronized String send(Command command) throws MyException {
+        try (OutputStream out = serialPort.getOutputStream()) {
+            new Thread(new SerialWriter(out, command.toBytes())).start();
+            for(;;){
+                try{
+                    Thread.sleep(10);
+                }
+                catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+                if(reader.isFinish()){
+                    break;
+                }
+            }
+            return reader.getResponse();
+        } catch (IOException e) {
+            logger.error("串口操作出错", e);
+            throw new MyException(MyException.Type.SERIAL_PORT_IO_ERROR);
+        }
+    }
+
+    @Override
+    public void open(String portName, int dataBand) throws MyException {
+        try {
+            CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
+            if (portIdentifier.isCurrentlyOwned()) {
+                throw new MyException(MyException.Type.SERIAL_PORT_IN_USE);
+            }
+            CommPort commPort = portIdentifier.open(this.getClass().getName(), 2000);
+            if (!(commPort instanceof gnu.io.SerialPort)) {
+                throw new MyException(MyException.Type.SERIAL_PORT_NOT_VALID);
+            }
+            serialPort = (gnu.io.SerialPort) commPort;
+            serialPort.setSerialPortParams(dataBand, gnu.io.SerialPort.DATABITS_8, gnu.io.SerialPort.STOPBITS_1, gnu.io.SerialPort.PARITY_NONE);
+
+
+            reader = new SerialReader(serialPort.getInputStream());
+            serialPort.addEventListener(reader);
+
+            serialPort.notifyOnDataAvailable(true);
+
+        } catch (NoSuchPortException e) {
+            logger.debug("端口{}不存在", portName, e);
+            throw new MyException(MyException.Type.SERIAL_PORT_NOT_EXIST);
+        } catch (PortInUseException e) {
+            logger.error("端口被占用", e);
+            throw new MyException(MyException.Type.SERIAL_PORT_IN_USE);
+        } catch (UnsupportedCommOperationException e) {
+            logger.error("不支持的操作", e);
+            throw new MyException(MyException.Type.SERIAL_PORT_UNSUPPORTED);
+        } catch (IOException e) {
+            logger.error("串口操作出错", e);
+            throw new MyException(MyException.Type.SERIAL_PORT_IO_ERROR);
+        } catch (TooManyListenersException e) {
+            logger.error("事件监听出错", e);
+            throw new MyException(MyException.Type.SERIAL_PORT_IO_ERROR);
+        } catch (UnsatisfiedLinkError e) {
+            logger.error("RXTX未配置 lib路径[{}]", System.getProperty("java.library.path"), e);
+            throw new MyException(MyException.Type.SERIAL_PORT_IO_ERROR);
+        }
+    }
+
+    /*
+    @Override
     public void send(Command command) throws MyException {
         try (OutputStream out = serialPort.getOutputStream()) {
             new Thread(new SerialWriter(out, command.toBytes())).start();
@@ -84,6 +148,8 @@ public class SerialPortRxtxImpl implements SerialPort {
         }
     }
 
+    */
+
     @Override
     @SuppressWarnings("unchecked")
     public List<String> listPortNames() {
@@ -92,11 +158,6 @@ public class SerialPortRxtxImpl implements SerialPort {
         while (portEnum.hasMoreElements()) {
             CommPortIdentifier pi = portEnum.nextElement();
             list.add(pi.getName());
-        }
-        if (list.isEmpty()) {
-            for (int i = 1; i <= 5; i++) {
-                list.add("COM" + i);
-            }
         }
         return list;
     }
@@ -119,7 +180,7 @@ public class SerialPortRxtxImpl implements SerialPort {
                 return "unknown type";
         }
     }
-
+    private SerialReader reader;
     private gnu.io.SerialPort serialPort;
     private final static Logger logger = LoggerFactory.getLogger(SerialPortRxtxImpl.class);
 

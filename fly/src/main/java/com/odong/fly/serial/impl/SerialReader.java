@@ -15,14 +15,14 @@ import java.io.InputStream;
  * Date: 13-8-8
  * Time: 下午10:00
  */
-public class SerialReader implements SerialPortEventListener {
-    public SerialReader(InputStream in, SerialPort.Callback callback) {
+public final class SerialReader implements SerialPortEventListener {
+    public SerialReader(InputStream in) {
         this.in = in;
-        this.callback = callback;
     }
 
     @Override
-    public void serialEvent(SerialPortEvent serialPortEvent) {
+    public  void serialEvent(SerialPortEvent serialPortEvent) {
+        finish = false;
         try {
             int data;
             int len = 0;
@@ -32,18 +32,34 @@ public class SerialReader implements SerialPortEventListener {
                 }
                 buffer[len++] = (byte) data;
             }
+            /*
             byte[] buf = new byte[len];
             System.arraycopy(buffer, 0, buf, 0, len);
-            callback.process(buf);
+            */
+            response = new String(buffer,0,len);
+
         } catch (IOException e) {
             logger.error("读串口出错", e);
         }
-
+        finish = true;
     }
 
     private InputStream in;
-    private SerialPort.Callback callback;
+
     private byte[] buffer = new byte[1024];
+    private String response;
+    private boolean finish;
     private final static Logger logger = LoggerFactory.getLogger(SerialReader.class);
 
+    public String getResponse() {
+        String ret= response;
+        if(finish){
+            response = null;
+        }
+        return ret;
+    }
+
+    public boolean isFinish() {
+        return finish;
+    }
 }

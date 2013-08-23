@@ -7,6 +7,9 @@ package com.odong.fly.model.request;
  * Time: 下午8:58
  */
 public class OnOffRequest extends Request {
+    public long offset(boolean on){
+        return 1000*(on?onSpace:offSpace);
+    }
     @Deprecated
     public OnOffRequest() {
     }

@@ -126,16 +126,7 @@ public class SerialDialog {
                 if (e.getSource() == buttons.get("submit")) {
 
                     try {
-                        serialUtil.open(
-                                portName,
-                                (Integer) comboBoxes.get("dataBaud").getSelectedItem(),
-                                new SerialPort.Callback() {
-                                    @Override
-                                    public void process(byte[] buffer) {
-                                        //TODO 处理返回
-                                        logger.debug("返回: " + new String(buffer));
-                                    }
-                                });
+                        serialUtil.open(portName, (Integer) comboBoxes.get("dataBaud").getSelectedItem());
                         serialUtil.setType(portName, (SerialPort.Type) comboBoxes.get("deviceType").getSelectedItem());
                     } catch (Exception ex) {
                         logger.debug("打开端口出错", ex);

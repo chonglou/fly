@@ -4,6 +4,7 @@ import com.odong.core.util.JsonHelper;
 import com.odong.fly.model.Log;
 import com.odong.fly.model.Task;
 import com.odong.fly.model.item.CameraItem;
+import com.odong.fly.model.item.Item;
 import com.odong.fly.model.item.SerialItem;
 import com.odong.fly.model.request.OnOffRequest;
 import com.odong.fly.model.request.PhotoRequest;
@@ -165,23 +166,25 @@ public class StoreHelperJdbcImpl implements StoreHelper {
     }
 
     @Override
-    public void startUp(String taskId) {
+    public void setStartUp(String taskId) {
         jdbcTemplate.update("UPDATE TASKS SET state=?,lastStartUp=?,index=index+1 WHERE id=?", Task.State.PROCESSING.name(), new Date(), taskId);
     }
 
     @Override
-    public void shutDown(String taskId, String temp, Task.State state) {
+    public void setShutDown(String taskId, String temp, Task.State state) {
         jdbcTemplate.update("UPDATE TASKS SET temp=?, state=?, lastShutDown=? WHERE id=?", temp, state.name(), new Date(), taskId);
     }
 
     @Override
-    public void addSerialItem(String taskId, String request, String response) {
-        jdbcTemplate.update("INSERT INTO SERIALS_ITEMS(task, request, response) VALUES(?,?,?)", taskId, request, response);
+    public void addSerialItem(String taskId, String request, String response, String reason) {
+        jdbcTemplate.update("INSERT INTO SERIALS_ITEMS(task, type_, reason, request, response) VALUES(?,?,?)",
+                taskId, reason==null?Item.Type.SUCCESS.name():Item.Type.FAIL.name(), reason, request, response);
     }
 
     @Override
-    public void addCameraItem(String taskId, String file) {
-        jdbcTemplate.update("INSERT INTO CAMERA_ITEMS(task, file) VALUES(?,?)", taskId, file);
+    public void addCameraItem(String taskId, String file, String reason) {
+        jdbcTemplate.update("INSERT INTO CAMERA_ITEMS(task, type_, reason, file) VALUES(?,?)",
+                taskId, reason==null?Item.Type.SUCCESS.name():Item.Type.FAIL.name(), reason, file);
     }
 
     @Override
@@ -251,10 +254,14 @@ public class StoreHelperJdbcImpl implements StoreHelper {
                 "version BIGINT NOT NULL DEFAULT 0");
         map.put("CAMERA_ITEMS", "id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, " +
                 "task VARCHAR(255) NOT NULL, " +
+                "type_ VARCHAR(255) NOT NULL, " +
+                "reason VARCHAR(255) NOT NULL, "+
                 "file VARCHAR(255) NOT NULL, " +
                 "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
         map.put("SERIAL_ITEMS", "id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, " +
                 "task VARCHAR(255) NOT NULL, " +
+                "type_ VARCHAR(255) NOT NULL, " +
+                "reason VARCHAR(255) NOT NULL, "+
                 "request VARCHAR(255) NOT NULL, " +
                 "response VARCHAR(255) , " +
                 "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
@@ -318,20 +325,6 @@ public class StoreHelperJdbcImpl implements StoreHelper {
                 id, type.name(), Task.State.SUBMIT.name(), jsonHelper.object2json(request), temp, begin, end, total, space);
     }
 
-    private RowMapper<SerialItem> mapperSerialItem() {
-        return new RowMapper<SerialItem>() {
-            @Override
-            public SerialItem mapRow(ResultSet resultSet, int i) throws SQLException {
-                SerialItem item = new SerialItem();
-                item.setId(resultSet.getLong("id"));
-                item.setTask(resultSet.getString("task"));
-                item.setRequest(resultSet.getString("request"));
-                item.setResponse(resultSet.getString("response"));
-                item.setCreated(resultSet.getTimestamp("created"));
-                return item;  //
-            }
-        };
-    }
 
     private RowMapper<Log> mapperLog() {
         return new RowMapper<Log>() {
@@ -353,12 +346,32 @@ public class StoreHelperJdbcImpl implements StoreHelper {
                 CameraItem item = new CameraItem();
                 item.setId(resultSet.getLong("id"));
                 item.setTask(resultSet.getString("task"));
+                item.setType(Item.Type.valueOf(resultSet.getString("type_")));
+                item.setReason(resultSet.getString("reason"));
                 item.setFile(resultSet.getString("file"));
                 item.setCreated(resultSet.getTimestamp("crated"));
                 return item;  //
             }
         };
     }
+
+    private RowMapper<SerialItem> mapperSerialItem() {
+        return new RowMapper<SerialItem>() {
+            @Override
+            public SerialItem mapRow(ResultSet resultSet, int i) throws SQLException {
+                SerialItem item = new SerialItem();
+                item.setId(resultSet.getLong("id"));
+                item.setTask(resultSet.getString("task"));
+                item.setType(Item.Type.valueOf(resultSet.getString("type_")));
+                item.setReason(resultSet.getString("reason"));
+                item.setRequest(resultSet.getString("request"));
+                item.setResponse(resultSet.getString("response"));
+                item.setCreated(resultSet.getTimestamp("created"));
+                return item;  //
+            }
+        };
+    }
+
 
     private RowMapper<Task> mapperTask() {
         return new RowMapper<Task>() {

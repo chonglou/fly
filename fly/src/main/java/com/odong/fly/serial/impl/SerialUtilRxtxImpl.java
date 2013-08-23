@@ -16,14 +16,14 @@ import java.util.Set;
 public class SerialUtilRxtxImpl extends SerialUtil {
 
     @Override
-    public void send(String portName, Command command) throws MyException {
-        get(portName).send(command);
+    public String send(String portName, Command command) throws MyException {
+        return get(portName).send(command);
     }
 
     @Override
-    public void open(String portName, int dataBand, SerialPort.Callback callback) throws MyException {
+    public void open(String portName, int dataBand) throws MyException {
         SerialPort sp = new SerialPortRxtxImpl();
-        sp.open(portName, dataBand, callback);
+        sp.open(portName, dataBand);
         if (sp.isOpen()) {
             put(portName, sp);
         }

@@ -12,7 +12,7 @@ import java.io.OutputStream;
  * Date: 13-8-8
  * Time: 下午10:08
  */
-public class SerialWriter implements Runnable {
+public final class SerialWriter implements Runnable {
     public SerialWriter(OutputStream out, byte[] buf) {
         this.out = out;
         this.buf = buf;

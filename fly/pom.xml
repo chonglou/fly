@@ -22,10 +22,16 @@
         <csv.version>2.1.0</csv.version>
         <platform.name>${os.name}-${os.arch}</platform.name>
         <javacv.version>0.5</javacv.version>
+        <activemq.version>5.7.0</activemq.version>
         <java.version>1.7</java.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
@@ -106,6 +112,16 @@
             <groupId>com.jolbox</groupId>
             <artifactId>bonecp</artifactId>
             <version>0.7.1.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-core</artifactId>
+            <version>${activemq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-pool</artifactId>
+            <version>${activemq.version}</version>
         </dependency>
 
         <dependency>

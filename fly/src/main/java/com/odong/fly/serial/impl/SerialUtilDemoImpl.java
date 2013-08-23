@@ -15,12 +15,12 @@ import java.util.Set;
  */
 public class SerialUtilDemoImpl extends SerialUtil {
     @Override
-    public void send(String portName, Command command) {
-        //
+    public String send(String portName, Command command) {
+        return command.toString();
     }
 
     @Override
-    public void open(String portName, int dataBand, SerialPort.Callback callback) {
+    public void open(String portName, int dataBand) {
         put(portName, null);
     }
 
