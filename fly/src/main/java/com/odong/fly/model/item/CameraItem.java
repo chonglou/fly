@@ -1,8 +1,5 @@
 package com.odong.fly.model.item;
 
-import java.io.Serializable;
-import java.util.Date;
-
 /**
  * Created with IntelliJ IDEA.
  * User: flamen
@@ -13,7 +10,6 @@ public class CameraItem extends Item {
 
     private String file;
     private static final long serialVersionUID = 6930336068343203468L;
-
 
 
     public String getFile() {

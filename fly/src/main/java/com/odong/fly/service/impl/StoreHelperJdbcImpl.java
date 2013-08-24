@@ -150,27 +150,37 @@ public class StoreHelperJdbcImpl implements StoreHelper {
     }
 
 
-
     @Override
     public void setStartUp(String taskId) {
         jdbcTemplate.update("UPDATE TASKS SET lastStartUp=?,index=index+1 WHERE id=?", new Date(), taskId);
     }
 
     @Override
-    public void setShutDown(String taskId, String temp, Task.State state) {
-        jdbcTemplate.update("UPDATE TASKS SET temp=?, state=?, lastShutDown=? WHERE id=?", temp, state.name(), new Date(), taskId);
+    public void setShutDown(String taskId, String temp) {
+
+
+        if (temp == null) {
+            jdbcTemplate.update("UPDATE TASKS SET   lastShutDown=? WHERE id=?", new Date(), taskId);
+        } else {
+            jdbcTemplate.update("UPDATE TASKS SET temp=?, lastShutDown=? WHERE id=?", temp, new Date(), taskId);
+        }
     }
 
     @Override
-    public void addSerialItem(String taskId, String request, String response, String reason) {
-        jdbcTemplate.update("INSERT INTO SERIALS_ITEMS(task, type_, reason, request, response) VALUES(?,?,?)",
-                taskId, reason==null?Item.Type.SUCCESS.name():Item.Type.FAIL.name(), reason, request, response);
+    public void filterTask() {
+        jdbcTemplate.update("UPDATE TASKS SET state=? WHERE state=? AND end_<=?", Task.State.DONE.name(), Task.State.SUBMIT.name(), new Date());
     }
 
     @Override
-    public void addCameraItem(String taskId, String file, String reason) {
+    public void addSerialItem(String id, String taskId, String request, String response, String reason) {
+        jdbcTemplate.update("INSERT INTO SERIALS_ITEMS(id, task, type_, reason, request, response) VALUES(?,?,?)",
+                id, taskId, reason == null ? Item.Type.SUCCESS.name() : Item.Type.FAIL.name(), reason, request, response);
+    }
+
+    @Override
+    public void addCameraItem(String id, String taskId, String file, String reason) {
         jdbcTemplate.update("INSERT INTO CAMERA_ITEMS(task, type_, reason, file) VALUES(?,?)",
-                taskId, reason==null?Item.Type.SUCCESS.name():Item.Type.FAIL.name(), reason, file);
+                id, taskId, reason == null ? Item.Type.SUCCESS.name() : Item.Type.FAIL.name(), reason, file);
     }
 
     @Override
@@ -229,6 +239,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
                 return null;  //
             }
         });
+        ProgressBar.get().set(60);
         Map<String, String> map = new HashMap<>();
         map.put("LOGS", "id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, " +
                 "message VARCHAR(1024) NOT NULL, " +
@@ -238,21 +249,21 @@ public class StoreHelperJdbcImpl implements StoreHelper {
                 "v VARCHAR(8000) NOT NULL, " +
                 "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
                 "version BIGINT NOT NULL DEFAULT 0");
-        map.put("CAMERA_ITEMS", "id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, " +
-                "task VARCHAR(255) NOT NULL, " +
+        map.put("CAMERA_ITEMS", "id CHAR(36) NOT NULL PRIMARY KEY, " +
+                "task CHAR(36) , " +
                 "type_ VARCHAR(255) NOT NULL, " +
-                "reason VARCHAR(255) NOT NULL, "+
+                "reason VARCHAR(255) NOT NULL, " +
                 "file VARCHAR(255) NOT NULL, " +
                 "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
-        map.put("SERIAL_ITEMS", "id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, " +
-                "task VARCHAR(255) NOT NULL, " +
+        map.put("SERIAL_ITEMS", "id CHAR(36) NOT NULL PRIMARY KEY, " +
+                "task CHAR(36) , " +
                 "type_ VARCHAR(255) NOT NULL, " +
-                "reason VARCHAR(255) NOT NULL, "+
+                "reason VARCHAR(255) NOT NULL, " +
                 "request VARCHAR(255) NOT NULL, " +
                 "response VARCHAR(255) , " +
                 "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
 
-        map.put("TASKS", "id VARCHAR(255) NOT NULL PRIMARY KEY, " +
+        map.put("TASKS", "id CHAR(36) NOT NULL PRIMARY KEY, " +
                 "type_ VARCHAR(255) NOT NULL, " +
                 "state VARCHAR(255) NOT NULL, " +
                 "request VARCHAR(500) NOT NULL, " +
@@ -330,7 +341,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
             @Override
             public CameraItem mapRow(ResultSet resultSet, int i) throws SQLException {
                 CameraItem item = new CameraItem();
-                item.setId(resultSet.getLong("id"));
+                item.setId(resultSet.getString("id"));
                 item.setTask(resultSet.getString("task"));
                 item.setType(Item.Type.valueOf(resultSet.getString("type_")));
                 item.setReason(resultSet.getString("reason"));
@@ -346,7 +357,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
             @Override
             public SerialItem mapRow(ResultSet resultSet, int i) throws SQLException {
                 SerialItem item = new SerialItem();
-                item.setId(resultSet.getLong("id"));
+                item.setId(resultSet.getString("id"));
                 item.setTask(resultSet.getString("task"));
                 item.setType(Item.Type.valueOf(resultSet.getString("type_")));
                 item.setReason(resultSet.getString("reason"));

@@ -17,7 +17,7 @@ public class PhotoRequest extends Request {
     }
 
     private static final long serialVersionUID = -2859334715004023639L;
-   private int device;
+    private int device;
     private String name;
 
     public String getName() {

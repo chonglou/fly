@@ -1,7 +1,6 @@
 package com.odong.fly.serial.impl;
 
 import com.odong.fly.MyException;
-import com.odong.fly.serial.Command;
 import com.odong.fly.serial.SerialPort;
 import com.odong.fly.serial.SerialUtil;
 
@@ -16,14 +15,16 @@ import java.util.Set;
 public class SerialUtilRxtxImpl extends SerialUtil {
 
     @Override
-    public String send(String portName, Command command) throws MyException {
-        return get(portName).send(command);
+    public String send(String portName, String request) throws MyException {
+        //FIXME 可能有转换错误
+        byte[] buf = get(portName).send(request.getBytes());
+        return new String(buf);
     }
 
     @Override
-    public void open(String portName, int dataBand) throws MyException {
+    public void open(String portName, int dataBand, boolean feedback) throws MyException {
         SerialPort sp = new SerialPortRxtxImpl();
-        sp.open(portName, dataBand);
+        sp.open(portName, dataBand, feedback);
         if (sp.isOpen()) {
             put(portName, sp);
         }

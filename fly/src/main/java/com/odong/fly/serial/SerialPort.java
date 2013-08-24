@@ -15,19 +15,21 @@ public interface SerialPort {
 
     void close();
 
-    String send(Command command) throws MyException;
+    byte[] send(byte[] request) throws MyException;
 
 
-    void open(String portName, int dataBand) throws MyException;
+    void open(String portName, int dataBand, boolean feedback) throws MyException;
 
     List<String> listPortNames();
-
-    String getPortTypeName(int portType);
 
     /**
      * 串口类型
      */
     enum Type {
         ON_OFF
+    }
+
+    public interface Callback {
+        void call(byte[] buf);
     }
 }

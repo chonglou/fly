@@ -16,9 +16,9 @@ import java.util.Set;
 
 public abstract class SerialUtil {
 
-    public abstract String send(String portName, Command command) throws MyException;
+    public abstract String send(String portName, String request) throws MyException;
 
-    public abstract void open(String portName, int dataBand) throws MyException;
+    public abstract void open(String portName, int dataBand, boolean feedback) throws MyException;
 
     public abstract void close(String portName);
 

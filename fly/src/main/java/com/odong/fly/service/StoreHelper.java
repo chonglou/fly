@@ -43,12 +43,14 @@ public interface StoreHelper {
 
     void setStartUp(String taskId);
 
-    void setShutDown(String taskId, String temp, Task.State state);
+    void setShutDown(String taskId, String temp);
+
+    void filterTask();
 
 
-    void addSerialItem(String taskId, String request, String response, String reason);
+    void addSerialItem(String id, String taskId, String request, String response, String reason);
 
-    void addCameraItem(String taskId, String file, String reason);
+    void addCameraItem(String id, String taskId, String file, String reason);
 
     List<SerialItem> listSerialItem(String taskId);
 

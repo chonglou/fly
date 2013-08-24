@@ -10,9 +10,9 @@ import com.odong.core.util.EncryptHelper;
 import com.odong.core.util.JsonHelper;
 import com.odong.fly.Server;
 import com.odong.fly.camera.CameraUtil;
+import com.odong.fly.job.TaskSender;
 import com.odong.fly.model.Log;
 import com.odong.fly.service.StoreHelper;
-import com.odong.fly.util.jms.JmsSender;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -23,11 +23,10 @@ public class AppTest
 {
     //@Test
     public void testJms() {
-        JmsSender sender = Server.get().bean(JmsSender.class);
+        TaskSender sender = Server.get().bean(TaskSender.class);
         for (int i = 0; i < 10; i++) {
-            sender.send(UUID.randomUUID().toString(), "COM1", 1, "aaa");
-            //sender.send(UUID.randomUUID().toString());
-            log(i);
+            sender.send(UUID.randomUUID().toString());
+            log(i, UUID.randomUUID().toString().length());
         }
     }
 

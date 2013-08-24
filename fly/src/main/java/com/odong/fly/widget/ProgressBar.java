@@ -34,7 +34,7 @@ public final class ProgressBar {
         frame.setVisible(visible);
     }
 
-    public void message(String key){
+    public void message(String key) {
         ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.getDefault());
         JOptionPane.showMessageDialog(frame,
                 bundle.getString("lbl.dialog." + key + ".message"),

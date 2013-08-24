@@ -10,10 +10,11 @@ import java.util.Date;
  * Time: 上午9:36
  */
 public abstract class Item implements Serializable {
-    public enum Type{
-        SUCCESS,FAIL
+    public enum Type {
+        SUCCESS, FAIL
     }
-    protected long id;
+
+    protected String id;
     protected String task;
     protected Date created;
     protected String reason;
@@ -36,11 +37,11 @@ public abstract class Item implements Serializable {
         this.type = type;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

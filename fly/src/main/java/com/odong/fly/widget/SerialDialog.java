@@ -126,7 +126,7 @@ public class SerialDialog {
                 if (e.getSource() == buttons.get("submit")) {
 
                     try {
-                        serialUtil.open(portName, (Integer) comboBoxes.get("dataBaud").getSelectedItem());
+                        serialUtil.open(portName, (Integer) comboBoxes.get("dataBaud").getSelectedItem(), true);
                         serialUtil.setType(portName, (SerialPort.Type) comboBoxes.get("deviceType").getSelectedItem());
                     } catch (Exception ex) {
                         logger.debug("打开端口出错", ex);

@@ -1,7 +1,5 @@
 package com.odong.fly.serial.impl;
 
-import com.odong.fly.serial.Command;
-import com.odong.fly.serial.SerialPort;
 import com.odong.fly.serial.SerialUtil;
 
 import java.util.LinkedHashSet;
@@ -15,12 +13,12 @@ import java.util.Set;
  */
 public class SerialUtilDemoImpl extends SerialUtil {
     @Override
-    public String send(String portName, Command command) {
-        return command.toString();
+    public String send(String portName, String request) {
+        return request;
     }
 
     @Override
-    public void open(String portName, int dataBand) {
+    public void open(String portName, int dataBand, boolean feedback) {
         put(portName, null);
     }
 

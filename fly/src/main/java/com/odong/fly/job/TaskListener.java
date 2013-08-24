@@ -22,36 +22,58 @@ import javax.jms.*;
 public class TaskListener implements MessageListener {
     @Override
     public void onMessage(Message message) {
+        if (message instanceof TextMessage) {
+            text((TextMessage) message);
+
+        } else if (message instanceof MapMessage) {
+            map((MapMessage) message);
+        } else {
+            logger.error("未知的消息类型");
+        }
+
+    }
+
+
+    private void map(MapMessage message) {
+        String taskId = null;
         try {
-            if (message instanceof TextMessage) {
-                logger.debug("收到文本任务[{}]",((TextMessage) message).getText());
-            }
-            else if(message instanceof MapMessage){
-                MapMessage mm = (MapMessage)message;
-                String id = mm.getJMSCorrelationID();
-                String taskId = mm.getStringProperty("id");
+            taskId = message.getStringProperty("taskId");
+            Task.Type type = Task.Type.valueOf(message.getStringProperty("type"));
+            String id = message.getJMSCorrelationID();
+
+            if (taskId != null) {
                 logger.debug("收到任务消息[{}]", taskId);
                 storeHelper.setStartUp(taskId);
-                switch (Task.Type.valueOf(mm.getStringProperty("type"))){
-                    case ON_OFF:
-                        String portName = mm.getString("portName");
-                        int channel = mm.getInt("channel");
-                        String command = mm.getString("command");
+            }
 
-                        break;
-                    case VIDEO:
-                        break;
-                    case PHOTO:
-                        break;
-                }
+            switch (type) {
+                case ON_OFF:
+                    String response = serialUtil.send(message.getString("portName"), message.getString("command"));
 
+                    break;
+                case VIDEO:
+                    break;
+                case PHOTO:
+                    break;
+            }
+        } catch (Exception e) {
+            logger.error("处理任务消息出错", e);
+        } finally {
+            if (taskId != null) {
+                logger.debug("收到任务消息[{}]", taskId);
+                storeHelper.setShutDown(taskId, null);
+            } else {
 
             }
-            else {
-                logger.error("未知的消息类型");
-            }
+        }
+    }
+
+
+    private void text(TextMessage message) {
+        try {
+            logger.debug("收到文本消息[{}]", message.getText());
         } catch (JMSException e) {
-            logger.error("处理消息出错", e);
+            logger.error("处理文本消息出错", e);
         }
     }
 

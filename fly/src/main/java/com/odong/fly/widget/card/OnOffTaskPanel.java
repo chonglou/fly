@@ -61,7 +61,7 @@ public class OnOffTaskPanel extends TaskPanel {
         );
 
         channelCB.setEnabled(false);
-        setStart(task.getState() == Task.State.SUBMIT );
+        setStart(task.getState() == Task.State.SUBMIT);
         buttons.get("delete").setVisible(true);
     }
 

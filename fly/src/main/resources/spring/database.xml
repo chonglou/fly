@@ -36,6 +36,7 @@
             <tx:method name="reset*" propagation="REQUIRED"/>
             <tx:method name="bind*" propagation="REQUIRED"/>
             <tx:method name="auth*" propagation="REQUIRED"/>
+            <tx:method name="filter*" propagation="REQUIRED"/>
 
             <tx:method name="get*" propagation="REQUIRED" read-only="true"/>
             <tx:method name="count*" propagation="REQUIRED" read-only="true"/>
