@@ -21,7 +21,7 @@ public interface StoreHelper {
 
     void addPhotoTask(String id, int deviceId, String deviceName, Date begin, Date end, long total, int space);
 
-    void addVideoTask(String id, int deviceId, String deviceName, int rate, Date begin, Date end, long total, int onSpace, int offSpace);
+    void addVideoTask(String id, int deviceId, String deviceName, int rate, Date begin, Date end);
 
     Task getTask(String id);
 
@@ -40,7 +40,6 @@ public interface StoreHelper {
 
     List<Task> listAvailableTask(Task.Type... types);
 
-    List<Task> listRunnerTask(Task.Type... types);
 
     void setStartUp(String taskId);
 

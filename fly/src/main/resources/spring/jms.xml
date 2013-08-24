@@ -3,28 +3,31 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:core="http://activemq.apache.org/schema/core"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
+    <bean id="broker" class="org.apache.activemq.xbean.BrokerFactoryBean">
+        <property name="config" value="classpath:activemq.xml"/>
+        <property name="start" value="true"/>
+    </bean>
+
     <bean id="jmsFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
         <property name="connectionFactory">
             <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-                <property name="brokerURL" value="vm://localhost/${app.name}"/>
-
+                <property name="brokerURL" value="vm://${app.name}"/>
             </bean>
         </property>
     </bean>
 
     <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
         <property name="connectionFactory" ref="jmsFactory"/>
-        <property name="defaultDestination" ref="jmsDestination"/>
     </bean>
 
-    <bean id="jmsDestination" class="org.apache.activemq.command.ActiveMQTopic">
-        <constructor-arg index="0" value="${app.name}"/>
+    <bean id="taskQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg index="0" value="tasks"/>
     </bean>
 
     <bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="jmsFactory"/>
-        <property name="destination" ref="jmsDestination"/>
-        <property name="messageListener" ref="jmsMessageListener"/>
+        <property name="destination" ref="taskQueue"/>
+        <property name="messageListener" ref="taskListener"/>
     </bean>
 
 </beans>

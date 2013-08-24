@@ -7,8 +7,8 @@ package com.odong.fly.model.request;
  * Time: 下午8:59
  */
 public class PhotoRequest extends Request {
-    public PhotoRequest(int id, String name) {
-        this.id = id;
+    public PhotoRequest(int device, String name) {
+        this.device = device;
         this.name = name;
     }
 
@@ -17,7 +17,7 @@ public class PhotoRequest extends Request {
     }
 
     private static final long serialVersionUID = -2859334715004023639L;
-    private int id;
+   private int device;
     private String name;
 
     public String getName() {
@@ -28,11 +28,11 @@ public class PhotoRequest extends Request {
         this.name = name;
     }
 
-    public int getId() {
-        return id;
+    public int getDevice() {
+        return device;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setDevice(int device) {
+        this.device = device;
     }
 }

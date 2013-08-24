@@ -56,17 +56,18 @@ public class StoreHelperJdbcImpl implements StoreHelper {
     }
 
     @Override
-    public void addVideoTask(String id, int deviceId, String deviceName, int rate, Date begin, Date end, long total, int onSpace, int offSpace) {
+    public void addVideoTask(String id, int deviceId, String deviceName, int rate, Date begin, Date end) {
         addTask(id, Task.Type.VIDEO,
-                new VideoRequest(deviceId, deviceName, rate, onSpace, offSpace),
+                new VideoRequest(deviceId, deviceName, rate),
                 null,
-                begin, end, total, null);
+                begin, end, 1, null);
     }
 
     @Override
     public Task getTask(String taskId) {
         return jdbcTemplate.queryForObject("SELECT * FROM TASKS WHERE id=?", mapperTask(), taskId);
     }
+
 
     @Override
     public Task getAvailSerialTask(String portName, int channel) {
@@ -79,6 +80,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         }
         return null;
     }
+
 
     @Override
     public List<Task> listSerialTask(String portName, Task.State... states) {
@@ -147,27 +149,11 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         return jdbcTemplate.query(sql, mapperTask(), ss);
     }
 
-    @Override
-    public List<Task> listRunnerTask(Task.Type... types) {
-        String[] ss = new String[types.length + 2];
-        String sql = "SELECT * FROM TASKS WHERE (";
-        for (int i = 0; i < types.length; i++) {
-            ss[i] = types[i].name();
-            if (i > 0) {
-                sql += " OR ";
-            }
-            sql += " type_=? ";
-        }
-        sql += ") AND (state=? OR state=?)";
-        ss[types.length] = Task.State.SUBMIT.name();
-        ss[types.length] = Task.State.PROCESSING.name();
 
-        return jdbcTemplate.query(sql, mapperTask(), ss);
-    }
 
     @Override
     public void setStartUp(String taskId) {
-        jdbcTemplate.update("UPDATE TASKS SET state=?,lastStartUp=?,index=index+1 WHERE id=?", Task.State.PROCESSING.name(), new Date(), taskId);
+        jdbcTemplate.update("UPDATE TASKS SET lastStartUp=?,index=index+1 WHERE id=?", new Date(), taskId);
     }
 
     @Override

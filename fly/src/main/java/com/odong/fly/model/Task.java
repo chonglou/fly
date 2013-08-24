@@ -22,7 +22,6 @@ public class Task implements Serializable {
     }
 
     public enum State {
-        PROCESSING,
         SUBMIT,
         DONE,
         DELETE

@@ -7,12 +7,10 @@ package com.odong.fly.model.request;
  * Time: 下午8:59
  */
 public class VideoRequest extends Request {
-    public VideoRequest(int id, String name, int rate, int onSpace, int offSpace) {
-        this.id = id;
-        this.name = name;
+    public VideoRequest(int device, String name, int rate) {
+        this.device = device;
         this.rate = rate;
-        this.onSpace = onSpace;
-        this.offSpace = offSpace;
+        this.name = name;
     }
 
     @Deprecated
@@ -20,11 +18,9 @@ public class VideoRequest extends Request {
     }
 
     private static final long serialVersionUID = -6913527920970031626L;
-    private int id;
-    private String name;
+    private int device;
     private int rate;
-    private int onSpace;
-    private int offSpace;
+    private String name;
 
     public String getName() {
         return name;
@@ -34,12 +30,12 @@ public class VideoRequest extends Request {
         this.name = name;
     }
 
-    public int getId() {
-        return id;
+    public int getDevice() {
+        return device;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setDevice(int device) {
+        this.device = device;
     }
 
     public int getRate() {
@@ -50,19 +46,4 @@ public class VideoRequest extends Request {
         this.rate = rate;
     }
 
-    public int getOnSpace() {
-        return onSpace;
-    }
-
-    public void setOnSpace(int onSpace) {
-        this.onSpace = onSpace;
-    }
-
-    public int getOffSpace() {
-        return offSpace;
-    }
-
-    public void setOffSpace(int offSpace) {
-        this.offSpace = offSpace;
-    }
 }

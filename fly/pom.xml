@@ -15,7 +15,7 @@
         <logback.version>1.0.13</logback.version>
         <slf4j.version>1.7.5</slf4j.version>
         <aspectj.version>1.7.3</aspectj.version>
-        <spring.version>4.0.0.M1</spring.version>
+        <spring.version>4.0.0.M2</spring.version>
         <jackson.version>2.2.2</jackson.version>
         <antlr.version>3.5</antlr.version>
         <derby.version>10.10.1.1</derby.version>
@@ -122,6 +122,17 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-pool</artifactId>
             <version>${activemq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-spring</artifactId>
+            <version>3.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

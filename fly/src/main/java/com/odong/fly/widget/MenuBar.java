@@ -130,7 +130,7 @@ public class MenuBar {
                         if (item.isSelected()) {
                             serialDialog.show(portName);
                         } else {
-                            if (storeHelper.listRunnerTask(Task.Type.ON_OFF).size() > 0) {
+                            if (storeHelper.listTask(Task.State.SUBMIT).size() > 0) {
                                 guiHelper.showErrorDialog(MyException.Type.SERIAL_PORT_IN_USE);
                             } else {
                                 serialUtil.close(portName);

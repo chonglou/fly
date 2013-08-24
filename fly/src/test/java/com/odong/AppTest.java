@@ -12,12 +12,24 @@ import com.odong.fly.Server;
 import com.odong.fly.camera.CameraUtil;
 import com.odong.fly.model.Log;
 import com.odong.fly.service.StoreHelper;
+import com.odong.fly.util.jms.JmsSender;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import java.util.UUID;
 
 public class AppTest
 
 {
+    //@Test
+    public void testJms() {
+        JmsSender sender = Server.get().bean(JmsSender.class);
+        for (int i = 0; i < 10; i++) {
+            sender.send(UUID.randomUUID().toString(), "COM1", 1, "aaa");
+            //sender.send(UUID.randomUUID().toString());
+            log(i);
+        }
+    }
 
     //@Test
     public void testCamera() {
