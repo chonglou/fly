@@ -83,7 +83,7 @@ public class GuiHelper {
     public void show(boolean visible) {
         ProgressBar.get().set(95);
         window.setVisible(visible);
-        ProgressBar.get().show(false);
+        ProgressBar.get().hide();
     }
 
     public void setLocale(Locale locale) {

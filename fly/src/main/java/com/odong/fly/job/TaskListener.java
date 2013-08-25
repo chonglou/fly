@@ -1,5 +1,6 @@
 package com.odong.fly.job;
 
+import com.odong.fly.MyException;
 import com.odong.fly.camera.CameraUtil;
 import com.odong.fly.model.Task;
 import com.odong.fly.serial.SerialUtil;
@@ -35,36 +36,50 @@ public class TaskListener implements MessageListener {
 
 
     private void map(MapMessage message) {
-        String taskId = null;
+
         try {
-            taskId = message.getStringProperty("taskId");
+            String taskId = message.getStringProperty("taskId");
             Task.Type type = Task.Type.valueOf(message.getStringProperty("type"));
-            String id = message.getJMSCorrelationID();
+            String itemId = message.getJMSCorrelationID();
 
             if (taskId != null) {
                 logger.debug("收到任务消息[{}]", taskId);
-                storeHelper.setStartUp(taskId);
             }
 
+
+            String reason = null;
+            String response = null;
             switch (type) {
                 case ON_OFF:
-                    String response = serialUtil.send(message.getString("portName"), message.getString("command"));
+                    String portName = message.getString("portName");
+                    String request = message.getString("command");
+                    try {
+                        if (serialUtil.isOpen(portName)) {
+                            response = serialUtil.send(portName, request);
+                            if (taskId != null) {
+                                storeHelper.setTaskShutDown(taskId, null);
+                            }
+                        } else {
+                            reason = MyException.Type.SERIAL_PORT_NOT_VALID.name();
+                        }
+                    } catch (Exception e) {
+                        logger.error("处理任务[{}]出错", taskId, e);
+                        reason = e.getMessage();
+                    } finally {
+                        storeHelper.addSerialItem(itemId, taskId, request, response, reason);
+                    }
 
                     break;
                 case VIDEO:
+                    //storeHelper.setTaskShutDown();
                     break;
                 case PHOTO:
+                    //storeHelper.addCameraItem();
                     break;
             }
-        } catch (Exception e) {
-            logger.error("处理任务消息出错", e);
-        } finally {
-            if (taskId != null) {
-                logger.debug("收到任务消息[{}]", taskId);
-                storeHelper.setShutDown(taskId, null);
-            } else {
+        } catch (JMSException e) {
+            logger.error("任务消息结构错误", e);
 
-            }
         }
     }
 

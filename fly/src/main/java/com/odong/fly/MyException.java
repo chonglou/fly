@@ -10,6 +10,11 @@ public class MyException extends Exception {
     private static final long serialVersionUID = 4798846834545312479L;
     private Type type;
 
+    @Override
+    public String getMessage() {
+        return type.name();
+    }
+
     public MyException(Type type) {
         super(type.name());
         this.type = type;

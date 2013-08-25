@@ -24,8 +24,6 @@ public class TaskJob {
 
     public void execute() {
         Date now = new Date();
-        Command command;
-
 
         for (Task task : storeHelper.listTask(Task.State.SUBMIT)) {
             //只判断起始截止时间及总运行次数
@@ -37,27 +35,19 @@ public class TaskJob {
                 switch (task.getType()) {
                     case ON_OFF:
                         OnOffRequest oor = (OnOffRequest) task.getRequest();
-                        boolean on = Boolean.valueOf(task.getTemp());
-
-                        if (
-                                task.getLastStartUp() == null ||
-                                        now.getTime() >= task.getLastStartUp().getTime() + 1000 * (on ? oor.getOnSpace() : oor.getOffSpace())
-                                ) {
-                            taskSender.sendOnOff(task.getId(), oor.getPortName(), Command.onOff(oor.getChannel(), !on));
-                        }
-
+                        boolean on = Boolean.valueOf(task.getLastStatus());
+                        storeHelper.setTaskStartUp(task.getId(), next(now, oor.getOffSpace() + oor.getOnSpace()));
+                        taskSender.sendOnOff(task.getId(), oor.getPortName(), Command.onOff(oor.getChannel(), !on));
                         break;
                     case VIDEO:
                         VideoRequest vr = (VideoRequest) task.getRequest();
-                        if (task.getLastStartUp() == null || now.getTime() >= 1000 * task.getSpace()) {
-                            taskSender.sendVideo(task.getId(), vr.getDevice(), vr.getRate());
-                        }
+                        storeHelper.setTaskStartUp(task.getId(), next(task.getEnd(), 1));
+                        taskSender.sendVideo(task.getId(), vr.getDevice(), vr.getRate());
                         break;
                     case PHOTO:
                         PhotoRequest pr = (PhotoRequest) task.getRequest();
-                        if (task.getLastStartUp() == null || now.getTime() >= 1000 * task.getSpace()) {
-                            taskSender.sendPhoto(task.getId(), pr.getDevice());
-                        }
+                        storeHelper.setTaskStartUp(task.getId(), next(now, pr.getSpace()));
+                        taskSender.sendPhoto(task.getId(), pr.getDevice());
                         break;
                     default:
                         logger.error("未知的任务类型[{}]", task.getType());
@@ -69,6 +59,9 @@ public class TaskJob {
 
     }
 
+    private Date next(Date date, int space) {
+        return new Date(date.getTime() + 1000 * space);
+    }
 
     @Resource
     private TaskSender taskSender;

@@ -7,9 +7,10 @@ package com.odong.fly.model.request;
  * Time: 下午8:59
  */
 public class PhotoRequest extends Request {
-    public PhotoRequest(int device, String name) {
+    public PhotoRequest(int device, String name, int space) {
         this.device = device;
         this.name = name;
+        this.space = space;
     }
 
     @Deprecated
@@ -19,6 +20,15 @@ public class PhotoRequest extends Request {
     private static final long serialVersionUID = -2859334715004023639L;
     private int device;
     private String name;
+    private int space;
+
+    public int getSpace() {
+        return space;
+    }
+
+    public void setSpace(int space) {
+        this.space = space;
+    }
 
     public String getName() {
         return name;

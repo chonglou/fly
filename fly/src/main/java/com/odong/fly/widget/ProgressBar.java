@@ -13,29 +13,38 @@ import java.util.ResourceBundle;
  */
 public final class ProgressBar {
     public ProgressBar() {
+        bundle = ResourceBundle.getBundle("messages", Locale.getDefault());
+
         processBar = new JProgressBar(0, 100);
         processBar.setStringPainted(true);
         processBar.setIndeterminate(true);
 
         frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setTitle(bundle.getString("lbl.booting"));
+        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/tray.png")));
         Container container = frame.getContentPane();
         container.add(processBar, BorderLayout.CENTER);
 
     }
 
-    public void show(boolean visible) {
-        if (visible) {
+    public void show() {
             frame.setSize(400, 40);
             frame.setUndecorated(true);
             //frame.setLocationByPlatform(true);
             frame.setLocationRelativeTo(null);
-        }
-        frame.setVisible(visible);
+            frame.setAlwaysOnTop(true);
+            frame.setVisible(true);
+
+
+    }
+
+    public void hide(){
+        frame.setVisible(false);
     }
 
     public void message(String key) {
-        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.getDefault());
+
         JOptionPane.showMessageDialog(frame,
                 bundle.getString("lbl.dialog." + key + ".message"),
                 bundle.getString("lbl.dialog." + key + ".title"),
@@ -48,6 +57,7 @@ public final class ProgressBar {
 
     private JProgressBar processBar;
     private JFrame frame;
+    ResourceBundle bundle;
     private final static ProgressBar instance = new ProgressBar();
 
     public static ProgressBar get() {

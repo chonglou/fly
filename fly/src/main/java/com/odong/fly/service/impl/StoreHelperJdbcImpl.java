@@ -44,15 +44,15 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         addTask(id, Task.Type.ON_OFF,
                 new OnOffRequest(portName, channel, onSpace, offSpace),
                 Boolean.FALSE.toString(),
-                begin, end, total, null);
+                begin, end, total);
     }
 
     @Override
     public void addPhotoTask(String id, int deviceId, String deviceName, Date begin, Date end, long total, int space) {
         addTask(id, Task.Type.PHOTO,
-                new PhotoRequest(deviceId, deviceName),
+                new PhotoRequest(deviceId, deviceName, space),
                 null,
-                begin, end, total, space);
+                begin, end, total);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         addTask(id, Task.Type.VIDEO,
                 new VideoRequest(deviceId, deviceName, rate),
                 null,
-                begin, end, 1, null);
+                begin, end, 1);
     }
 
     @Override
@@ -118,6 +118,11 @@ public class StoreHelperJdbcImpl implements StoreHelper {
     }
 
     @Override
+    public List<Task> listRunnableTask() {
+        return jdbcTemplate.query("SELECT * FROM TASK WHERE nextRun>=? AND state=?", mapperTask(), new Date(), Task.State.SUBMIT.name());  //
+    }
+
+    @Override
     public List<Task> listTask(Task.State... states) {
 
         String sql = "SELECT * FROM TASKS WHERE ";
@@ -151,18 +156,17 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
 
     @Override
-    public void setStartUp(String taskId) {
-        jdbcTemplate.update("UPDATE TASKS SET lastStartUp=?,index=index+1 WHERE id=?", new Date(), taskId);
+    public void setTaskStartUp(String taskId, Date nextRun) {
+        jdbcTemplate.update("UPDATE TASKS SET lastStartUp=?, nextRun=?, index=index+1 WHERE id=?", new Date(), nextRun, taskId);
     }
 
     @Override
-    public void setShutDown(String taskId, String temp) {
+    public void setTaskShutDown(String taskId, String lastStatus) {
 
-
-        if (temp == null) {
+        if (lastStatus == null) {
             jdbcTemplate.update("UPDATE TASKS SET   lastShutDown=? WHERE id=?", new Date(), taskId);
         } else {
-            jdbcTemplate.update("UPDATE TASKS SET temp=?, lastShutDown=? WHERE id=?", temp, new Date(), taskId);
+            jdbcTemplate.update("UPDATE TASKS SET lastStatus=?, lastShutDown=? WHERE id=?", lastStatus, new Date(), taskId);
         }
     }
 
@@ -267,14 +271,14 @@ public class StoreHelperJdbcImpl implements StoreHelper {
                 "type_ VARCHAR(255) NOT NULL, " +
                 "state VARCHAR(255) NOT NULL, " +
                 "request VARCHAR(500) NOT NULL, " +
-                "temp VARCHAR(500), " +
+                "lastStatus VARCHAR(500), " +
                 "begin_ TIMESTAMP NOT NULL, " +
                 "end_ TIMESTAMP NOT NULL, " +
                 "lastStartUp TIMESTAMP, " +
                 "lastShutDown TIMESTAMP, " +
                 "total BIGINT, " +
                 "index BIGINT NOT NULL DEFAULT 0, " +
-                "space_ INTEGER, " +
+                "nextRun TIMESTAMP NOT NULL, " +
                 "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
 
         logger.info("开始检查数据库");
@@ -317,9 +321,9 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         };
     }
 
-    private void addTask(String id, Task.Type type, Request request, String temp, Date begin, Date end, long total, Integer space) {
-        jdbcTemplate.update("INSERT INTO TASKS(id,type_,state,request,temp,begin_,end_,total,space_) VALUES(?,?,?,?,?,?,?,?,?)",
-                id, type.name(), Task.State.SUBMIT.name(), jsonHelper.object2json(request), temp, begin, end, total, space);
+    private void addTask(String id, Task.Type type, Request request, String temp, Date begin, Date end, long total) {
+        jdbcTemplate.update("INSERT INTO TASKS(id,type_,state,request,temp,begin_,end_,total,nextRun) VALUES(?,?,?,?,?,?,?,?,?)",
+                id, type.name(), Task.State.SUBMIT.name(), jsonHelper.object2json(request), temp, begin, end, total, begin);
     }
 
 
@@ -391,14 +395,14 @@ public class StoreHelperJdbcImpl implements StoreHelper {
                         task.setRequest(jsonHelper.json2object(request, VideoRequest.class));
                         break;
                 }
-                task.setTemp(resultSet.getString("temp"));
+                task.setLastStatus(resultSet.getString("lastStatus"));
                 task.setBegin(resultSet.getTimestamp("begin_"));
                 task.setEnd(resultSet.getTimestamp("end_"));
                 task.setLastStartUp(resultSet.getTime("lastStartUp"));
                 task.setLastShutDown(resultSet.getTimestamp("lastShutDown"));
                 task.setTotal(resultSet.getLong("total"));
                 task.setIndex(resultSet.getLong("index"));
-                task.setSpace(resultSet.getInt("space_"));
+                task.setNextRun(resultSet.getDate("nextRun"));
                 task.setCreated(resultSet.getTimestamp("created"));
                 return task;  //
             }

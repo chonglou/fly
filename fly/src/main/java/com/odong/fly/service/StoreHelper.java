@@ -35,15 +35,16 @@ public interface StoreHelper {
 
     List<Task> listTask(Date begin, Date end);
 
+    List<Task> listRunnableTask();
 
     List<Task> listTask(Task.State... states);
 
     List<Task> listAvailableTask(Task.Type... types);
 
 
-    void setStartUp(String taskId);
+    void setTaskStartUp(String taskId, Date nextRun);
 
-    void setShutDown(String taskId, String temp);
+    void setTaskShutDown(String taskId, String lastStatus);
 
     void filterTask();
 

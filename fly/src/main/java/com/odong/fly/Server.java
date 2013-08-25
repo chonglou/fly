@@ -23,7 +23,7 @@ public class Server {
     }
 
     public void init() {
-        ProgressBar.get().show(true);
+        ProgressBar.get().show();
         logger.info("正在设置运行环境");
         System.setProperty("derby.stream.error.file", "var/derby.log");
         try {

@@ -48,30 +48,30 @@ public class Task implements Serializable {
     private Type type;
     private State state;
     private Request request;
-    private String temp;
     private Date begin;
     private Date end;
     private Date lastStartUp;
     private Date lastShutDown;
+    private String lastStatus;
+    private Date nextRun;
     private Long total;
     private long index;
-    private Integer space;
     private Date created;
 
-    public Integer getSpace() {
-        return space;
+    public Date getNextRun() {
+        return nextRun;
     }
 
-    public void setSpace(Integer space) {
-        this.space = space;
+    public void setNextRun(Date nextRun) {
+        this.nextRun = nextRun;
     }
 
-    public String getTemp() {
-        return temp;
+    public String getLastStatus() {
+        return lastStatus;
     }
 
-    public void setTemp(String temp) {
-        this.temp = temp;
+    public void setLastStatus(String lastStatus) {
+        this.lastStatus = lastStatus;
     }
 
     public String getId() {
