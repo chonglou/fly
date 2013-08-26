@@ -8,11 +8,10 @@ import com.odong.core.file.excel.Excel;
 import com.odong.core.file.excel.Table;
 import com.odong.core.util.EncryptHelper;
 import com.odong.core.util.JsonHelper;
-import com.odong.fly.Server;
-import com.odong.fly.camera.CameraUtil;
 import com.odong.fly.job.TaskSender;
 import com.odong.fly.model.Log;
 import com.odong.fly.service.StoreHelper;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -21,6 +20,7 @@ import java.util.UUID;
 public class AppTest
 
 {
+    /*
     //@Test
     public void testJms() {
         TaskSender sender = Server.get().bean(TaskSender.class);
@@ -131,18 +131,8 @@ public class AppTest
         }
     }
 
-    @Test
-    public void testWindow() {
 
-        try {
-            Thread.sleep(1000 * 60 * 5);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @BeforeTest
-    public void init() {
+    public void init0() {
         try {
             Server.get().init();
             Server.get().start();
@@ -157,4 +147,25 @@ public class AppTest
             System.out.println(jh.object2json(obj));
         }
     }
+*/
+    @Test
+    public void testWindow() {
+
+        try {
+            Thread.sleep(1000 * 60 * 5);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @BeforeTest
+    public void init(){
+        try{
+        new ClassPathXmlApplicationContext("spring/*.xml");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -1,6 +1,6 @@
-package com.odong.fly.widget.card;
+package com.odong.fly.gui.card;
 
-import com.odong.fly.util.GuiHelper;
+import com.odong.fly.gui.Message;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -16,6 +16,9 @@ import java.awt.*;
  */
 @Component
 public class HelpPanel {
+    public String name(){
+        return "doc";
+    }
     @PostConstruct
     void init() {
         panel = new JPanel(new GridLayout(1, 1));
@@ -25,7 +28,7 @@ public class HelpPanel {
     }
 
     public void setText() {
-        content.setText("<html>" + guiHelper.getMessage("help.doc") + "</html>");
+        content.setText("<html>" + message.getMessage("help.doc") + "</html>");
     }
 
     public JPanel get() {
@@ -35,9 +38,9 @@ public class HelpPanel {
     private JLabel content;
     private JPanel panel;
     @Resource
-    private GuiHelper guiHelper;
+    private Message message;
 
-    public void setGuiHelper(GuiHelper guiHelper) {
-        this.guiHelper = guiHelper;
+    public void setMessage(Message message) {
+        this.message = message;
     }
 }

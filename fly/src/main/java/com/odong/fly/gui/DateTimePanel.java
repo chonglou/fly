@@ -1,4 +1,4 @@
-package com.odong.fly.widget;
+package com.odong.fly.gui;
 
 import javax.swing.*;
 import java.util.Date;

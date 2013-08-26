@@ -1,5 +1,6 @@
 package com.odong.fly.job;
 
+import com.odong.fly.gui.BootingBar;
 import com.odong.fly.model.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,7 @@ import org.springframework.jms.core.MessageCreator;
 import org.springframework.jms.core.MessagePostProcessor;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -74,11 +76,22 @@ public class TaskSender {
         logger.debug("发送任务消息[{}]", taskId);
     }
 
+    @PostConstruct
+    void init(){
+        bootingBar.next();
+    }
+
     @Resource
     private JmsTemplate jmsTemplate;
     @Resource(name = "taskQueue")
     private Queue taskQueue;
+    @Resource
+    private BootingBar bootingBar;
     private final static Logger logger = LoggerFactory.getLogger(TaskSender.class);
+
+    public void setBootingBar(BootingBar bootingBar) {
+        this.bootingBar = bootingBar;
+    }
 
     public void setTaskQueue(Queue taskQueue) {
         this.taskQueue = taskQueue;

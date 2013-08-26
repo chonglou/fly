@@ -1,4 +1,4 @@
-package com.odong.fly.widget.card;
+package com.odong.fly.gui.card;
 
 import com.odong.fly.model.Task;
 
@@ -6,9 +6,10 @@ import com.odong.fly.model.Task;
  * Created with IntelliJ IDEA.
  * User: flamen
  * Date: 13-8-22
- * Time: 下午5:33
+ * Time: 下午5:34
  */
-public class VideoTaskPanel extends TaskPanel {
+public class PhotoTaskPanel extends TaskPanel {
+
     @Override
     public void show(Task task) {
         //

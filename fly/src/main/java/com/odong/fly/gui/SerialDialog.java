@@ -1,9 +1,8 @@
-package com.odong.fly.widget;
+package com.odong.fly.gui;
 
 import com.odong.fly.MyException;
 import com.odong.fly.serial.SerialPort;
 import com.odong.fly.serial.SerialUtil;
-import com.odong.fly.util.GuiHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -22,17 +21,19 @@ import java.util.Map;
 /**
  * Created with IntelliJ IDEA.
  * User: flamen
- * Date: 13-8-7
- * Time: 上午10:50
+ * Date: 13-8-25
+ * Time: 下午3:56
  */
-@Component
+@Component("gui.serialDialog")
 public class SerialDialog {
-    public void show(String portName) {
+    public void show(String portName){
+
         this.portName = portName;
-        dialog.setTitle(guiHelper.getMessage("dialog.serial.title") + "[" + portName + "]");
+        dialog.setTitle(message.getMessage("dialog.serial.title") + "[" + portName + "]");
         dialog.pack();
         dialog.setVisible(true);
     }
+
 
     public void hide() {
         dialog.setVisible(false);
@@ -40,19 +41,19 @@ public class SerialDialog {
 
     public void setText() {
         for (String s : labels.keySet()) {
-            labels.get(s).setText(guiHelper.getMessage("serial." + s) + "：");
+            labels.get(s).setText(message.getMessage("serial." + s) + "：");
         }
 
         for (String s : new String[]{"submit", "cancel"}) {
-            buttons.get(s).setText(guiHelper.getMessage("button." + s));
+            buttons.get(s).setText(message.getMessage("button." + s));
         }
     }
 
     @PostConstruct
     void init() {
-        JFrame window = guiHelper.getWindow();
-        dialog = new JDialog(window, "", true);
-        dialog.setIconImage(guiHelper.getIconImage());
+
+        dialog = new JDialog(mainFrame, "", true);
+        dialog.setIconImage(message.getIcon());
         Container container = dialog.getContentPane();
         container.setLayout(new BorderLayout(20, 20));
 
@@ -67,7 +68,7 @@ public class SerialDialog {
 
         initEvents();
 
-        dialog.setLocationRelativeTo(window);
+        dialog.setLocationRelativeTo(mainFrame);
         dialog.setResizable(false);
     }
 
@@ -131,13 +132,13 @@ public class SerialDialog {
                     } catch (Exception ex) {
                         logger.debug("打开端口出错", ex);
                         if (ex instanceof MyException) {
-                            guiHelper.showErrorDialog(((MyException) ex).getType());
+                            dialogHelper.error(((MyException) ex).getType());
                         }
                     }
 
                     if (serialUtil.isOpen(portName)) {
                         hide();
-                        cardPanel.showSerialOnOff(portName);
+                        mainPanel.showSerial(portName);
                     }
                 } else {
                     hide();
@@ -157,20 +158,31 @@ public class SerialDialog {
     private Map<String, JButton> buttons;
     private Map<String, JComboBox> comboBoxes;
     @Resource
-    private CardPanel cardPanel;
-    @Resource
-    private GuiHelper guiHelper;
-    @Resource
     private SerialUtil serialUtil;
+    @Resource
+    private Message message;
+    @Resource
+    private JFrame mainFrame;
+    @Resource
+    private MainPanel mainPanel;
+    @Resource
+    private Dialog dialogHelper;
     private final static Logger logger = LoggerFactory.getLogger(SerialDialog.class);
 
-
-    public void setCardPanel(CardPanel cardPanel) {
-        this.cardPanel = cardPanel;
+    public void setDialogHelper(Dialog dialogHelper) {
+        this.dialogHelper = dialogHelper;
     }
 
-    public void setGuiHelper(GuiHelper guiHelper) {
-        this.guiHelper = guiHelper;
+    public void setMainPanel(MainPanel mainPanel) {
+        this.mainPanel = mainPanel;
+    }
+
+    public void setMainFrame(JFrame mainFrame) {
+        this.mainFrame = mainFrame;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
     }
 
     public void setSerialUtil(SerialUtil serialUtil) {

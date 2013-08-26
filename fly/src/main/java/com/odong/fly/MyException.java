@@ -25,6 +25,8 @@ public class MyException extends Exception {
     }
 
     public enum Type {
+        CAMERA_IN_USE,
+        CAMERA_IO_ERROR,
         SERIAL_PORT_NOT_EXIST,
         SERIAL_PORT_IN_USE,
         SERIAL_CHANNEL_IN_USE,

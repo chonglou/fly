@@ -13,6 +13,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 //import static com.googlecode.javacv.cpp.opencv_core.cvReleaseImage;
 
@@ -23,6 +24,16 @@ import java.util.Map;
  * Time: 上午10:24
  */
 public class CameraUtilOpenCVImpl extends CameraUtil {
+    @Override
+    public Set<Integer> getStatus() {
+        return cameraMap.keySet();  //
+    }
+
+    @Override
+    public boolean hasOpen() {
+        return cameraMap.size()>0;  //
+    }
+
     @Override
     public boolean isRecorder(int device) {
         return cameraMap.get(device).enable;

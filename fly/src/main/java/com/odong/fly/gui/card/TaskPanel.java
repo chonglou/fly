@@ -1,4 +1,4 @@
-package com.odong.fly.widget.card;
+package com.odong.fly.gui.card;
 
 
 import com.odong.fly.model.Task;

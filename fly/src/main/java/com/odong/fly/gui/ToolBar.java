@@ -1,11 +1,10 @@
-package com.odong.fly.widget;
+package com.odong.fly.gui;
 
 import com.odong.core.util.JsonHelper;
 import com.odong.fly.model.Task;
 import com.odong.fly.model.request.OnOffRequest;
 import com.odong.fly.serial.SerialUtil;
 import com.odong.fly.service.StoreHelper;
-import com.odong.fly.util.GuiHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -22,10 +21,10 @@ import java.util.List;
 /**
  * Created with IntelliJ IDEA.
  * User: flamen
- * Date: 13-8-7
- * Time: 上午11:14
+ * Date: 13-8-25
+ * Time: 下午12:16
  */
-@Component
+@Component("gui.toolbar")
 public class ToolBar {
 
     public void refresh() {
@@ -41,7 +40,7 @@ public class ToolBar {
 
         for (String portName : serialUtil.getStatus()) {
             JButton btn = new JButton(portName);
-            btn.setName("port://" + portName);
+            btn.setName("serial://" + portName);
             ports.add(btn);
         }
         for (Task task : storeHelper.listAvailableTask(Task.Type.ON_OFF)) {
@@ -71,8 +70,8 @@ public class ToolBar {
     }
 
     public void setText() {
-        exit.setText(guiHelper.getMessage("button.exit"));
-        help.setText(guiHelper.getMessage("button.help"));
+        exit.setText(message.getMessage("button.exit"));
+        help.setText(message.getMessage("button.help"));
     }
 
     public JToolBar get() {
@@ -81,7 +80,6 @@ public class ToolBar {
 
     @PostConstruct
     void init() {
-        toolBar = new JToolBar();
         toolBar.setFloatable(false);
         this.ports = new ArrayList<>();
         this.tasks = new ArrayList<>();
@@ -92,7 +90,7 @@ public class ToolBar {
         help.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                cardPanel.showHelp();
+                mainPanel.showHelp();
             }
         });
         toolBar.add(help);
@@ -102,7 +100,7 @@ public class ToolBar {
         exit.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                guiHelper.showExitDialog();
+                dialog.exit();
             }
         });
         toolBar.add(exit);
@@ -114,49 +112,55 @@ public class ToolBar {
         public void mouseClicked(MouseEvent e) {
             String name = ((JButton) e.getSource()).getName();
             if (name.startsWith("task://")) {
-                cardPanel.showTask(name.substring(7));
-            } else if (name.startsWith("port://")) {
-                cardPanel.showSerialOnOff(name.substring(7));
+                mainPanel.showTask(name.substring(7));
+            } else if (name.startsWith("serial://")) {
+                mainPanel.showSerial(name.substring(10));
             } else {
                 logger.error("未知的工具栏按钮", name);
             }
         }
     };
-    private JToolBar toolBar;
-    @Resource
-    private GuiHelper guiHelper;
-    @Resource
-    private CardPanel cardPanel;
-    @Resource
-    private SerialUtil serialUtil;
-    @Resource
-    private JsonHelper jsonHelper;
-    @Resource
-    private StoreHelper storeHelper;
+
     private List<JButton> ports;
     private List<JButton> tasks;
     private JButton exit;
     private JButton help;
+    @Resource
+    private JToolBar toolBar;
+    @Resource
+    private SerialUtil serialUtil;
+    @Resource
+    private StoreHelper storeHelper;
+    @Resource
+    private Message message;
+    @Resource
+    private MainPanel mainPanel;
+    @Resource
+    private Dialog dialog;
     private final static Logger logger = LoggerFactory.getLogger(ToolBar.class);
 
-    public void setJsonHelper(JsonHelper jsonHelper) {
-        this.jsonHelper = jsonHelper;
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
+    }
+
+    public void setMainPanel(MainPanel mainPanel) {
+        this.mainPanel = mainPanel;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
+    }
+
+    public void setToolBar(JToolBar toolBar) {
+        this.toolBar = toolBar;
     }
 
     public void setSerialUtil(SerialUtil serialUtil) {
         this.serialUtil = serialUtil;
     }
 
-    public void setCardPanel(CardPanel cardPanel) {
-        this.cardPanel = cardPanel;
-    }
 
     public void setStoreHelper(StoreHelper storeHelper) {
         this.storeHelper = storeHelper;
     }
-
-    public void setGuiHelper(GuiHelper guiHelper) {
-        this.guiHelper = guiHelper;
-    }
-
 }

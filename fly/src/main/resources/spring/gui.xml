@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="menuBar" class="javax.swing.JMenuBar"/>
+    <bean id="mainFrame" class="javax.swing.JFrame">
+        <property name="visible" value="false"/>
+    </bean>
+    <bean id="toolBar" class="javax.swing.JToolBar"/>
+    <bean id="mainPanel" class="javax.swing.JPanel"/>
+
+    <util:list id="taskTray.items">
+        <value>show</value>
+        <value>hide</value>
+        <value/>
+        <value>exit</value>
+    </util:list>
+
+    <util:list id="menuBar.items">
+        <util:map>
+            <entry key="name" value="file"/>
+            <entry key="type" value="text"/>
+            <entry key="items">
+                <util:list>
+                    <value>file</value>
+                    <value/>
+                    <value>scan</value>
+                    <value/>
+                    <value>gc</value>
+                    <value/>
+                    <value>exit</value>
+                </util:list>
+            </entry>
+        </util:map>
+        <util:map>
+            <entry key="name" value="device"/>
+            <entry key="type" value="checkBox"/>
+            <entry key="items">
+                <util:list/>
+            </entry>
+        </util:map>
+        <util:map>
+            <entry key="name" value="lang"/>
+            <entry key="type" value="radio"/>
+            <entry key="items">
+                <util:list>
+                    <value>en_US</value>
+                    <value/>
+                    <value>zh_CN</value>
+                </util:list>
+            </entry>
+        </util:map>
+        <util:map>
+            <entry key="name" value="help"/>
+            <entry key="type" value="text"/>
+            <entry key="items">
+                <util:list>
+                    <value>doc</value>
+                    <value/>
+                    <value>aboutMe</value>
+                </util:list>
+            </entry>
+        </util:map>
+    </util:list>
+
+</beans>

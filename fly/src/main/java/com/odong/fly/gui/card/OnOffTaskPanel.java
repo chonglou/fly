@@ -1,14 +1,13 @@
-package com.odong.fly.widget.card;
+package com.odong.fly.gui.card;
 
 import com.odong.fly.MyException;
+import com.odong.fly.gui.*;
+import com.odong.fly.gui.Dialog;
 import com.odong.fly.model.Task;
 import com.odong.fly.model.item.SerialItem;
 import com.odong.fly.model.request.OnOffRequest;
 import com.odong.fly.service.StoreHelper;
-import com.odong.fly.util.GuiHelper;
-import com.odong.fly.widget.DateTimePanel;
-import com.odong.fly.widget.ToolBar;
-import com.odong.fly.widget.impl.SimpleDateTimePanelImpl;
+import com.odong.fly.gui.impl.SimpleDateTimePanelImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -41,7 +40,7 @@ public class OnOffTaskPanel extends TaskPanel {
 
 
         Date now = new Date();
-        this.show(guiHelper.getMessage("channel.task.title") + portName,
+        this.show(message.getMessage("channel.task.title") + portName,
                 null, portName, null,
                 now, new Date(now.getTime() + 1000 * 60 * 60 * 24),
                 0, 3, 3
@@ -55,7 +54,7 @@ public class OnOffTaskPanel extends TaskPanel {
     @Override
     public void show(Task task) {
         OnOffRequest r = (OnOffRequest) task.getRequest();
-        this.show(guiHelper.getMessage("channel.task.title") + task.toString(),
+        this.show(message.getMessage("channel.task.title") + task.toString(),
                 task.getId(), r.getPortName(), r.getChannel(),
                 task.getBegin(), task.getEnd(), task.getTotal(), r.getOnSpace(), r.getOffSpace()
         );
@@ -111,18 +110,18 @@ public class OnOffTaskPanel extends TaskPanel {
     @Override
     public void setText() {
         for (String s : labels.keySet()) {
-            labels.get(s).setText(guiHelper.getMessage("channel.task." + s) + "：");
+            labels.get(s).setText(message.getMessage("channel.task." + s) + "：");
         }
 
         Map<String, String> map = new HashMap<>();
         for (String s : new String[]{"year", "month", "day", "hour", "minute", "second"}) {
-            map.put(s, guiHelper.getMessage("dateTimeP." + s));
+            map.put(s, message.getMessage("dateTimeP." + s));
         }
         beginTime.setText(map);
         endTime.setText(map);
 
         for (String s : buttons.keySet()) {
-            buttons.get(s).setText(guiHelper.getMessage("button." + s));
+            buttons.get(s).setText(message.getMessage("button." + s));
         }
 
     }
@@ -163,7 +162,7 @@ public class OnOffTaskPanel extends TaskPanel {
                             }
                             if (taskId == null) {
                                 if (storeHelper.getAvailSerialTask(portName, ch) != null) {
-                                    guiHelper.showErrorDialog(MyException.Type.SERIAL_CHANNEL_IN_USE);
+                                    dialog.error(MyException.Type.SERIAL_CHANNEL_IN_USE);
                                     return;
                                 }
 
@@ -177,7 +176,7 @@ public class OnOffTaskPanel extends TaskPanel {
                             }
                         } catch (Exception ex) {
                             logger.error("数据输入出错", ex);
-                            guiHelper.showErrorDialog("inputNonValid");
+                            dialog.error("inputNonValid");
                         }
                         if (taskId != null) {
                             show(storeHelper.getTask(taskId));
@@ -362,22 +361,25 @@ public class OnOffTaskPanel extends TaskPanel {
     private String portName;
     private String taskId;
     @Resource
-    private GuiHelper guiHelper;
+    private Message message;
     @Resource
     private StoreHelper storeHelper;
     @Resource
     private ToolBar toolBar;
-
-
+    @Resource
+    private Dialog dialog;
     private final static Logger logger = LoggerFactory.getLogger(OnOffTaskPanel.class);
+
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
+    }
 
     public void setToolBar(ToolBar toolBar) {
         this.toolBar = toolBar;
-    }
-
-
-    public void setGuiHelper(GuiHelper guiHelper) {
-        this.guiHelper = guiHelper;
     }
 
     public void setStoreHelper(StoreHelper storeHelper) {

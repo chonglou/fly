@@ -1,6 +1,6 @@
-package com.odong.fly.widget.impl;
+package com.odong.fly.gui.impl;
 
-import com.odong.fly.widget.DateTimePanel;
+import com.odong.fly.gui.DateTimePanel;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

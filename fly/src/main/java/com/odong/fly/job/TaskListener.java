@@ -1,7 +1,7 @@
 package com.odong.fly.job;
 
 import com.odong.fly.MyException;
-import com.odong.fly.camera.CameraUtil;
+
 import com.odong.fly.model.Task;
 import com.odong.fly.serial.SerialUtil;
 import com.odong.fly.service.StoreHelper;
@@ -95,8 +95,6 @@ public class TaskListener implements MessageListener {
     @Resource
     private SerialUtil serialUtil;
     @Resource
-    private CameraUtil cameraUtil;
-    @Resource
     private TaskExecutor taskExecutor;
     @Resource
     private StoreHelper storeHelper;
@@ -108,10 +106,6 @@ public class TaskListener implements MessageListener {
 
     public void setSerialUtil(SerialUtil serialUtil) {
         this.serialUtil = serialUtil;
-    }
-
-    public void setCameraUtil(CameraUtil cameraUtil) {
-        this.cameraUtil = cameraUtil;
     }
 
     public void setTaskExecutor(TaskExecutor taskExecutor) {

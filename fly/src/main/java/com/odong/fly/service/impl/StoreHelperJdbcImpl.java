@@ -1,6 +1,7 @@
 package com.odong.fly.service.impl;
 
 import com.odong.core.util.JsonHelper;
+import com.odong.fly.gui.BootingBar;
 import com.odong.fly.model.Log;
 import com.odong.fly.model.Task;
 import com.odong.fly.model.item.CameraItem;
@@ -11,7 +12,6 @@ import com.odong.fly.model.request.PhotoRequest;
 import com.odong.fly.model.request.Request;
 import com.odong.fly.model.request.VideoRequest;
 import com.odong.fly.service.StoreHelper;
-import com.odong.fly.widget.ProgressBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -232,7 +232,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
     @PostConstruct
     synchronized void init() {
-        ProgressBar.get().set(50);
+        bootingBar.next();
         jdbcTemplate.execute(new ConnectionCallback<Object>() {
             @Override
             public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
@@ -243,7 +243,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
                 return null;  //
             }
         });
-        ProgressBar.get().set(60);
+        bootingBar.next();
         Map<String, String> map = new HashMap<>();
         map.put("LOGS", "id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, " +
                 "message VARCHAR(1024) NOT NULL, " +
@@ -290,6 +290,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
                 jdbcTemplate.execute(String.format("CREATE TABLE %s(%s)", tableName, map.get(tableName)));
                 logger.info("成功创建数据库{}", tableName);
             }
+            bootingBar.next();
         }
         logger.info("数据库检查通过");
 
@@ -416,7 +417,13 @@ public class StoreHelperJdbcImpl implements StoreHelper {
     private JsonHelper jsonHelper;
     @Value("${db.schema}")
     private String schema;
+    @Resource
+    private BootingBar bootingBar;
     private final static Logger logger = LoggerFactory.getLogger(StoreHelperJdbcImpl.class);
+
+    public void setBootingBar(BootingBar bootingBar) {
+        this.bootingBar = bootingBar;
+    }
 
     public void setSchema(String schema) {
         this.schema = schema;

@@ -1,7 +1,7 @@
 package com.odong.fly.camera.impl;
 
 import com.odong.fly.camera.CameraUtil;
-import com.odong.fly.util.GuiHelper;
+import com.odong.fly.gui.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,9 +10,7 @@ import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,6 +19,17 @@ import java.util.Map;
  * Time: 上午10:24
  */
 public class CameraUtilDemoImpl extends CameraUtil {
+
+    @Override
+    public Set<Integer> getStatus() {
+
+        return cameraMap.keySet();  //
+    }
+
+    @Override
+    public boolean hasOpen() {
+        return cameraMap.size() >0;  //
+    }
 
     @Override
     public boolean isRecorder(int device) {
@@ -58,7 +67,7 @@ public class CameraUtilDemoImpl extends CameraUtil {
     public void open(int device) {
         logger.debug("打开摄像头[{}]", device);
         JFrame frame = new JFrame();
-        frame.add(new JLabel(guiHelper.getMessage("camera") + device));
+        frame.add(new JLabel(message.getMessage("camera") + device));
         cameraMap.put(device, new Camera(frame));
     }
 
@@ -102,7 +111,7 @@ public class CameraUtilDemoImpl extends CameraUtil {
 
     private Map<Integer, Camera> cameraMap;
     @Resource
-    private GuiHelper guiHelper;
+    private Message message;
 
     class Camera {
         Camera(JFrame frame) {
@@ -115,8 +124,7 @@ public class CameraUtilDemoImpl extends CameraUtil {
 
     private final static Logger logger = LoggerFactory.getLogger(CameraUtilDemoImpl.class);
 
-
-    public void setGuiHelper(GuiHelper guiHelper) {
-        this.guiHelper = guiHelper;
+    public void setMessage(Message message) {
+        this.message = message;
     }
 }
