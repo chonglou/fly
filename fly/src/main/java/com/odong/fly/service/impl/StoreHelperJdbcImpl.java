@@ -119,7 +119,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
     @Override
     public List<Task> listRunnableTask() {
-        return jdbcTemplate.query("SELECT * FROM TASK WHERE nextRun>=? AND state=?", mapperTask(), new Date(), Task.State.SUBMIT.name());  //
+        return jdbcTemplate.query("SELECT * FROM TASKS WHERE nextRun>=? AND state=?", mapperTask(), new Date(), Task.State.SUBMIT.name());  //
     }
 
     @Override
@@ -232,7 +232,6 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
     @PostConstruct
     synchronized void init() {
-        bootingBar.next();
         jdbcTemplate.execute(new ConnectionCallback<Object>() {
             @Override
             public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
@@ -243,7 +242,6 @@ public class StoreHelperJdbcImpl implements StoreHelper {
                 return null;  //
             }
         });
-        bootingBar.next();
         Map<String, String> map = new HashMap<>();
         map.put("LOGS", "id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY, " +
                 "message VARCHAR(1024) NOT NULL, " +
@@ -322,9 +320,9 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         };
     }
 
-    private void addTask(String id, Task.Type type, Request request, String temp, Date begin, Date end, long total) {
-        jdbcTemplate.update("INSERT INTO TASKS(id,type_,state,request,temp,begin_,end_,total,nextRun) VALUES(?,?,?,?,?,?,?,?,?)",
-                id, type.name(), Task.State.SUBMIT.name(), jsonHelper.object2json(request), temp, begin, end, total, begin);
+    private void addTask(String id, Task.Type type, Request request, String lastStatus, Date begin, Date end, long total) {
+        jdbcTemplate.update("INSERT INTO TASKS(id,type_,state,request,lastStatus,begin_,end_,total,nextRun) VALUES(?,?,?,?,?,?,?,?,?)",
+                id, type.name(), Task.State.SUBMIT.name(), jsonHelper.object2json(request), lastStatus, begin, end, total, begin);
     }
 
 

@@ -49,10 +49,11 @@ public class TaskTray {
         PopupMenu menu = new PopupMenu();
 
         for (String s : taskTrayItems) {
-            if (s == null) {
+            if ("".equals(s)) {
                 menu.addSeparator();
             } else {
                 MenuItem item = new MenuItem();
+                item.setName(s);
                 menu.add(item);
                 menuItemMap.put(s, item);
             }
@@ -63,7 +64,7 @@ public class TaskTray {
 
     public void setText() {
         for (MenuItem item : menuItemMap.values()) {
-            item.setLabel(message.getMessage("menuItem." + item.getName()));
+            item.setLabel(message.getMessage("tray." + item.getName()));
         }
         tray.setToolTip(message.getMessage("title"));
     }

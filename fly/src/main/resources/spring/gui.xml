@@ -10,6 +10,12 @@
     <bean id="toolBar" class="javax.swing.JToolBar"/>
     <bean id="mainPanel" class="javax.swing.JPanel"/>
 
+
+    <util:list id="toolBar.items">
+        <value>help</value>
+        <value>exit</value>
+    </util:list>
+
     <util:list id="taskTray.items">
         <value>show</value>
         <value>hide</value>
@@ -23,8 +29,6 @@
             <entry key="type" value="text"/>
             <entry key="items">
                 <util:list>
-                    <value>file</value>
-                    <value/>
                     <value>scan</value>
                     <value/>
                     <value>gc</value>

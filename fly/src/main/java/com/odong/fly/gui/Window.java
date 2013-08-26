@@ -26,12 +26,11 @@ import java.util.Locale;
 public class Window  {
 
     public void setLocale(Locale locale){
+        mainFrame.setTitle(message.getMessage("title"));
         message.setLocale(locale);
-
 
         ctx.getBean(ToolBar.class).setText();
         ctx.getBean(MenuBar.class).setText();
-        ctx.getBean(ToolBar.class).setText();
         ctx.getBean(MainPanel.class).setText();
 
         serialDialog.setText();
@@ -44,6 +43,7 @@ public class Window  {
         initFrame();
         initStyle();
         initEvent();
+        setLocale(Locale.getDefault());
 
         mainFrame.setVisible(true);
         bootingBar.dispose();
@@ -83,21 +83,21 @@ public class Window  {
         });
     }
 
-    @Resource
+    @Resource(name = "toolBar")
     private JToolBar toolBar;
-    @Resource
+    @Resource(name = "menuBar")
     private JMenuBar menuBar;
     @Resource
     private BootingBar bootingBar;
     @Resource
     private JFrame mainFrame;
-    @Resource
+    @Resource(name = "mainPanel")
     private JPanel mainPanel;
     @Resource
     private Message message;
-    @Resource
+    @Resource(name = "gui.dialog")
     private Dialog dialog;
-    @Resource
+    @Resource(name = "gui.taskTray")
     private TaskTray taskTray;
     @Resource
     private ApplicationContext ctx;

@@ -48,7 +48,7 @@ public class MenuBar {
             menu.setText(message.getMessage("menu." + menu.getName()));
         }
         for (JMenuItem item : menuItemMap.values()) {
-            item.setText(message.getMessage("menuItem." + item.getName()));
+            item.setText(message.getMessage("menu." + item.getName()));
         }
 
         menuItemMap.get("lang." + message.getLocale().toString()).setSelected(true);
@@ -71,7 +71,7 @@ public class MenuBar {
         switch (type) {
             case "text":
                 for (Object obj : items) {
-                    if (obj == null) {
+                    if ("".equals(obj)) {
                         menu.addSeparator();
                     } else {
                         JMenuItem item = new JMenuItem();
@@ -85,7 +85,7 @@ public class MenuBar {
             case "radio":
                 ButtonGroup group = new ButtonGroup();
                 for (Object obj : items) {
-                    if (obj == null) {
+                    if ("".equals(obj)) {
                         menu.addSeparator();
                     } else {
                         JRadioButtonMenuItem item = new JRadioButtonMenuItem();
@@ -99,7 +99,7 @@ public class MenuBar {
                 break;
             case "checkBox":
                 for (Object obj : items) {
-                    if (obj == null) {
+                    if ("".equals(obj)) {
                         menu.addSeparator();
                     } else {
                         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
@@ -139,7 +139,13 @@ public class MenuBar {
                             }, null);
                             break;
                         case "file.scan":
-                            scanDevice();
+                            dialog.confirm("scanDevice", new Runnable() {
+                                @Override
+                                public void run() {
+                                    scanDevice();
+                                    dialog.info("success");
+                                }
+                            }, null) ;
                             break;
                         case "file.exit":
                             dialog.exit();
@@ -228,6 +234,7 @@ public class MenuBar {
     }
 
     private synchronized void scanDevice() {
+        logger.info("正在扫描设备列表");
         String menuName = "device";
         JMenu menu = menuMap.get(menuName);
         for (String portName : serialUtil.getPortNameList()) {
@@ -238,8 +245,8 @@ public class MenuBar {
                 if (menu.getItemCount() > 0) {
                     menu.addSeparator();
                 }
+                item.addActionListener(deviceItemListener);
                 menu.add(item);
-                menu.addActionListener(deviceItemListener);
             }
         }
 
@@ -252,8 +259,8 @@ public class MenuBar {
                     menu.addSeparator();
                 }
                 item.setName(name);
+                item.addActionListener(deviceItemListener);
                 menu.add(item);
-                menu.addActionListener(deviceItemListener);
             }
         }
     }
@@ -261,13 +268,13 @@ public class MenuBar {
     private ActionListener deviceItemListener;
     private Map<String, JMenu> menuMap;
     private Map<String, JMenuItem> menuItemMap;
-    @Resource
+    @Resource(name = "menuBar")
     private JMenuBar menuBar;
     @Resource
     private Window window;
-    @Resource
+    @Resource(name = "gui.mainPanel")
     private MainPanel mainPanel;
-    @Resource
+    @Resource(name = "gui.dialog")
     private Dialog dialog;
     @Resource
     private Message message;
@@ -279,7 +286,7 @@ public class MenuBar {
     private CameraUtil cameraUtil;
     @Resource
     private SerialDialog serialDialog;
-    @Resource
+    @Resource(name = "gui.toolBar")
     private ToolBar toolBar;
     @Resource
     private StoreHelper storeHelper;

@@ -163,7 +163,7 @@ public class SerialDialog {
     private Message message;
     @Resource
     private JFrame mainFrame;
-    @Resource
+    @Resource(name = "gui.mainPanel")
     private MainPanel mainPanel;
     @Resource
     private Dialog dialogHelper;

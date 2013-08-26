@@ -364,7 +364,7 @@ public class OnOffTaskPanel extends TaskPanel {
     private Message message;
     @Resource
     private StoreHelper storeHelper;
-    @Resource
+    @Resource(name="gui.toolBar")
     private ToolBar toolBar;
     @Resource
     private Dialog dialog;
