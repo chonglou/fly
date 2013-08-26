@@ -13,7 +13,6 @@ import javax.swing.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 //import static com.googlecode.javacv.cpp.opencv_core.cvReleaseImage;
 
@@ -25,13 +24,17 @@ import java.util.Set;
  */
 public class CameraUtilOpenCVImpl extends CameraUtil {
     @Override
-    public Set<Integer> getStatus() {
-        return cameraMap.keySet();  //
+    public Map<Integer, String> getStatus() {
+        Map<Integer, String> map = new HashMap<>();
+        for (Integer id : cameraMap.keySet()) {
+            map.put(id, cameraMap.get(id).name);
+        }
+        return map;
     }
 
     @Override
     public boolean hasOpen() {
-        return cameraMap.size()>0;  //
+        return cameraMap.size() > 0;  //
     }
 
     @Override
@@ -123,7 +126,7 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
 
 
     @Override
-    public synchronized void open(int device) throws IOException {
+    public synchronized void open(int device, String name) throws IOException {
         logger.debug("打开摄像头[{}]", device);
         try {
             //OpenCV在windows下使用Video，win7下可能无法正常工作，需要启用DirectShow
@@ -132,7 +135,7 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
 
             CanvasFrame frame = new CanvasFrame("摄像头[" + getCameraName(device) + "]");
 
-            cameraMap.put(device, new Camera(frame, grabber));
+            cameraMap.put(device, new Camera(name, frame, grabber));
 
         } catch (Exception e) {
             throw new IOException("打开摄像头[" + device + "]失败", e);
@@ -195,16 +198,37 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
         return videoInputLib.videoInput.getDeviceName(device);
     }
 
-
     class Camera {
-        Camera(CanvasFrame frame, FrameGrabber grabber) {
+        Camera(String name, CanvasFrame frame, FrameGrabber grabber) {
+            this.name = name;
             this.frame = frame;
             this.grabber = grabber;
         }
 
+        private final String name;
         private final CanvasFrame frame;
         private final FrameGrabber grabber;
         private boolean enable;
+
+        public String getName() {
+            return name;
+        }
+
+        public CanvasFrame getFrame() {
+            return frame;
+        }
+
+        public FrameGrabber getGrabber() {
+            return grabber;
+        }
+
+        public boolean isEnable() {
+            return enable;
+        }
+
+        public void setEnable(boolean enable) {
+            this.enable = enable;
+        }
     }
 
     private Map<Integer, Camera> cameraMap;

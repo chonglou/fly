@@ -38,7 +38,7 @@ public class SerialUtilRxtxImpl extends SerialUtil {
     }
 
     @Override
-    public Set<String> getPortNameList() {
-        return new SerialUtilRxtxImpl().getPortNameList();  //
+    public Set<String> listPortName() {
+        return new SerialUtilRxtxImpl().listPortName();  //
     }
 }

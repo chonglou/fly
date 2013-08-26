@@ -28,7 +28,7 @@ public class SerialUtilDemoImpl extends SerialUtil {
     }
 
     @Override
-    public Set<String> getPortNameList() {
+    public Set<String> listPortName() {
         Set<String> set = new LinkedHashSet<>();
         for (int i = 1; i < 5; i++) {
             set.add("COM" + i);

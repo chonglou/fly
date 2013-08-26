@@ -26,7 +26,7 @@ public class Message {
     }
 
     @PostConstruct
-    void init(){
+    void init() {
         locale = Locale.getDefault();
         icon = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/tray.png"));
     }

@@ -145,7 +145,7 @@ public class MenuBar {
                                     scanDevice();
                                     dialog.info("success");
                                 }
-                            }, null) ;
+                            }, null);
                             break;
                         case "file.exit":
                             dialog.exit();
@@ -199,31 +199,30 @@ public class MenuBar {
                         toolBar.refresh();
                     } else if (name.startsWith("device.camera.")) {
                         int deviceId = Integer.parseInt(name.substring(14));
-                        if(item.isSelected()){
+                        if (item.isSelected()) {
                             try {
-                                cameraUtil.open(deviceId);
-                            }
-                            catch (IOException ex){
+                                cameraUtil.open(deviceId, item.getText());
+                            } catch (IOException ex) {
                                 logger.error("打开摄像头[{}]失败", deviceId, ex);
                                 dialog.error(MyException.Type.CAMERA_IO_ERROR);
                             }
 
-                        }
-                        else {for (Task t : storeHelper.listRunnableTask()) {
-                            if (
-                                    (t.getType() == Task.Type.PHOTO && deviceId == ((PhotoRequest) t.getRequest()).getDevice()) ||
-                                            (t.getType() == Task.Type.VIDEO && deviceId == ((VideoRequest) t.getRequest()).getDevice())
-                                    ) {
-                                dialog.error(MyException.Type.CAMERA_IN_USE);
-                                return;
+                        } else {
+                            for (Task t : storeHelper.listRunnableTask()) {
+                                if (
+                                        (t.getType() == Task.Type.PHOTO && deviceId == ((PhotoRequest) t.getRequest()).getDevice()) ||
+                                                (t.getType() == Task.Type.VIDEO && deviceId == ((VideoRequest) t.getRequest()).getDevice())
+                                        ) {
+                                    dialog.error(MyException.Type.CAMERA_IN_USE);
+                                    return;
+                                }
                             }
-                        }
-                        try {
-                            cameraUtil.close(deviceId);
-                        } catch (IOException ex) {
-                            logger.error("关闭摄像头失败", ex);
-                        }
-                        mainPanel.showHelp();
+                            try {
+                                cameraUtil.close(deviceId);
+                            } catch (IOException ex) {
+                                logger.error("关闭摄像头失败", ex);
+                            }
+                            mainPanel.showHelp();
                         }
                         item.setSelected(cameraUtil.isOpen(deviceId));
                         toolBar.refresh();
@@ -237,7 +236,7 @@ public class MenuBar {
         logger.info("正在扫描设备列表");
         String menuName = "device";
         JMenu menu = menuMap.get(menuName);
-        for (String portName : serialUtil.getPortNameList()) {
+        for (String portName : serialUtil.listPortName()) {
             String name = menuName + ".serial." + portName;
             if (menuItemMap.get(name) == null) {
                 JCheckBoxMenuItem item = new JCheckBoxMenuItem(portName);

@@ -16,9 +16,10 @@ import java.awt.*;
  */
 @Component
 public class HelpPanel {
-    public String name(){
+    public String name() {
         return "doc";
     }
+
     @PostConstruct
     void init() {
         panel = new JPanel(new GridLayout(1, 1));

@@ -10,7 +10,9 @@ import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,14 +23,17 @@ import java.util.*;
 public class CameraUtilDemoImpl extends CameraUtil {
 
     @Override
-    public Set<Integer> getStatus() {
-
-        return cameraMap.keySet();  //
+    public Map<Integer, String> getStatus() {
+        Map<Integer, String> map = new HashMap<>();
+        for (Integer id : cameraMap.keySet()) {
+            map.put(id, cameraMap.get(id).name);
+        }
+        return map;  //
     }
 
     @Override
     public boolean hasOpen() {
-        return cameraMap.size() >0;  //
+        return cameraMap.size() > 0;  //
     }
 
     @Override
@@ -64,11 +69,11 @@ public class CameraUtilDemoImpl extends CameraUtil {
     }
 
     @Override
-    public void open(int device) {
+    public void open(int device, String name) {
         logger.debug("打开摄像头[{}]", device);
         JFrame frame = new JFrame();
-        frame.add(new JLabel(message.getMessage("camera") + device));
-        cameraMap.put(device, new Camera(frame));
+        frame.add(new JLabel(name));
+        cameraMap.put(device, new Camera(name, frame));
     }
 
     @Override
@@ -99,7 +104,7 @@ public class CameraUtilDemoImpl extends CameraUtil {
     public Map<Integer, String> listDevice() {
         Map<Integer, String> map = new HashMap<>();
         for (int i = 0; i < 2; i++) {
-            map.put(i, "摄像头 " + i);
+            map.put(i, message.getMessage("camera") + i);
         }
         return map;  //
     }
@@ -114,10 +119,12 @@ public class CameraUtilDemoImpl extends CameraUtil {
     private Message message;
 
     class Camera {
-        Camera(JFrame frame) {
+        Camera(String name, JFrame frame) {
+            this.name = name;
             this.frame = frame;
         }
 
+        private String name;
         private JFrame frame;
         private boolean enable;
     }

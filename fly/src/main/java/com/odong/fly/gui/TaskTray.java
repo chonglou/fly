@@ -42,6 +42,7 @@ public class TaskTray {
         } catch (AWTException e) {
             logger.error("添加托盘图标失败", e);
         }
+        show();
     }
 
     private PopupMenu createPopMenu() {
@@ -71,26 +72,30 @@ public class TaskTray {
 
     public void show() {
         boolean show = mainFrame.isVisible();
+        menuItemMap.get("show").setEnabled(show);
+        menuItemMap.get("hide").setEnabled(!show);
         mainFrame.setVisible(!show);
-        menuItemMap.get("show").setEnabled(!show);
-        menuItemMap.get("hidden").setEnabled(show);
     }
 
     private void initEvents() {
         ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                MenuItem item = (MenuItem) e.getSource();
-                if (item.isEnabled()) {
-                    switch (item.getName()) {
-                        case "exit":
-                            dialog.exit();
-                            break;
-                        case "show":
-                        case "hidden":
-                            show();
-                            break;
+                if (e.getSource() instanceof MenuItem) {
+                    MenuItem item = (MenuItem) e.getSource();
+                    if (item.isEnabled()) {
+                        switch (item.getName()) {
+                            case "exit":
+                                dialog.exit();
+                                break;
+                            case "show":
+                            case "hide":
+                                show();
+                                break;
+                        }
                     }
+                } else if (e.getSource() instanceof TrayIcon) {
+                    show();
                 }
             }
         };

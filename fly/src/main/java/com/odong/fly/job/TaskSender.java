@@ -77,7 +77,7 @@ public class TaskSender {
     }
 
     @PostConstruct
-    void init(){
+    void init() {
         bootingBar.next();
     }
 

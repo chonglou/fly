@@ -1,8 +1,8 @@
 package com.odong.fly.gui;
 
-import com.odong.fly.gui.card.TaskPanel;
 import com.odong.fly.gui.card.HelpPanel;
 import com.odong.fly.gui.card.OnOffTaskPanel;
+import com.odong.fly.gui.card.TaskPanel;
 import com.odong.fly.model.Task;
 import com.odong.fly.serial.SerialPort;
 import com.odong.fly.serial.SerialUtil;
@@ -24,12 +24,13 @@ import java.awt.*;
  */
 @Component("gui.mainPanel")
 public class MainPanel {
-    public synchronized void showHelp(){
+    public synchronized void showHelp() {
 
         layout.show(rootP, helpPanel.name());
 
     }
-    public void showTask(String taskId){
+
+    public void showTask(String taskId) {
         Task task = storeHelper.getTask(taskId);
         String name = task.getType().name();
 
@@ -46,7 +47,8 @@ public class MainPanel {
         tp.show(task);
 
     }
-    public synchronized void showSerial(String portName){
+
+    public synchronized void showSerial(String portName) {
         SerialPort.Type type = serialUtil.getType(portName);
         layout.show(rootP, type.name());
 
@@ -57,15 +59,18 @@ public class MainPanel {
         }
 
     }
-    public void showCamera(int cameraId){
+
+    public void showCamera(int cameraId) {
 
     }
-    public void setText(){
+
+    public void setText() {
         onOffPanel.setText();
         helpPanel.setText();
     }
+
     @PostConstruct
-    void init(){
+    void init() {
         bootingBar.next();
 
         layout = new CardLayout();
@@ -75,6 +80,7 @@ public class MainPanel {
 
         showHelp();
     }
+
     private CardLayout layout;
     @Resource(name = "mainPanel")
     private JPanel rootP;

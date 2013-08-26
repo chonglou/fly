@@ -1,13 +1,15 @@
 package com.odong.fly.gui.card;
 
 import com.odong.fly.MyException;
-import com.odong.fly.gui.*;
+import com.odong.fly.gui.DateTimePanel;
 import com.odong.fly.gui.Dialog;
+import com.odong.fly.gui.Message;
+import com.odong.fly.gui.ToolBar;
+import com.odong.fly.gui.impl.SimpleDateTimePanelImpl;
 import com.odong.fly.model.Task;
 import com.odong.fly.model.item.SerialItem;
 import com.odong.fly.model.request.OnOffRequest;
 import com.odong.fly.service.StoreHelper;
-import com.odong.fly.gui.impl.SimpleDateTimePanelImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -364,7 +366,7 @@ public class OnOffTaskPanel extends TaskPanel {
     private Message message;
     @Resource
     private StoreHelper storeHelper;
-    @Resource(name="gui.toolBar")
+    @Resource(name = "gui.toolBar")
     private ToolBar toolBar;
     @Resource
     private Dialog dialog;

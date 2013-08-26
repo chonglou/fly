@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Component("gui.serialDialog")
 public class SerialDialog {
-    public void show(String portName){
+    public void show(String portName) {
 
         this.portName = portName;
         dialog.setTitle(message.getMessage("dialog.serial.title") + "[" + portName + "]");

@@ -6,10 +6,12 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
+import java.util.ResourceBundle;
 
 public class App {
     public static void main(String[] args) {
@@ -19,7 +21,8 @@ public class App {
         AbstractApplicationContext ctx = new ClassPathXmlApplicationContext("spring/*.xml");
         ctx.registerShutdownHook();
     }
-    private static void init(){
+
+    private static void init() {
         logger.info("正在检查参数设置");
         for (String path : new String[]{"var/camera"}) {
             File file = new File(path);
@@ -33,13 +36,22 @@ public class App {
         System.setProperty("derby.stream.error.file", "var/derby.log");
         System.setProperty("fly.store.dir", "var/");
     }
-    private static void checkEnv(){
+
+    private static void checkEnv() {
         logger.info("正在检查运行环境");
         try {
+            ResourceBundle bundle = ResourceBundle.getBundle("messages");
             FileLock lock = new RandomAccessFile(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + ".fly.lock", "rw").getChannel().tryLock();
             if (lock == null) {
                 logger.error("不能重复启动");
-                JOptionPane.showMessageDialog(null, "", "", JOptionPane.ERROR_MESSAGE);
+                JFrame frame = new JFrame();
+                frame.setVisible(false);
+                frame.setIconImage(Toolkit.getDefaultToolkit().getImage(App.class.getResource("/tray.png")));
+                JOptionPane.showMessageDialog(
+                        frame,
+                        bundle.getString("lbl.dialog.duplicateBoot.message"),
+                        bundle.getString("lbl.dialog.duplicateBoot.title"),
+                        JOptionPane.ERROR_MESSAGE);
                 System.exit(-1);
             }
 
@@ -48,12 +60,14 @@ public class App {
         }
 
     }
-    private static void setStyle(){
+
+    private static void setStyle() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             logger.error("加载系统风格失败", e);
         }
     }
+
     private final static Logger logger = LoggerFactory.getLogger(App.class);
 }

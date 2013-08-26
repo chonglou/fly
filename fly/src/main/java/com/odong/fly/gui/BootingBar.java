@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
@@ -17,23 +18,22 @@ import java.awt.*;
  */
 @Component("gui.bootingBar")
 public class BootingBar {
-    public synchronized void next(){
-        int value = processBar.getValue()+10;
-        if(value>MAX){
+    public synchronized void next() {
+        int value = processBar.getValue() + 10;
+        if (value > MAX) {
             dispose();
-        }
-        else {
+        } else {
             processBar.setValue(value);
         }
     }
 
-    public void dispose(){
+    public void dispose() {
         frame.dispose();
 
     }
 
     @PostConstruct
-    void init(){
+    void init() {
         processBar = new JProgressBar(0, MAX);
         processBar.setStringPainted(true);
         processBar.setIndeterminate(true);
@@ -54,9 +54,14 @@ public class BootingBar {
         frame.setVisible(true);
     }
 
+    @PreDestroy
+    void destroy(){
+        logger.info("程序停止");
+    }
+
     private JProgressBar processBar;
     private JFrame frame;
-    public static final int MAX=100;
+    public static final int MAX = 100;
     @Resource
     private Message message;
     private final static Logger logger = LoggerFactory.getLogger(BootingBar.class);

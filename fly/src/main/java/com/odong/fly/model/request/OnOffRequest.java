@@ -7,6 +7,10 @@ package com.odong.fly.model.request;
  * Time: 下午8:58
  */
 public class OnOffRequest extends Request {
+    public String name() {
+        return portName + ":" + channel;
+    }
+
     @Deprecated
     public OnOffRequest() {
     }

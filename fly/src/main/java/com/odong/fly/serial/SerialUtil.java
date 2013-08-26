@@ -22,7 +22,7 @@ public abstract class SerialUtil {
 
     public abstract void close(String portName);
 
-    public abstract Set<String> getPortNameList();
+    public abstract Set<String> listPortName();
 
     public boolean isOpen(String portName) {
         return portMap.containsKey(portName);

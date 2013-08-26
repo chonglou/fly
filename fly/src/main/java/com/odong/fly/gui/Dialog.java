@@ -6,7 +6,6 @@ import com.odong.fly.camera.CameraUtil;
 import com.odong.fly.serial.SerialUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.support.incrementer.DB2MainframeSequenceMaxValueIncrementer;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -22,7 +21,7 @@ import javax.swing.*;
 public class Dialog {
 
 
-    public void exit(){
+    public void exit() {
         confirm("exit", new Runnable() {
             @Override
             public void run() {
@@ -44,12 +43,12 @@ public class Dialog {
                 message.getMessage("dialog." + key + ".title"),
                 JOptionPane.YES_NO_OPTION)) {
             case JOptionPane.YES_OPTION:
-                if(yes!=null){
+                if (yes != null) {
                     yes.run();
                 }
                 break;
             case JOptionPane.NO_OPTION:
-                if(no != null){
+                if (no != null) {
                     no.run();
                 }
                 break;
@@ -57,14 +56,14 @@ public class Dialog {
     }
 
 
-    public void error( MyException.Type type) {
+    public void error(MyException.Type type) {
         JOptionPane.showMessageDialog(mainFrame,
                 message.getMessage("exception." + type.name()),
                 type.name(),
                 JOptionPane.ERROR_MESSAGE);
     }
 
-    public void error( String key) {
+    public void error(String key) {
         JOptionPane.showMessageDialog(mainFrame,
                 message.getMessage("dialog." + key + ".message"),
                 message.getMessage("dialog." + key + ".title"),

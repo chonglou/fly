@@ -5,9 +5,7 @@ import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -17,8 +15,10 @@ import java.util.UUID;
  * Time: 上午10:22
  */
 public abstract class CameraUtil {
-    public abstract Set<Integer> getStatus();
+    public abstract Map<Integer, String> getStatus();
+
     public abstract boolean hasOpen();
+
     public abstract boolean isRecorder(int device);
 
     public abstract void start(int device, String name, int rate) throws IOException;
@@ -29,7 +29,7 @@ public abstract class CameraUtil {
 
     public abstract void show(int device, boolean visible);
 
-    public abstract void open(int device) throws IOException;
+    public abstract void open(int device, String name) throws IOException;
 
     public abstract void close(int device) throws IOException;
 
@@ -50,5 +50,10 @@ public abstract class CameraUtil {
     protected void writeImage(String name, BufferedImage image) throws IOException {
         ImageIO.write(image, "png", new File(name));
     }
+
+
+    public class Camera {
+    }
+
 
 }

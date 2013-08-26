@@ -1,21 +1,8 @@
 package com.odong;
 
-import com.odong.core.file.FileHelper;
-import com.odong.core.file.csv.Csv;
-import com.odong.core.file.excel.Cell;
-import com.odong.core.file.excel.Column;
-import com.odong.core.file.excel.Excel;
-import com.odong.core.file.excel.Table;
-import com.odong.core.util.EncryptHelper;
-import com.odong.core.util.JsonHelper;
-import com.odong.fly.job.TaskSender;
-import com.odong.fly.model.Log;
-import com.odong.fly.service.StoreHelper;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import com.odong.fly.App;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
-import java.util.UUID;
 
 public class AppTest
 
@@ -158,12 +145,13 @@ public class AppTest
         }
     }
 
+
     @BeforeTest
-    public void init(){
-        try{
-        new ClassPathXmlApplicationContext("spring/*.xml");
-        }
-        catch (Exception e){
+    public void init() {
+
+        try {
+            App.main(new String[0]);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

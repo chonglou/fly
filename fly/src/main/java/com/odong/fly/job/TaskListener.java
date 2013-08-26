@@ -1,7 +1,6 @@
 package com.odong.fly.job;
 
 import com.odong.fly.MyException;
-
 import com.odong.fly.model.Task;
 import com.odong.fly.serial.SerialUtil;
 import com.odong.fly.service.StoreHelper;
