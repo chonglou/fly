@@ -1,7 +1,7 @@
 package com.odong.core.util;
 
 import org.jasypt.util.password.StrongPasswordEncryptor;
-import org.jasypt.util.text.StrongTextEncryptor;
+import org.jasypt.util.text.BasicTextEncryptor;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,11 +12,11 @@ import org.jasypt.util.text.StrongTextEncryptor;
 public class EncryptHelper {
 
     public String encode(String plain) {
-        return ste.encrypt(plain);
+        return bte.encrypt(plain);
     }
 
     public String decode(String encrypt) {
-        return ste.decrypt(encrypt);
+        return bte.decrypt(encrypt);
     }
 
     public String encrypt(String plain) {
@@ -33,12 +33,12 @@ public class EncryptHelper {
             throw new IllegalArgumentException("app.key长度不应小于20位");
         }
         spe = new StrongPasswordEncryptor();
-        ste = new StrongTextEncryptor();
-        ste.setPassword(appKey);
+        bte = new BasicTextEncryptor();
+        bte.setPassword(appKey);
     }
 
     private StrongPasswordEncryptor spe;
-    private StrongTextEncryptor ste;
+    private BasicTextEncryptor bte;
     private String appKey;
 
     public void setAppKey(String appKey) {

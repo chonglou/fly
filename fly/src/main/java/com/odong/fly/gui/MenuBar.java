@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.HashMap;
@@ -59,6 +58,7 @@ public class MenuBar {
     }
 
 
+    @SuppressWarnings("unchecked")
     private void initItems() {
         for (Map<String, Object> map : menuBarItems) {
             addMenu((String) map.get("name"), (String) map.get("type"), (List<String>) map.get("items"));
@@ -121,51 +121,43 @@ public class MenuBar {
 
     private void initEvents() {
 
-        ActionListener listener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JMenuItem item = (JMenuItem) e.getSource();
-                if (item.isEnabled()) {
-                    logger.debug("点击菜单栏[{}]", item.getName());
-                    switch (item.getName()) {
-                        case "file.gc":
-                            dialog.confirm("gc", new Runnable() {
-                                @Override
-                                public void run() {
-                                    logger.info("内存整理");
-                                    System.gc();
-                                    dialog.info("success");
-                                }
-                            }, null);
-                            break;
-                        case "file.scan":
-                            dialog.confirm("scanDevice", new Runnable() {
-                                @Override
-                                public void run() {
-                                    scanDevice();
-                                    dialog.info("success");
-                                }
-                            }, null);
-                            break;
-                        case "file.exit":
-                            dialog.exit();
-                            break;
-                        case "help.doc":
-                            mainPanel.showHelp();
-                            break;
-                        case "help.aboutMe":
-                            dialog.info("aboutMe");
-                            break;
-                        case "lang.en_US":
-                            window.setLocale(Locale.US);
-                            break;
-                        case "lang.zh_CN":
-                            window.setLocale(Locale.SIMPLIFIED_CHINESE);
-                            break;
-                        default:
-                            break;
+        ActionListener listener = (e) -> {
 
-                    }
+            JMenuItem item = (JMenuItem) e.getSource();
+            if (item.isEnabled()) {
+                logger.debug("点击菜单栏[{}]", item.getName());
+                switch (item.getName()) {
+                    case "file.gc":
+                        dialog.confirm("gc", () -> {
+                            logger.info("内存整理");
+                            System.gc();
+                            dialog.info("success");
+                        }, null);
+                        break;
+                    case "file.scan":
+                        dialog.confirm("scanDevice", () -> {
+                            scanDevice();
+                            dialog.info("success");
+                        }, null);
+                        break;
+                    case "file.exit":
+                        dialog.exit();
+                        break;
+                    case "help.doc":
+                        mainPanel.showHelp();
+                        break;
+                    case "help.aboutMe":
+                        dialog.info("aboutMe");
+                        break;
+                    case "lang.en_US":
+                        window.setLocale(Locale.US);
+                        break;
+                    case "lang.zh_CN":
+                        window.setLocale(Locale.SIMPLIFIED_CHINESE);
+                        break;
+                    default:
+                        break;
+
                 }
             }
         };
@@ -174,59 +166,56 @@ public class MenuBar {
             item.addActionListener(listener);
         }
 
-        deviceItemListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JCheckBoxMenuItem item = (JCheckBoxMenuItem) e.getSource();
-                if (item.isEnabled()) {
-                    String name = item.getName();
-                    logger.debug("点击工具栏菜单[{}]", name);
-                    if (name.startsWith("device.serial.")) {
-                        String portName = name.substring(14);
-                        if (item.isSelected()) {
-                            serialDialog.show(portName);
-                        } else {
-                            for (Task t : storeHelper.listRunnableTask()) {
-                                if (t.getType() == Task.Type.ON_OFF && portName.equals(((OnOffRequest) t.getRequest()).getPortName())) {
-                                    dialog.error(MyException.Type.SERIAL_PORT_IN_USE);
-                                    return;
-                                }
+        deviceItemListener = (e) -> {
+            JCheckBoxMenuItem item = (JCheckBoxMenuItem) e.getSource();
+            if (item.isEnabled()) {
+                String name = item.getName();
+                logger.debug("点击菜单[{}]", name);
+                if (name.startsWith("device.serial.")) {
+                    String portName = name.substring(14);
+                    if (item.isSelected()) {
+                        serialDialog.show(portName);
+                    } else {
+                        for (Task t : storeHelper.listRunnableTask()) {
+                            if (t.getType() == Task.Type.ON_OFF && portName.equals(((OnOffRequest) t.getRequest()).getPortName())) {
+                                dialog.error(MyException.Type.SERIAL_PORT_IN_USE);
+                                return;
                             }
-                            serialUtil.close(portName);
-                            mainPanel.showHelp();
                         }
-                        item.setSelected(serialUtil.isOpen(portName));
-                        toolBar.refresh();
-                    } else if (name.startsWith("device.camera.")) {
-                        int deviceId = Integer.parseInt(name.substring(14));
-                        if (item.isSelected()) {
-                            try {
-                                cameraUtil.open(deviceId, item.getText());
-                            } catch (IOException ex) {
-                                logger.error("打开摄像头[{}]失败", deviceId, ex);
-                                dialog.error(MyException.Type.CAMERA_IO_ERROR);
-                            }
-
-                        } else {
-                            for (Task t : storeHelper.listRunnableTask()) {
-                                if (
-                                        (t.getType() == Task.Type.PHOTO && deviceId == ((PhotoRequest) t.getRequest()).getDevice()) ||
-                                                (t.getType() == Task.Type.VIDEO && deviceId == ((VideoRequest) t.getRequest()).getDevice())
-                                        ) {
-                                    dialog.error(MyException.Type.CAMERA_IN_USE);
-                                    return;
-                                }
-                            }
-                            try {
-                                cameraUtil.close(deviceId);
-                            } catch (IOException ex) {
-                                logger.error("关闭摄像头失败", ex);
-                            }
-                            mainPanel.showHelp();
-                        }
-                        item.setSelected(cameraUtil.isOpen(deviceId));
-                        toolBar.refresh();
+                        serialUtil.close(portName);
+                        mainPanel.showHelp();
                     }
+                    item.setSelected(serialUtil.isOpen(portName));
+                    toolBar.refresh();
+                } else if (name.startsWith("device.camera.")) {
+                    int deviceId = Integer.parseInt(name.substring(14));
+                    if (item.isSelected()) {
+                        try {
+                            cameraUtil.open(deviceId, item.getText());
+                        } catch (IOException ex) {
+                            logger.error("打开摄像头[{}]失败", deviceId, ex);
+                            dialog.error(MyException.Type.CAMERA_IO_ERROR);
+                        }
+
+                    } else {
+                        for (Task t : storeHelper.listRunnableTask()) {
+                            if (
+                                    (t.getType() == Task.Type.PHOTO && deviceId == ((PhotoRequest) t.getRequest()).getDevice()) ||
+                                            (t.getType() == Task.Type.VIDEO && deviceId == ((VideoRequest) t.getRequest()).getDevice())
+                                    ) {
+                                dialog.error(MyException.Type.CAMERA_IN_USE);
+                                return;
+                            }
+                        }
+                        try {
+                            cameraUtil.close(deviceId);
+                        } catch (IOException ex) {
+                            logger.error("关闭摄像头失败", ex);
+                        }
+                        mainPanel.showHelp();
+                    }
+                    item.setSelected(cameraUtil.isOpen(deviceId));
+                    toolBar.refresh();
                 }
             }
         };

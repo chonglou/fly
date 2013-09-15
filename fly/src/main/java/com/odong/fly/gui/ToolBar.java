@@ -122,7 +122,7 @@ public class ToolBar {
                     mainPanel.showSerial(name.substring(PREFIX_SERIAL.length()));
                 } else if (name.startsWith(PREFIX_CAMERA)) {
                     mainPanel.showCamera(Integer.parseInt(name.substring(PREFIX_CAMERA.length())));
-                } else if (name.equals("doc")) {
+                } else if (name.equals("help")) {
                     mainPanel.showHelp();
                 } else if (name.equals("exit")) {
                     dialog.exit();

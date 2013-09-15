@@ -6,17 +6,19 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 public class App {
     public static void main(String[] args) {
-        checkEnv();
         setStyle();
+        checkEnv();
         init();
         AbstractApplicationContext ctx = new ClassPathXmlApplicationContext("spring/*.xml");
         ctx.registerShutdownHook();
@@ -66,6 +68,15 @@ public class App {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             logger.error("加载系统风格失败", e);
+        }
+
+        FontUIResource font = new FontUIResource(new Font("宋体", Font.PLAIN, 18));
+
+        for (Enumeration<Object> keys = UIManager.getDefaults().keys(); keys.hasMoreElements(); ) {
+            Object key = keys.nextElement();
+            if (UIManager.get(key) instanceof FontUIResource) {
+                UIManager.put(key, font);
+            }
         }
     }
 

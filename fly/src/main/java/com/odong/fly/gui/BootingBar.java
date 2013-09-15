@@ -55,7 +55,7 @@ public class BootingBar {
     }
 
     @PreDestroy
-    void destroy(){
+    void destroy() {
         logger.info("程序停止");
     }
 

@@ -1,11 +1,9 @@
 package com.odong.fly.gui.card;
 
 import com.odong.fly.MyException;
-import com.odong.fly.gui.DateTimePanel;
 import com.odong.fly.gui.Dialog;
 import com.odong.fly.gui.Message;
 import com.odong.fly.gui.ToolBar;
-import com.odong.fly.gui.impl.SimpleDateTimePanelImpl;
 import com.odong.fly.model.Task;
 import com.odong.fly.model.item.SerialItem;
 import com.odong.fly.model.request.OnOffRequest;
@@ -75,8 +73,8 @@ public class OnOffTaskPanel extends TaskPanel {
         buttons.get("start").setEnabled(!start);
         buttons.get("delete").setEnabled(!start);
 
-        beginTime.setEnable(!start);
-        endTime.setEnable(!start);
+        beginTime.setEnabled(!start);
+        endTime.setEnabled(!start);
         onSpace.setEnabled(!start);
         offSpace.setEnabled(!start);
         total.setEnabled(!start);
@@ -91,8 +89,8 @@ public class OnOffTaskPanel extends TaskPanel {
         }
 
         this.title.setText("<html><h1>" + title + "</h1></html>");
-        this.beginTime.setDate(begin);
-        this.endTime.setDate(end);
+        this.beginTime.setValue(begin);
+        this.endTime.setValue(end);
         this.onSpace.setText(Integer.toString(onSpace));
         this.offSpace.setText(Integer.toString(offSpace));
         this.total.setText(Long.toString(total));
@@ -115,12 +113,14 @@ public class OnOffTaskPanel extends TaskPanel {
             labels.get(s).setText(message.getMessage("channel.task." + s) + "：");
         }
 
+        /*
         Map<String, String> map = new HashMap<>();
         for (String s : new String[]{"year", "month", "day", "hour", "minute", "second"}) {
             map.put(s, message.getMessage("dateTimeP." + s));
         }
         beginTime.setText(map);
         endTime.setText(map);
+        */
 
         for (String s : buttons.keySet()) {
             buttons.get(s).setText(message.getMessage("button." + s));
@@ -152,15 +152,15 @@ public class OnOffTaskPanel extends TaskPanel {
                     case "btn-start":
                         try {
                             int ch = (Integer) channelCB.getSelectedItem();
-                            Date begin = beginTime.getDate();
-                            Date end = endTime.getDate();
+                            Date begin = (Date) beginTime.getValue();
+                            Date end = (Date) endTime.getValue();
                             String totalS = total.getText();
                             long t = "".equals(totalS) ? 0 : Long.parseLong(totalS);
                             int onS = Integer.parseInt(onSpace.getText());
                             int offS = Integer.parseInt(offSpace.getText());
 
                             if (begin.compareTo(end) >= 0 || onS <= 0 || offS <= 0 || t < 0) {
-                                throw new IllegalArgumentException();
+                                throw new IllegalArgumentException("输入有误");
                             }
                             if (taskId == null) {
                                 if (storeHelper.getAvailSerialTask(portName, ch) != null) {
@@ -219,14 +219,20 @@ public class OnOffTaskPanel extends TaskPanel {
 
     }
 
+    private JSpinner crateDateTimeField() {
+        JSpinner spinner = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "yyyy-MM-hh HH:mm:ss");
+        spinner.setEditor(editor);
+        return spinner;
+    }
 
     @Override
     protected void initPanel() {
         labels = new HashMap<>();
         buttons = new HashMap<>();
 
-        endTime = new SimpleDateTimePanelImpl();
-        beginTime = new SimpleDateTimePanelImpl();
+        endTime = crateDateTimeField();
+        beginTime = crateDateTimeField();
 
         channelCB = new JComboBox<>();
         for (int i = 1; i <= 32; i++) {
@@ -241,11 +247,12 @@ public class OnOffTaskPanel extends TaskPanel {
 
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
-        c.insets = new Insets(20, 20, 20, 20);
+        c.insets = new Insets(5, 20, 5, 20);
         c.weightx = 0.3;
         c.weighty = 0.5;
         c.gridx = 0;
         c.gridy = 0;
+
 
         JLabel lbl;
         JPanel p;
@@ -279,7 +286,7 @@ public class OnOffTaskPanel extends TaskPanel {
         panel.add(lbl, c);
         c.gridx++;
         labels.put("beginTime", lbl);
-        panel.add(beginTime.get(), c);
+        panel.add(beginTime, c);
 
 
         c.gridx = 0;
@@ -289,7 +296,7 @@ public class OnOffTaskPanel extends TaskPanel {
         panel.add(lbl, c);
         labels.put("endTime", lbl);
         c.gridx++;
-        panel.add(endTime.get(), c);
+        panel.add(endTime, c);
 
         c.gridx = 0;
         c.gridy++;
@@ -352,8 +359,8 @@ public class OnOffTaskPanel extends TaskPanel {
 
     private Map<String, JLabel> labels;
     private Map<String, JButton> buttons;
-    private DateTimePanel beginTime;
-    private DateTimePanel endTime;
+    private JSpinner beginTime;
+    private JSpinner endTime;
     private JTextField onSpace;
     private JTextField offSpace;
     private JTextField total;

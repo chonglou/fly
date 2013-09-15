@@ -5,16 +5,11 @@ import com.odong.fly.model.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-import org.springframework.jms.core.MessagePostProcessor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.Queue;
-import javax.jms.Session;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -49,27 +44,19 @@ public class TaskSender {
     }
 
     public void send(final String message) {
-        jmsTemplate.send(taskQueue, new MessageCreator() {
-            @Override
-            public Message createMessage(Session session) throws JMSException {
-
-                return session.createTextMessage(message);  //
-            }
-        });
+        jmsTemplate.send(taskQueue, (session) -> session.createTextMessage(message));
         logger.debug("发送文本消息[{}]", message);
     }
 
 
     private void send(final String taskId, final Task.Type type, Map<String, Object> map) {
 
-        jmsTemplate.convertAndSend(taskQueue, map, new MessagePostProcessor() {
-            @Override
-            public Message postProcessMessage(Message message) throws JMSException {
-                message.setStringProperty("taskId", taskId);
-                message.setStringProperty("type", type.name());
-                message.setJMSCorrelationID(taskId == null ? UUID.randomUUID().toString() : taskId);
-                return message;
-            }
+        jmsTemplate.convertAndSend(taskQueue, map, (message) -> {
+
+            message.setStringProperty("taskId", taskId);
+            message.setStringProperty("type", type.name());
+            message.setJMSCorrelationID(taskId == null ? UUID.randomUUID().toString() : taskId);
+            return message;
         });
 
 

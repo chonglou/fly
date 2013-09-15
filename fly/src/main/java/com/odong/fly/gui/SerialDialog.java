@@ -11,7 +11,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -30,7 +29,9 @@ public class SerialDialog {
 
         this.portName = portName;
         dialog.setTitle(message.getMessage("dialog.serial.title") + "[" + portName + "]");
+
         dialog.pack();
+        dialog.setLocationRelativeTo(mainFrame);
         dialog.setVisible(true);
     }
 
@@ -121,29 +122,25 @@ public class SerialDialog {
             }
         });
 
-        ActionListener listener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == buttons.get("submit")) {
+        ActionListener listener = (e) -> {
+            if (e.getSource() == buttons.get("submit")) {
 
-                    try {
-                        serialUtil.open(portName, (Integer) comboBoxes.get("dataBaud").getSelectedItem(), true);
-                        serialUtil.setType(portName, (SerialPort.Type) comboBoxes.get("deviceType").getSelectedItem());
-                    } catch (Exception ex) {
-                        logger.debug("打开端口出错", ex);
-                        if (ex instanceof MyException) {
-                            dialogHelper.error(((MyException) ex).getType());
-                        }
+                try {
+                    serialUtil.open(portName, (Integer) comboBoxes.get("dataBaud").getSelectedItem(), true);
+                    serialUtil.setType(portName, (SerialPort.Type) comboBoxes.get("deviceType").getSelectedItem());
+                } catch (Exception ex) {
+                    logger.debug("打开端口出错", ex);
+                    if (ex instanceof MyException) {
+                        dialogHelper.error(((MyException) ex).getType());
                     }
-
-                    if (serialUtil.isOpen(portName)) {
-                        hide();
-                        mainPanel.showSerial(portName);
-                    }
-                } else {
-                    hide();
                 }
 
+                if (serialUtil.isOpen(portName)) {
+                    hide();
+                    mainPanel.showSerial(portName);
+                }
+            } else {
+                hide();
             }
         };
         for (String s : buttons.keySet()) {

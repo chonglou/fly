@@ -22,16 +22,13 @@ public class Dialog {
 
 
     public void exit() {
-        confirm("exit", new Runnable() {
-            @Override
-            public void run() {
-                if (serialUtil.hasOpen() || cameraUtil.hasOpen()) {
-                    logger.error("当前串口状态[{}]", jsonHelper.object2json(serialUtil.getStatus()));
-                    logger.error("当前摄像头状态[{}]", jsonHelper.object2json(cameraUtil.getStatus()));
-                    error("stillOpen");
-                } else {
-                    System.exit(0);
-                }
+        confirm("exit", () -> {
+            if (serialUtil.hasOpen() || cameraUtil.hasOpen()) {
+                logger.error("当前串口状态[{}]", jsonHelper.object2json(serialUtil.getStatus()));
+                logger.error("当前摄像头状态[{}]", jsonHelper.object2json(cameraUtil.getStatus()));
+                error("stillOpen");
+            } else {
+                System.exit(0);
             }
         }, null);
     }

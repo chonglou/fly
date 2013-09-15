@@ -8,7 +8,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -36,6 +35,7 @@ public class TaskTray {
 
         tray = new TrayIcon(img, "", createPopMenu());
         tray.setImageAutoSize(true);
+
         initEvents();
         try {
             SystemTray.getSystemTray().add(tray);
@@ -55,6 +55,7 @@ public class TaskTray {
             } else {
                 MenuItem item = new MenuItem();
                 item.setName(s);
+                item.setFont(new Font("宋体",Font.PLAIN,14));
                 menu.add(item);
                 menuItemMap.put(s, item);
             }
@@ -78,25 +79,22 @@ public class TaskTray {
     }
 
     private void initEvents() {
-        ActionListener listener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() instanceof MenuItem) {
-                    MenuItem item = (MenuItem) e.getSource();
-                    if (item.isEnabled()) {
-                        switch (item.getName()) {
-                            case "exit":
-                                dialog.exit();
-                                break;
-                            case "show":
-                            case "hide":
-                                show();
-                                break;
-                        }
+        ActionListener listener = (e) -> {
+            if (e.getSource() instanceof MenuItem) {
+                MenuItem item = (MenuItem) e.getSource();
+                if (item.isEnabled()) {
+                    switch (item.getName()) {
+                        case "exit":
+                            dialog.exit();
+                            break;
+                        case "show":
+                        case "hide":
+                            show();
+                            break;
                     }
-                } else if (e.getSource() instanceof TrayIcon) {
-                    show();
                 }
+            } else if (e.getSource() instanceof TrayIcon) {
+                show();
             }
         };
         for (String s : menuItemMap.keySet()) {
