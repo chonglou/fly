@@ -42,9 +42,9 @@ public interface StoreHelper {
     List<Task> listAvailableTask(Task.Type... types);
 
 
-    void setTaskStartUp(String taskId, Date nextRun);
+    void setTaskStartUp(String taskId, Date nextRun, String lastStatus);
 
-    void setTaskShutDown(String taskId, String lastStatus);
+    void setTaskShutDown(String taskId);
 
     void filterTask();
 
@@ -53,9 +53,9 @@ public interface StoreHelper {
 
     void addCameraItem(String id, String taskId, String file, String reason);
 
-    List<SerialItem> listSerialItem(String taskId);
+    List<SerialItem> listSerialItem(String taskId, int size);
 
-    List<CameraItem> listCameraItem(String taskId);
+    List<CameraItem> listCameraItem(String taskId, int size);
 
 
     void put(String key, String val);

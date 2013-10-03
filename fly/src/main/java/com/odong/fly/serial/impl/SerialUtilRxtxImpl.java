@@ -3,7 +3,10 @@ package com.odong.fly.serial.impl;
 import com.odong.fly.MyException;
 import com.odong.fly.serial.SerialPort;
 import com.odong.fly.serial.SerialUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -39,6 +42,15 @@ public class SerialUtilRxtxImpl extends SerialUtil {
 
     @Override
     public Set<String> listPortName() {
-        return new SerialUtilRxtxImpl().listPortName();  //
+        try {
+            return new SerialPortRxtxImpl().listPortName();  //
+        } catch (MyException e) {
+            return new HashSet<>();
+        }
+
+
     }
+
+    private final static Logger logger = LoggerFactory.getLogger(SerialUtilRxtxImpl.class);
+
 }

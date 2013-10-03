@@ -55,12 +55,12 @@ public class TaskSender {
 
             message.setStringProperty("taskId", taskId);
             message.setStringProperty("type", type.name());
-            message.setJMSCorrelationID(taskId == null ? UUID.randomUUID().toString() : taskId);
+            message.setJMSCorrelationID(UUID.randomUUID().toString());
             return message;
         });
 
 
-        logger.debug("发送任务消息[{}]", taskId);
+        //logger.debug("发送任务消息[{}]", taskId);
     }
 
     @PostConstruct

@@ -16,8 +16,7 @@ import javax.annotation.Resource;
 @Component("job.taskFilterTarget")
 public class TaskFilter {
     public void execute() {
-
-        logger.debug("清理任务状态");
+        //logger.debug("任务状态过滤");
         storeHelper.filterTask();
     }
 

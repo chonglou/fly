@@ -2,7 +2,7 @@ package com.odong.fly.serial;
 
 import com.odong.fly.MyException;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,7 +20,7 @@ public interface SerialPort {
 
     void open(String portName, int dataBand, boolean feedback) throws MyException;
 
-    List<String> listPortNames();
+    Set<String> listPortName() throws MyException;
 
     /**
      * 串口类型

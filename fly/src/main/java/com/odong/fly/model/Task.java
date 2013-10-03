@@ -54,7 +54,7 @@ public class Task implements Serializable {
     private Date lastShutDown;
     private String lastStatus;
     private Date nextRun;
-    private Long total;
+    private long total;
     private long index;
     private Date created;
 
@@ -130,11 +130,12 @@ public class Task implements Serializable {
         this.lastShutDown = lastShutDown;
     }
 
-    public Long getTotal() {
+
+    public long getTotal() {
         return total;
     }
 
-    public void setTotal(Long total) {
+    public void setTotal(long total) {
         this.total = total;
     }
 

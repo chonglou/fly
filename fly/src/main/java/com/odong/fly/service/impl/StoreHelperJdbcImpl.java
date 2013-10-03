@@ -60,7 +60,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         addTask(id, Task.Type.VIDEO,
                 new VideoRequest(deviceId, deviceName, rate),
                 null,
-                begin, end, 1);
+                begin, end, 1l);
     }
 
     @Override
@@ -117,10 +117,12 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         return jdbcTemplate.query("SELECT * FROM TASKS WHERE created>=? AND created<=?", mapperTask(), begin, end);  //
     }
 
+
     @Override
     public List<Task> listRunnableTask() {
-        return jdbcTemplate.query("SELECT * FROM TASKS WHERE nextRun>=? AND state=?", mapperTask(), new Date(), Task.State.SUBMIT.name());  //
+        return jdbcTemplate.query("SELECT * FROM TASKS WHERE nextRun<=? AND state=?", mapperTask(), new Date(), Task.State.SUBMIT.name());  //
     }
+
 
     @Override
     public List<Task> listTask(Task.State... states) {
@@ -156,18 +158,14 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
 
     @Override
-    public void setTaskStartUp(String taskId, Date nextRun) {
-        jdbcTemplate.update("UPDATE TASKS SET lastStartUp=?, nextRun=?, index=index+1 WHERE id=?", new Date(), nextRun, taskId);
+    public void setTaskStartUp(String taskId, Date nextRun, String lastStatus) {
+        jdbcTemplate.update("UPDATE TASKS SET lastStartUp=?, nextRun=?, lastStatus=?, index=index+1 WHERE id=?", new Date(), nextRun, lastStatus, taskId);
     }
 
     @Override
-    public void setTaskShutDown(String taskId, String lastStatus) {
+    public void setTaskShutDown(String taskId) {
+        jdbcTemplate.update("UPDATE TASKS SET   lastShutDown=? WHERE id=?", new Date(), taskId);
 
-        if (lastStatus == null) {
-            jdbcTemplate.update("UPDATE TASKS SET   lastShutDown=? WHERE id=?", new Date(), taskId);
-        } else {
-            jdbcTemplate.update("UPDATE TASKS SET lastStatus=?, lastShutDown=? WHERE id=?", lastStatus, new Date(), taskId);
-        }
     }
 
     @Override
@@ -177,24 +175,26 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
     @Override
     public void addSerialItem(String id, String taskId, String request, String response, String reason) {
-        jdbcTemplate.update("INSERT INTO SERIALS_ITEMS(id, task, type_, reason, request, response) VALUES(?,?,?)",
+        jdbcTemplate.update("INSERT INTO SERIAL_ITEMS(id, task, type_, reason, request, response) VALUES(?,?,?,?,?,?)",
                 id, taskId, reason == null ? Item.Type.SUCCESS.name() : Item.Type.FAIL.name(), reason, request, response);
     }
 
     @Override
     public void addCameraItem(String id, String taskId, String file, String reason) {
-        jdbcTemplate.update("INSERT INTO CAMERA_ITEMS(task, type_, reason, file) VALUES(?,?)",
+        jdbcTemplate.update("INSERT INTO CAMERA_ITEMS(task, type_, reason, file) VALUES(?,?,?,?)",
                 id, taskId, reason == null ? Item.Type.SUCCESS.name() : Item.Type.FAIL.name(), reason, file);
     }
 
     @Override
-    public List<SerialItem> listSerialItem(String taskId) {
-        return jdbcTemplate.query("SELECT * FROM SERIAL_ITEMS WHERE task=?", mapperSerialItem(), taskId);  //
+    public List<SerialItem> listSerialItem(String taskId, int size) {
+
+        return jdbcTemplate.query(pageStatementCreator("SELECT * FROM SERIAL_ITEMS WHERE task=? ORDER BY CREATED DESC", size, taskId), mapperSerialItem());
+
     }
 
     @Override
-    public List<CameraItem> listCameraItem(String taskId) {
-        return jdbcTemplate.query("SELECT * FROM CAMERA_ITEMS WHERE task=?", mapperCameraItem(), taskId);
+    public List<CameraItem> listCameraItem(String taskId, int size) {
+        return jdbcTemplate.query(pageStatementCreator("SELECT * FROM CAMERA_ITEMS WHERE task=? ORDER BY CREATED DESC", size, taskId), mapperCameraItem());
     }
 
     @Override
@@ -220,7 +220,7 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
     @Override
     public List<Log> listLog(int len) {
-        return jdbcTemplate.query(pageStatementCreator(len), mapperLog());
+        return jdbcTemplate.query(pageStatementCreator("SELECT id,message,created FROM LOGS ORDER BY id DESC", len), mapperLog());
     }
 
 
@@ -254,13 +254,13 @@ public class StoreHelperJdbcImpl implements StoreHelper {
         map.put("CAMERA_ITEMS", "id CHAR(36) NOT NULL PRIMARY KEY, " +
                 "task CHAR(36) , " +
                 "type_ VARCHAR(255) NOT NULL, " +
-                "reason VARCHAR(255) NOT NULL, " +
+                "reason VARCHAR(255) , " +
                 "file VARCHAR(255) NOT NULL, " +
                 "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
         map.put("SERIAL_ITEMS", "id CHAR(36) NOT NULL PRIMARY KEY, " +
                 "task CHAR(36) , " +
                 "type_ VARCHAR(255) NOT NULL, " +
-                "reason VARCHAR(255) NOT NULL, " +
+                "reason VARCHAR(255) , " +
                 "request VARCHAR(255) NOT NULL, " +
                 "response VARCHAR(255) , " +
                 "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
@@ -296,28 +296,26 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
 
     private boolean isTableExist(final String tableName) {
-        return jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
-            @Override
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
+        return jdbcTemplate.execute((Connection connection) -> {
 
-                DatabaseMetaData dmd = connection.getMetaData();
-                ResultSet rs = dmd.getTables(null, schema, tableName, new String[]{"TABLE", "VIEW"});
-                boolean exist = rs.next();
-                rs.close();
-                return exist;
-            }
+            DatabaseMetaData dmd = connection.getMetaData();
+            ResultSet rs = dmd.getTables(null, schema, tableName, new String[]{"TABLE", "VIEW"});
+            boolean exist = rs.next();
+            rs.close();
+            return exist;
         });
     }
 
-    private PreparedStatementCreator pageStatementCreator(final int maxRows) {
-        return new PreparedStatementCreator() {
-            @Override
-            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                PreparedStatement ps = connection.prepareStatement("SELECT id,message,created FROM LOGS  ORDER BY id DESC");
-                ps.setMaxRows(maxRows);
-                return ps;  //
+    private PreparedStatementCreator pageStatementCreator(String sql, int maxRows, Object... objects) {
+        return (Connection connection) -> {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            for (int i = 0; i < objects.length; i++) {
+                ps.setObject(i + 1, objects[i]);
             }
+            ps.setMaxRows(maxRows);
+            return ps;
         };
+
     }
 
     private void addTask(String id, Task.Type type, Request request, String lastStatus, Date begin, Date end, long total) {
@@ -327,84 +325,76 @@ public class StoreHelperJdbcImpl implements StoreHelper {
 
 
     private RowMapper<Log> mapperLog() {
-        return new RowMapper<Log>() {
-            @Override
-            public Log mapRow(ResultSet resultSet, int i) throws SQLException {
-                Log log = new Log();
-                log.setId(resultSet.getLong("id"));
-                log.setMessage(resultSet.getString("message"));
-                log.setCreated(resultSet.getTimestamp("created"));
-                return log;  //
-            }
+        return (ResultSet resultSet, int i) -> {
+            Log log = new Log();
+            log.setId(resultSet.getLong("id"));
+            log.setMessage(resultSet.getString("message"));
+            log.setCreated(resultSet.getTimestamp("created"));
+            return log;  //
+
         };
     }
 
     private RowMapper<CameraItem> mapperCameraItem() {
-        return new RowMapper<CameraItem>() {
-            @Override
-            public CameraItem mapRow(ResultSet resultSet, int i) throws SQLException {
-                CameraItem item = new CameraItem();
-                item.setId(resultSet.getString("id"));
-                item.setTask(resultSet.getString("task"));
-                item.setType(Item.Type.valueOf(resultSet.getString("type_")));
-                item.setReason(resultSet.getString("reason"));
-                item.setFile(resultSet.getString("file"));
-                item.setCreated(resultSet.getTimestamp("crated"));
-                return item;  //
-            }
+        return (ResultSet resultSet, int i) -> {
+            CameraItem item = new CameraItem();
+            item.setId(resultSet.getString("id"));
+            item.setTask(resultSet.getString("task"));
+            item.setType(Item.Type.valueOf(resultSet.getString("type_")));
+            item.setReason(resultSet.getString("reason"));
+            item.setFile(resultSet.getString("file"));
+            item.setCreated(resultSet.getTimestamp("crated"));
+            return item;  //
+
         };
     }
 
     private RowMapper<SerialItem> mapperSerialItem() {
-        return new RowMapper<SerialItem>() {
-            @Override
-            public SerialItem mapRow(ResultSet resultSet, int i) throws SQLException {
-                SerialItem item = new SerialItem();
-                item.setId(resultSet.getString("id"));
-                item.setTask(resultSet.getString("task"));
-                item.setType(Item.Type.valueOf(resultSet.getString("type_")));
-                item.setReason(resultSet.getString("reason"));
-                item.setRequest(resultSet.getString("request"));
-                item.setResponse(resultSet.getString("response"));
-                item.setCreated(resultSet.getTimestamp("created"));
-                return item;  //
-            }
+        return (ResultSet resultSet, int i) -> {
+            SerialItem item = new SerialItem();
+            item.setId(resultSet.getString("id"));
+            item.setTask(resultSet.getString("task"));
+            item.setType(Item.Type.valueOf(resultSet.getString("type_")));
+            item.setReason(resultSet.getString("reason"));
+            item.setRequest(resultSet.getString("request"));
+            item.setResponse(resultSet.getString("response"));
+            item.setCreated(resultSet.getTimestamp("created"));
+            return item;  //
+
         };
     }
 
 
     private RowMapper<Task> mapperTask() {
-        return new RowMapper<Task>() {
-            @Override
-            public Task mapRow(ResultSet resultSet, int i) throws SQLException {
-                Task task = new Task();
-                task.setId(resultSet.getString("id"));
-                Task.Type type = Task.Type.valueOf(resultSet.getString("type_"));
-                task.setType(type);
-                task.setState(Task.State.valueOf(resultSet.getString("state")));
-                String request = resultSet.getString("request");
-                switch (type) {
-                    case ON_OFF:
-                        task.setRequest(jsonHelper.json2object(request, OnOffRequest.class));
-                        break;
-                    case PHOTO:
-                        task.setRequest(jsonHelper.json2object(request, PhotoRequest.class));
-                        break;
-                    case VIDEO:
-                        task.setRequest(jsonHelper.json2object(request, VideoRequest.class));
-                        break;
-                }
-                task.setLastStatus(resultSet.getString("lastStatus"));
-                task.setBegin(resultSet.getTimestamp("begin_"));
-                task.setEnd(resultSet.getTimestamp("end_"));
-                task.setLastStartUp(resultSet.getTime("lastStartUp"));
-                task.setLastShutDown(resultSet.getTimestamp("lastShutDown"));
-                task.setTotal(resultSet.getLong("total"));
-                task.setIndex(resultSet.getLong("index"));
-                task.setNextRun(resultSet.getDate("nextRun"));
-                task.setCreated(resultSet.getTimestamp("created"));
-                return task;  //
+        return (ResultSet resultSet, int i) -> {
+            Task task = new Task();
+            task.setId(resultSet.getString("id"));
+            Task.Type type = Task.Type.valueOf(resultSet.getString("type_"));
+            task.setType(type);
+            task.setState(Task.State.valueOf(resultSet.getString("state")));
+            String request = resultSet.getString("request");
+            switch (type) {
+                case ON_OFF:
+                    task.setRequest(jsonHelper.json2object(request, OnOffRequest.class));
+                    break;
+                case PHOTO:
+                    task.setRequest(jsonHelper.json2object(request, PhotoRequest.class));
+                    break;
+                case VIDEO:
+                    task.setRequest(jsonHelper.json2object(request, VideoRequest.class));
+                    break;
             }
+            task.setLastStatus(resultSet.getString("lastStatus"));
+            task.setBegin(resultSet.getTimestamp("begin_"));
+            task.setEnd(resultSet.getTimestamp("end_"));
+            task.setLastStartUp(resultSet.getTimestamp("lastStartUp"));
+            task.setLastShutDown(resultSet.getTimestamp("lastShutDown"));
+            task.setTotal(resultSet.getLong("total"));
+            task.setIndex(resultSet.getLong("index"));
+            task.setNextRun(resultSet.getTimestamp("nextRun"));
+            task.setCreated(resultSet.getTimestamp("created"));
+            return task;  //
+
         };
     }
 

@@ -55,7 +55,7 @@ public class TaskTray {
             } else {
                 MenuItem item = new MenuItem();
                 item.setName(s);
-                item.setFont(new Font("宋体",Font.PLAIN,14));
+                item.setFont(new Font("宋体", Font.PLAIN, 14));
                 menu.add(item);
                 menuItemMap.put(s, item);
             }

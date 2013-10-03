@@ -21,7 +21,7 @@
         <derby.version>10.10.1.1</derby.version>
         <csv.version>2.1.0</csv.version>
         <platform.name>${os.name}-${os.arch}</platform.name>
-        <javacv.version>0.5</javacv.version>
+        <javacv.version>0.6</javacv.version>
         <activemq.version>5.7.0</activemq.version>
         <jdk.version>1.8</jdk.version>
     </properties>

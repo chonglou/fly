@@ -135,18 +135,18 @@ public class AppTest
         }
     }
 */
-   // @Test
+    @Test
     public void testWindow() {
 
         try {
-            Thread.sleep(1000 * 60 * 5);
+            Thread.sleep(1000 * 60 * 60*24);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-   // @BeforeTest
+    @BeforeTest
     public void init() {
 
         try {

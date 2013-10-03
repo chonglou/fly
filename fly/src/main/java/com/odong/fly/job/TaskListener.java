@@ -41,9 +41,11 @@ public class TaskListener implements MessageListener {
             Task.Type type = Task.Type.valueOf(message.getStringProperty("type"));
             String itemId = message.getJMSCorrelationID();
 
+            /*
             if (taskId != null) {
                 logger.debug("收到任务消息[{}]", taskId);
             }
+            */
 
 
             String reason = null;
@@ -56,7 +58,7 @@ public class TaskListener implements MessageListener {
                         if (serialUtil.isOpen(portName)) {
                             response = serialUtil.send(portName, request);
                             if (taskId != null) {
-                                storeHelper.setTaskShutDown(taskId, null);
+                                storeHelper.setTaskShutDown(taskId);
                             }
                         } else {
                             reason = MyException.Type.SERIAL_PORT_NOT_VALID.name();

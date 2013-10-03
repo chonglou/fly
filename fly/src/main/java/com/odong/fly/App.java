@@ -1,5 +1,6 @@
 package com.odong.fly;
 
+import com.odong.fly.serial.impl.SerialPortRxtxImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -41,26 +42,44 @@ public class App {
 
     private static void checkEnv() {
         logger.info("正在检查运行环境");
-        try {
-            ResourceBundle bundle = ResourceBundle.getBundle("messages");
-            FileLock lock = new RandomAccessFile(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + ".fly.lock", "rw").getChannel().tryLock();
+        try (FileLock lock = new RandomAccessFile(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + ".fly.lock", "rw").getChannel().tryLock()) {
             if (lock == null) {
                 logger.error("不能重复启动");
-                JFrame frame = new JFrame();
-                frame.setVisible(false);
-                frame.setIconImage(Toolkit.getDefaultToolkit().getImage(App.class.getResource("/tray.png")));
-                JOptionPane.showMessageDialog(
-                        frame,
-                        bundle.getString("lbl.dialog.duplicateBoot.message"),
-                        bundle.getString("lbl.dialog.duplicateBoot.title"),
-                        JOptionPane.ERROR_MESSAGE);
-                System.exit(-1);
+                exitDlg("duplicateBoot");
             }
 
         } catch (IOException e) {
             logger.error("锁文件出错", e);
+            exitDlg("unknown");
         }
+        try {
+            new SerialPortRxtxImpl().listPortName();
+        } catch (Exception | UnsatisfiedLinkError e) {
+            logger.error("串口打开出错", e);
+            exitDlg("serialIo");
+        }
+        /*
+        try{
+            new CameraUtilOpenCVImpl().listDevice();
+        }
+        catch (Exception | UnsatisfiedLinkError e){
+            logger.error("摄像头打开出错",e);
+            exitDlg("cameraIo");
+        }
+*/
+    }
 
+    private static void exitDlg(String key) {
+        ResourceBundle bundle = ResourceBundle.getBundle("messages");
+        JFrame frame = new JFrame();
+        frame.setVisible(false);
+        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(App.class.getResource("/tray.png")));
+        JOptionPane.showMessageDialog(
+                frame,
+                bundle.getString("lbl.dialog." + key + ".message"),
+                bundle.getString("lbl.dialog." + key + ".title"),
+                JOptionPane.ERROR_MESSAGE);
+        System.exit(-1);
     }
 
     private static void setStyle() {
@@ -70,7 +89,7 @@ public class App {
             logger.error("加载系统风格失败", e);
         }
 
-        FontUIResource font = new FontUIResource(new Font("宋体", Font.PLAIN, 18));
+        FontUIResource font = new FontUIResource(new Font("宋体", Font.PLAIN, 16));
 
         for (Enumeration<Object> keys = UIManager.getDefaults().keys(); keys.hasMoreElements(); ) {
             Object key = keys.nextElement();

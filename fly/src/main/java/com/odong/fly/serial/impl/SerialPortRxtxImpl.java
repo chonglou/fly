@@ -7,9 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TooManyListenersException;
 
 /**
@@ -92,14 +92,19 @@ public class SerialPortRxtxImpl implements SerialPort {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<String> listPortNames() {
-        List<String> list = new ArrayList<>();
-        Enumeration<CommPortIdentifier> portEnum = CommPortIdentifier.getPortIdentifiers();
-        while (portEnum.hasMoreElements()) {
-            CommPortIdentifier pi = portEnum.nextElement();
-            if (pi.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-                list.add(pi.getName());
+    public Set<String> listPortName() throws MyException {
+        Set<String> list = new HashSet<>();
+        try {
+            Enumeration<CommPortIdentifier> portEnum = CommPortIdentifier.getPortIdentifiers();
+            while (portEnum.hasMoreElements()) {
+                CommPortIdentifier pi = portEnum.nextElement();
+                if (pi.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+                    list.add(pi.getName());
+                }
             }
+        } catch (UnsatisfiedLinkError e) {
+            logger.error("RXTX未配置 lib路径[{}]", System.getProperty("java.library.path"), e);
+            throw new MyException(MyException.Type.SERIAL_PORT_IO_ERROR);
         }
         return list;
     }

@@ -8,7 +8,8 @@ all:
 	-cp target/fly.jar ${target}/
 	-cp target/lib/* ${target}/lib
 	-cp target/classes/{config.properties,logback.xml} ${target}/etc
-	-cp tools/run.sh ${target}/
+	-cp tools/{run.sh,run.bat} ${target}/
+
 
 clean:
 	-rm -r ${target}

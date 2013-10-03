@@ -34,6 +34,7 @@ public class MenuBar {
     void init() {
         menuMap = new HashMap<>();
         menuItemMap = new HashMap<>();
+        deviceItemMap = new HashMap<>();
 
         initItems();
         initEvents();
@@ -49,6 +50,7 @@ public class MenuBar {
         for (JMenuItem item : menuItemMap.values()) {
             item.setText(message.getMessage("menu." + item.getName()));
         }
+
 
         menuItemMap.get("lang." + message.getLocale().toString()).setSelected(true);
     }
@@ -125,7 +127,7 @@ public class MenuBar {
 
             JMenuItem item = (JMenuItem) e.getSource();
             if (item.isEnabled()) {
-                logger.debug("点击菜单栏[{}]", item.getName());
+                //logger.debug("点击菜单栏[{}]", item.getName());
                 switch (item.getName()) {
                     case "file.gc":
                         dialog.confirm("gc", () -> {
@@ -170,18 +172,21 @@ public class MenuBar {
             JCheckBoxMenuItem item = (JCheckBoxMenuItem) e.getSource();
             if (item.isEnabled()) {
                 String name = item.getName();
-                logger.debug("点击菜单[{}]", name);
+                logger.debug("点击设备[{}][{}]", name, item.isSelected());
                 if (name.startsWith("device.serial.")) {
                     String portName = name.substring(14);
                     if (item.isSelected()) {
                         serialDialog.show(portName);
                     } else {
-                        for (Task t : storeHelper.listRunnableTask()) {
+
+                        for (Task t : storeHelper.listTask(Task.State.SUBMIT)) {
                             if (t.getType() == Task.Type.ON_OFF && portName.equals(((OnOffRequest) t.getRequest()).getPortName())) {
                                 dialog.error(MyException.Type.SERIAL_PORT_IN_USE);
+                                item.setSelected(true);
                                 return;
                             }
                         }
+
                         serialUtil.close(portName);
                         mainPanel.showHelp();
                     }
@@ -227,7 +232,7 @@ public class MenuBar {
         JMenu menu = menuMap.get(menuName);
         for (String portName : serialUtil.listPortName()) {
             String name = menuName + ".serial." + portName;
-            if (menuItemMap.get(name) == null) {
+            if (deviceItemMap.get(name) == null) {
                 JCheckBoxMenuItem item = new JCheckBoxMenuItem(portName);
                 item.setName(name);
                 if (menu.getItemCount() > 0) {
@@ -235,13 +240,14 @@ public class MenuBar {
                 }
                 item.addActionListener(deviceItemListener);
                 menu.add(item);
+                deviceItemMap.put(name, item);
             }
         }
 
         Map<Integer, String> cameraMap = cameraUtil.listDevice();
         for (Integer deviceId : cameraMap.keySet()) {
             String name = menuName + ".camera." + deviceId;
-            if (menuItemMap.get(name) == null) {
+            if (deviceItemMap.get(name) == null) {
                 JCheckBoxMenuItem item = new JCheckBoxMenuItem(cameraMap.get(deviceId));
                 if (menu.getItemCount() > 0) {
                     menu.addSeparator();
@@ -249,6 +255,7 @@ public class MenuBar {
                 item.setName(name);
                 item.addActionListener(deviceItemListener);
                 menu.add(item);
+                deviceItemMap.put(name, item);
             }
         }
     }
@@ -256,6 +263,8 @@ public class MenuBar {
     private ActionListener deviceItemListener;
     private Map<String, JMenu> menuMap;
     private Map<String, JMenuItem> menuItemMap;
+    private Map<String, JCheckBoxMenuItem> deviceItemMap;
+
     @Resource(name = "menuBar")
     private JMenuBar menuBar;
     @Resource
