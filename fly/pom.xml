@@ -20,7 +20,6 @@
         <antlr.version>3.5</antlr.version>
         <derby.version>10.10.1.1</derby.version>
         <csv.version>2.1.0</csv.version>
-        <platform.name>${os.name}-${os.arch}</platform.name>
         <javacv.version>0.6</javacv.version>
         <activemq.version>5.7.0</activemq.version>
         <jdk.version>1.8</jdk.version>
@@ -62,6 +61,7 @@
             <version>2.1.7</version>
         </dependency>
 
+
         <dependency>
             <groupId>com.googlecode.javacpp</groupId>
             <artifactId>javacpp</artifactId>
@@ -72,15 +72,33 @@
             <artifactId>javacv</artifactId>
             <version>${javacv.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.googlecode.javacv</groupId>
             <artifactId>javacv</artifactId>
             <version>${javacv.version}</version>
-            <classifier>${platform.name}</classifier>
+            <classifier>linux-x86_64</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.javacv</groupId>
+            <artifactId>javacv</artifactId>
+            <version>${javacv.version}</version>
+            <classifier>windows-x86</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.javacv</groupId>
+            <artifactId>javacv</artifactId>
+            <version>${javacv.version}</version>
+            <classifier>windows-x86_64</classifier>
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>javax.media</groupId>
+            <artifactId>jmf</artifactId>
+            <version>2.1.1e</version>
+        </dependency>
 
         <dependency>
             <groupId>aopalliance</groupId>
@@ -140,6 +158,7 @@
             <artifactId>poi</artifactId>
             <version>3.9</version>
         </dependency>
+
         <dependency>
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
@@ -337,6 +356,8 @@
     </build>
 
     <repositories>
+
+
         <repository>
             <id>javacpp</id>
             <name>JavaCPP</name>
@@ -349,6 +370,7 @@
             <url>http://maven2.javacv.googlecode.com/git/</url>
         </repository>
 
+
         <repository>
             <id>repository.jboss.org</id>
             <name>Repository hosting the jboss artifacts</name>
@@ -356,108 +378,5 @@
         </repository>
 
     </repositories>
-
-
-    <profiles>
-        <profile>
-            <id>linux</id>
-            <activation>
-                <os>
-                    <name>linux</name>
-                </os>
-            </activation>
-            <properties>
-                <os.name>linux</os.name>
-            </properties>
-        </profile>
-        <profile>
-            <id>macosx</id>
-            <activation>
-                <os>
-                    <name>mac os x</name>
-                </os>
-            </activation>
-            <properties>
-                <os.name>macosx</os.name>
-            </properties>
-        </profile>
-        <profile>
-            <id>windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <os.name>windows</os.name>
-            </properties>
-        </profile>
-        <profile>
-            <id>i386</id>
-            <activation>
-                <os>
-                    <arch>i386</arch>
-                </os>
-            </activation>
-            <properties>
-                <os.arch>x86</os.arch>
-            </properties>
-        </profile>
-        <profile>
-            <id>i486</id>
-            <activation>
-                <os>
-                    <arch>i486</arch>
-                </os>
-            </activation>
-            <properties>
-                <os.arch>x86</os.arch>
-            </properties>
-        </profile>
-        <profile>
-            <id>i586</id>
-            <activation>
-                <os>
-                    <arch>i586</arch>
-                </os>
-            </activation>
-            <properties>
-                <os.arch>x86</os.arch>
-            </properties>
-        </profile>
-        <profile>
-            <id>i686</id>
-            <activation>
-                <os>
-                    <arch>i686</arch>
-                </os>
-            </activation>
-            <properties>
-                <os.arch>x86</os.arch>
-            </properties>
-        </profile>
-        <profile>
-            <id>amd64</id>
-            <activation>
-                <os>
-                    <arch>amd64</arch>
-                </os>
-            </activation>
-            <properties>
-                <os.arch>x86_64</os.arch>
-            </properties>
-        </profile>
-        <profile>
-            <id>x86-64</id>
-            <activation>
-                <os>
-                    <arch>x86-64</arch>
-                </os>
-            </activation>
-            <properties>
-                <os.arch>x86_64</os.arch>
-            </properties>
-        </profile>
-    </profiles>
 
 </project>

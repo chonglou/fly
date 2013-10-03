@@ -181,6 +181,7 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
 
     @Override
     public Map<Integer, String> listDevice() {
+
         int count = videoInputLib.videoInput.listDevices();
         Map<Integer, String> devices = new HashMap<>();
         for (int i = 0; i < count; i++) {

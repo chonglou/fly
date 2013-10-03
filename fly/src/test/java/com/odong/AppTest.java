@@ -135,7 +135,7 @@ public class AppTest
         }
     }
 */
-    @Test
+    //@Test
     public void testWindow() {
 
         try {
@@ -146,7 +146,7 @@ public class AppTest
     }
 
 
-    @BeforeTest
+    //@BeforeTest
     public void init() {
 
         try {

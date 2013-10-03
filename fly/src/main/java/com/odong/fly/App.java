@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import javax.media.CaptureDeviceInfo;
+import javax.media.CaptureDeviceManager;
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
@@ -15,6 +17,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
+import java.util.Vector;
 
 public class App {
     public static void main(String[] args) {
@@ -52,21 +55,30 @@ public class App {
             logger.error("锁文件出错", e);
             exitDlg("unknown");
         }
+
         try {
-            new SerialPortRxtxImpl().listPortName();
+            logger.debug("串口列表{}",new SerialPortRxtxImpl().listPortName());
         } catch (Exception | UnsatisfiedLinkError e) {
             logger.error("串口打开出错", e);
             exitDlg("serialIo");
         }
-        /*
+
+
         try{
-            new CameraUtilOpenCVImpl().listDevice();
+            Vector<CaptureDeviceInfo> devices =CaptureDeviceManager.getDeviceList(null);
+            devices.forEach((info)->{
+                String name = info.getName();
+                if(name.startsWith("vfw")){
+                    logger.debug("发现摄像头{}"+name);
+                }
+            });
         }
         catch (Exception | UnsatisfiedLinkError e){
             logger.error("摄像头打开出错",e);
             exitDlg("cameraIo");
         }
-*/
+
+
     }
 
     private static void exitDlg(String key) {

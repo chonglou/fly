@@ -21,7 +21,7 @@ public class SerialUtilRxtxImpl extends SerialUtil {
     public String send(String portName, String request) throws MyException {
         //FIXME 可能有转换错误
         byte[] buf = get(portName).send(request.getBytes());
-        return new String(buf);
+        return buf == null ? null : new String(buf);
     }
 
     @Override

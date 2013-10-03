@@ -1,1 +1,5 @@
 串口控制继电器
+
+安装方法：
+1：复制rxtxSerial.dll到c:\windows\system32目录下
+2：安装opencv
