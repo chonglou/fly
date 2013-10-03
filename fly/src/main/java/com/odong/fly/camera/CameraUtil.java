@@ -5,7 +5,7 @@ import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -15,7 +15,7 @@ import java.util.UUID;
  * Time: 上午10:22
  */
 public abstract class CameraUtil {
-    public abstract Map<Integer, String> getStatus();
+    public abstract Set<Integer> getStatus();
 
     public abstract boolean hasOpen();
 
@@ -39,7 +39,7 @@ public abstract class CameraUtil {
 
     public abstract boolean isOpen(int device);
 
-    public abstract Map<Integer, String> listDevice();
+    public abstract Set<Integer> listDevice();
 
     public abstract JFrame getFrame(int device);
 
@@ -49,10 +49,6 @@ public abstract class CameraUtil {
 
     protected void writeImage(String name, BufferedImage image) throws IOException {
         ImageIO.write(image, "png", new File(name));
-    }
-
-
-    public class Camera {
     }
 
 

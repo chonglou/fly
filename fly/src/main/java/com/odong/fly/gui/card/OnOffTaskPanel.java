@@ -148,7 +148,6 @@ public class OnOffTaskPanel extends TaskPanel {
     }
 
 
-
     private void refreshLogList() {
         logModel.removeAllElements();
         if (taskId != null) {
@@ -432,7 +431,7 @@ public class OnOffTaskPanel extends TaskPanel {
     private SerialUtil serialUtil;
     @Value("${log.size}")
     private int logSize;
-    private final DateFormat dtFormat=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    private final DateFormat dtFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private final static Logger logger = LoggerFactory.getLogger(OnOffTaskPanel.class);
 
     public void setSerialUtil(SerialUtil serialUtil) {

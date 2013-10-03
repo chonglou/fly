@@ -1,18 +1,14 @@
 package com.odong.fly.camera.impl;
 
 import com.odong.fly.camera.CameraUtil;
-import com.odong.fly.gui.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,13 +18,14 @@ import java.util.Map;
  */
 public class CameraUtilDemoImpl extends CameraUtil {
 
+
     @Override
-    public Map<Integer, String> getStatus() {
-        Map<Integer, String> map = new HashMap<>();
-        for (Integer id : cameraMap.keySet()) {
-            map.put(id, cameraMap.get(id).name);
+    public Set<Integer> getStatus() {
+        Set<Integer> set = new HashSet<>();
+        for (Integer i : cameraMap.keySet()) {
+            set.add(i);
         }
-        return map;  //
+        return set;
     }
 
     @Override
@@ -73,7 +70,7 @@ public class CameraUtilDemoImpl extends CameraUtil {
         logger.debug("打开摄像头[{}]", device);
         JFrame frame = new JFrame();
         frame.add(new JLabel(name));
-        cameraMap.put(device, new Camera(name, frame));
+        cameraMap.put(device, new Camera(frame));
     }
 
     @Override
@@ -101,10 +98,10 @@ public class CameraUtilDemoImpl extends CameraUtil {
     }
 
     @Override
-    public Map<Integer, String> listDevice() {
-        Map<Integer, String> map = new HashMap<>();
+    public Set<Integer> listDevice() {
+        Set<Integer> map = new HashSet<>();
         for (int i = 0; i < 2; i++) {
-            map.put(i, message.getMessage("camera") + i);
+            map.add(i);
         }
         return map;  //
     }
@@ -115,23 +112,16 @@ public class CameraUtilDemoImpl extends CameraUtil {
     }
 
     private Map<Integer, Camera> cameraMap;
-    @Resource
-    private Message message;
 
     class Camera {
-        Camera(String name, JFrame frame) {
-            this.name = name;
+        Camera(JFrame frame) {
             this.frame = frame;
         }
 
-        private String name;
         private JFrame frame;
         private boolean enable;
     }
 
     private final static Logger logger = LoggerFactory.getLogger(CameraUtilDemoImpl.class);
 
-    public void setMessage(Message message) {
-        this.message = message;
-    }
 }

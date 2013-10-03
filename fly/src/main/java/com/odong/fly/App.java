@@ -1,29 +1,33 @@
 package com.odong.fly;
 
+import com.googlecode.javacv.CanvasFrame;
+import com.googlecode.javacv.cpp.opencv_core;
+import com.googlecode.javacv.cpp.opencv_highgui;
+import com.odong.fly.camera.impl.CameraUtilOpenCVImpl;
 import com.odong.fly.serial.impl.SerialPortRxtxImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import javax.media.CaptureDeviceInfo;
-import javax.media.CaptureDeviceManager;
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Field;
 import java.nio.channels.FileLock;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 public class App {
     public static void main(String[] args) {
         setStyle();
         checkEnv();
         init();
+
+
         AbstractApplicationContext ctx = new ClassPathXmlApplicationContext("spring/*.xml");
         ctx.registerShutdownHook();
     }
@@ -43,6 +47,28 @@ public class App {
         System.setProperty("fly.store.dir", "var/");
     }
 
+    private static void load(String dir){
+
+        try {
+            Field field = ClassLoader.class.getDeclaredField("usr_paths");
+            field.setAccessible(true);
+
+            String[] paths = (String[])field.get(null);
+            for(String s : paths){
+                if (dir.equals(s)) {
+                    return;
+                }
+            }
+            String[] tmp = new String[paths.length+1];
+            System.arraycopy(paths,0,tmp,0,paths.length);
+            tmp[paths.length] = dir;
+            field.set(null,tmp);
+        } catch (IllegalAccessException|NoSuchFieldException e) {
+            logger.error("加载动态链接库出错",e);
+            exitDlg("3rd");
+        }
+    }
+
     private static void checkEnv() {
         logger.info("正在检查运行环境");
         try (FileLock lock = new RandomAccessFile(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + ".fly.lock", "rw").getChannel().tryLock()) {
@@ -56,29 +82,31 @@ public class App {
             exitDlg("unknown");
         }
 
+
+        if(System.getProperty("os.name").contains("Windows")){
+            //Windows环境 只支持32位
+            //System.setProperty("java.library.path", "./3rd/win/x86");
+
+            load("./3rd/win/x86");
+        }
+
+
+        /*
         try {
-            logger.debug("串口列表{}",new SerialPortRxtxImpl().listPortName());
+            logger.debug("串口列表{}", new SerialPortRxtxImpl().listPortName());
         } catch (Exception | UnsatisfiedLinkError e) {
             logger.error("串口打开出错", e);
             exitDlg("serialIo");
         }
 
 
-        try{
-            Vector<CaptureDeviceInfo> devices =CaptureDeviceManager.getDeviceList(null);
-            devices.forEach((info)->{
-                String name = info.getName();
-                if(name.startsWith("vfw")){
-                    logger.debug("发现摄像头{}"+name);
-                }
-            });
-        }
-        catch (Exception | UnsatisfiedLinkError e){
-            logger.error("摄像头打开出错",e);
+        try {
+            logger.debug("摄像头列表{}", new CameraUtilOpenCVImpl().listDevice());
+        } catch (Exception | UnsatisfiedLinkError e) {
+            logger.error("摄像头打开出错", e);
             exitDlg("cameraIo");
         }
-
-
+        */
     }
 
     private static void exitDlg(String key) {

@@ -17,10 +17,7 @@ import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -200,6 +197,7 @@ public class MenuBar {
                         } catch (IOException ex) {
                             logger.error("打开摄像头[{}]失败", deviceId, ex);
                             dialog.error(MyException.Type.CAMERA_IO_ERROR);
+                            item.setSelected(false);
                         }
 
                     } else {
@@ -216,6 +214,7 @@ public class MenuBar {
                             cameraUtil.close(deviceId);
                         } catch (IOException ex) {
                             logger.error("关闭摄像头失败", ex);
+                            item.setSelected(true);
                         }
                         mainPanel.showHelp();
                     }
@@ -244,11 +243,11 @@ public class MenuBar {
             }
         }
 
-        Map<Integer, String> cameraMap = cameraUtil.listDevice();
-        for (Integer deviceId : cameraMap.keySet()) {
+        Set<Integer> cameras = cameraUtil.listDevice();
+        for (Integer deviceId : cameras) {
             String name = menuName + ".camera." + deviceId;
             if (deviceItemMap.get(name) == null) {
-                JCheckBoxMenuItem item = new JCheckBoxMenuItem(cameraMap.get(deviceId));
+                JCheckBoxMenuItem item = new JCheckBoxMenuItem("CAMERA:" + deviceId);
                 if (menu.getItemCount() > 0) {
                     menu.addSeparator();
                 }

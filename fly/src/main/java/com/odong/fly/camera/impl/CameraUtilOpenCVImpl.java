@@ -12,7 +12,9 @@ import javax.annotation.Resource;
 import javax.swing.*;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 //import static com.googlecode.javacv.cpp.opencv_core.cvReleaseImage;
 
@@ -23,13 +25,14 @@ import java.util.Map;
  * Time: 上午10:24
  */
 public class CameraUtilOpenCVImpl extends CameraUtil {
+
     @Override
-    public Map<Integer, String> getStatus() {
-        Map<Integer, String> map = new HashMap<>();
-        for (Integer id : cameraMap.keySet()) {
-            map.put(id, cameraMap.get(id).name);
+    public Set<Integer> getStatus() {
+        Set<Integer> set = new HashSet<>();
+        for (Integer i : cameraMap.keySet()) {
+            set.add(i);
         }
-        return map;
+        return set;
     }
 
     @Override
@@ -61,17 +64,15 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
             //recorder.setPixelFormat(1);
             recorder.start();
 
-            taskExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
+            taskExecutor.execute(()-> {
                     try {
                         camera.enable = true;
-                        opencv_core.IplImage image;
-                        while (camera.enable && ((image = camera.grabber.grab()) != null)) {
+                        opencv_core.IplImage img;
+                        while (camera.enable && ((img = camera.grabber.grab()) != null)) {
                             if (camera.frame.isVisible()) {
-                                camera.frame.showImage(image);
+                                camera.frame.showImage(img);
                             }
-                            recorder.record(image);
+                            recorder.record(img);
                         }
                     } catch (Exception e) {
                         logger.error("摄像头[{}]录像出错", device, e);
@@ -83,10 +84,10 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
                             logger.error("停止摄像头[{}]录像出错", device, e);
                         }
                     }
-                }
+
             });
 
-        } catch (Exception e) {
+        } catch (Exception|UnsatisfiedLinkError e) {
             throw new IOException("摄像头[" + device + "]未就绪", e);
 
         }
@@ -113,7 +114,7 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
                 throw new IllegalAccessException("空图片");
             }
             writeImage(name, iImg.getBufferedImage());
-        } catch (Exception e) {
+        } catch (Exception|UnsatisfiedLinkError e) {
             throw new IOException("摄像头[" + device + "]拍照出错", e);
         }
 
@@ -130,14 +131,15 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
         logger.debug("打开摄像头[{}]", device);
         try {
             //OpenCV在windows下使用Video，win7下可能无法正常工作，需要启用DirectShow
-            FrameGrabber grabber = isWindows ? new VideoInputFrameGrabber(device) : new OpenCVFrameGrabber(device);
+            //FrameGrabber grabber = isWindows ? new VideoInputFrameGrabber(device) : new OpenCVFrameGrabber(device);
+            FrameGrabber grabber = new OpenCVFrameGrabber(device);
             grabber.start();
 
-            CanvasFrame frame = new CanvasFrame("摄像头[" + getCameraName(device) + "]");
+            CanvasFrame frame = new CanvasFrame(name);
 
-            cameraMap.put(device, new Camera(name, frame, grabber));
+            cameraMap.put(device, new Camera(frame, grabber));
 
-        } catch (Exception e) {
+        } catch (Exception|Error e) {
             throw new IOException("打开摄像头[" + device + "]失败", e);
         }
     }
@@ -150,7 +152,7 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
             camera.frame.dispose();
             camera.grabber.stop();
 
-        } catch (Exception e) {
+        } catch (Exception|UnsatisfiedLinkError e) {
             throw new IOException("关闭摄像头[" + device + "]失败", e);
         } finally {
             cameraMap.remove(device);
@@ -169,7 +171,6 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
             try {
                 close(device);
             } catch (IOException e) {
-                logger.error("关闭摄像头[" + device + "]出错", e);
             }
         }
     }
@@ -180,14 +181,27 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
     }
 
     @Override
-    public Map<Integer, String> listDevice() {
-
-        int count = videoInputLib.videoInput.listDevices();
-        Map<Integer, String> devices = new HashMap<>();
-        for (int i = 0; i < count; i++) {
-            devices.put(i, getCameraName(i));
+    public Set<Integer> listDevice() {
+        Set<Integer> devices = new HashSet<>();
+        for(int i=0; i<2;i++){
+            devices.add(i);
         }
+        /*
+        try {
+            if (isWindows) {
+            FIXME 报链接错误
+                int count = videoInputLib.videoInput.listDevices();
+                for (int i = 0; i < count; i++) {
+                    //name videoInputLib.videoInput.getDeviceName(device)
+                    devices.add(i);
+                }
+            }
+        } catch (Exception | UnsatisfiedLinkError e) {
+            logger.error("列出摄像头打开出错", e);
+        }
+        */
         return devices;  //
+
     }
 
     @Override
@@ -195,25 +209,16 @@ public class CameraUtilOpenCVImpl extends CameraUtil {
         return cameraMap.get(device).frame;
     }
 
-    private String getCameraName(int device) {
-        return videoInputLib.videoInput.getDeviceName(device);
-    }
-
     class Camera {
-        Camera(String name, CanvasFrame frame, FrameGrabber grabber) {
-            this.name = name;
+        Camera(CanvasFrame frame, FrameGrabber grabber) {
             this.frame = frame;
             this.grabber = grabber;
         }
 
-        private final String name;
         private final CanvasFrame frame;
         private final FrameGrabber grabber;
         private boolean enable;
 
-        public String getName() {
-            return name;
-        }
 
         public CanvasFrame getFrame() {
             return frame;

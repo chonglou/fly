@@ -16,7 +16,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -45,12 +44,12 @@ public class ToolBar {
         }
         addSeparator(sep);
 
-        Map<Integer, String> cameraIds = cameraUtil.getStatus();
+
         sep = false;
-        for (int cameraId : cameraIds.keySet()) {
+        for (int cameraId : cameraUtil.getStatus()) {
             if (cameraUtil.isOpen(cameraId)) {
                 sep = true;
-                addButton(PREFIX_CAMERA + cameraId, cameraIds.get(cameraId));
+                addButton(PREFIX_CAMERA + cameraId, "CAMERA:" + cameraId);
             }
         }
         addSeparator(sep);

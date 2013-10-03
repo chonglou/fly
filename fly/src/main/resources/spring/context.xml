@@ -19,7 +19,6 @@
     <bean id="serialUtil" init-method="init" destroy-method="destroy"
           class="com.odong.fly.serial.impl.SerialUtilRxtxImpl"/>
     <bean id="cameraUtil" init-method="init" destroy-method="destroy"
-          class="com.odong.fly.camera.impl.CameraUtilDemoImpl"/>
-
+          class="com.odong.fly.camera.impl.CameraUtilOpenCVImpl"/>
 
 </beans>

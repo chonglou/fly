@@ -5,6 +5,7 @@ all:
 	mvn dependency:copy-dependencies
 	mvn package
 	-mkdir -pv ${target}/{etc,lib,var}
+	-cp -r src/main/resources/lib ${target}/3rd
 	-cp target/fly.jar ${target}/
 	-cp target/lib/* ${target}/lib
 	-cp target/classes/{config.properties,logback.xml} ${target}/etc

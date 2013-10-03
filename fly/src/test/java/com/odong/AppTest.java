@@ -1,8 +1,13 @@
 package com.odong;
 
+import com.googlecode.javacv.CanvasFrame;
+import com.googlecode.javacv.cpp.opencv_core;
+import com.googlecode.javacv.cpp.opencv_highgui;
 import com.odong.fly.App;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import javax.swing.*;
 
 public class AppTest
 
@@ -135,18 +140,34 @@ public class AppTest
         }
     }
 */
-    //@Test
+    @Test
     public void testWindow() {
 
         try {
-            Thread.sleep(1000 * 60 * 60*24);
+            Thread.sleep(1000 * 60 * 60 * 24);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testCv(){
+        final opencv_core.IplImage image = opencv_highgui.cvLoadImage("/tmp/test.png");
+
+        final CanvasFrame canvas = new CanvasFrame("Demo");
+
+        canvas.showImage(image);
+
+        canvas.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        try {
+            Thread.sleep(1000 * 60 * 60 * 24);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-    //@BeforeTest
+    @BeforeTest
     public void init() {
 
         try {
