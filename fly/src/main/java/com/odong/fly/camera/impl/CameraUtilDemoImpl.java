@@ -60,16 +60,11 @@ public class CameraUtilDemoImpl extends CameraUtil {
         writeImage(name, new BufferedImage(400, 300, BufferedImage.TYPE_INT_RGB));  //
     }
 
-    @Override
-    public void show(int device, boolean visible) {
-        cameraMap.get(device).frame.setVisible(visible);
-    }
 
     @Override
-    public void open(int device, String name) {
+    public void open(int device) {
         logger.debug("打开摄像头[{}]", device);
         JFrame frame = new JFrame();
-        frame.add(new JLabel(name));
         cameraMap.put(device, new Camera(frame));
     }
 
@@ -106,10 +101,6 @@ public class CameraUtilDemoImpl extends CameraUtil {
         return map;  //
     }
 
-    @Override
-    public JFrame getFrame(int device) {
-        return cameraMap.get(device).frame;  //
-    }
 
     private Map<Integer, Camera> cameraMap;
 

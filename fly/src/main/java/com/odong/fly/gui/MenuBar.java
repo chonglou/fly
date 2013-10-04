@@ -193,7 +193,7 @@ public class MenuBar {
                     int deviceId = Integer.parseInt(name.substring(14));
                     if (item.isSelected()) {
                         try {
-                            cameraUtil.open(deviceId, item.getText());
+                            cameraUtil.open(deviceId);
                         } catch (IOException ex) {
                             logger.error("打开摄像头[{}]失败", deviceId, ex);
                             dialog.error(MyException.Type.CAMERA_IO_ERROR);

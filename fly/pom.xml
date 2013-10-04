@@ -20,7 +20,9 @@
         <antlr.version>3.5</antlr.version>
         <derby.version>10.10.1.1</derby.version>
         <csv.version>2.1.0</csv.version>
+        <!--
         <javacv.version>0.6</javacv.version>
+        -->
         <activemq.version>5.7.0</activemq.version>
         <jdk.version>1.8</jdk.version>
     </properties>
@@ -62,6 +64,7 @@
         </dependency>
 
 
+        <!--
         <dependency>
             <groupId>com.googlecode.javacpp</groupId>
             <artifactId>javacpp</artifactId>
@@ -92,6 +95,14 @@
             <version>${javacv.version}</version>
             <classifier>windows-x86_64</classifier>
             <scope>provided</scope>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>org.opencv</groupId>
+            <artifactId>opencv</artifactId>
+            <version>2.4.6</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/opencv-246.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -322,7 +333,6 @@
                     <excludes>
                         <exclude>**/config.properties</exclude>
                         <exclude>**/logback.xml</exclude>
-                        <exclude>**/lib/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -352,7 +362,7 @@
 
     <repositories>
 
-
+        <!--
         <repository>
             <id>javacpp</id>
             <name>JavaCPP</name>
@@ -364,7 +374,7 @@
             <name>JavaCV</name>
             <url>http://maven2.javacv.googlecode.com/git/</url>
         </repository>
-
+        -->
 
         <repository>
             <id>repository.jboss.org</id>
