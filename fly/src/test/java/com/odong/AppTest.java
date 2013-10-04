@@ -1,13 +1,12 @@
 package com.odong;
 
-import com.odong.avi.AVIOutputStream;
 import com.odong.fly.App;
+import com.odong.fly.camera.MP4Encoder;
 import org.testng.annotations.Test;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
-import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
@@ -151,14 +150,11 @@ public class AppTest
             e.printStackTrace();
         }
     }
+
     //@Test
-    public void testAvi(){
+    public void testAvi() {
         try {
-            write2avi(new File("/tmp/jpg.avi"), AVIOutputStream.VideoFormat.JPG, 24, 1f);
-            write2avi(new File("/tmp/png.avi"), AVIOutputStream.VideoFormat.PNG, 24, 1f);
-            write2avi(new File("/tmp/raw.avi"), AVIOutputStream.VideoFormat.RAW, 24, 1f);
-            write2avi(new File("/tmp/rle8.avi"), AVIOutputStream.VideoFormat.RLE, 8, 1f);
-            //test(new File("avidemo-rle4.avi"), AVIOutputStream.VideoFormat.RLE, 4, 1f);
+            avi("/tmp/111.mp4", 24, 25, 400);
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -176,70 +172,58 @@ public class AppTest
         }
     }
 
-    private  void write2avi(File file, AVIOutputStream.VideoFormat format, int depth, float quality) throws IOException {
-        System.out.println("Writing " + file);
-        AVIOutputStream out = null;
-        Graphics2D g = null;
-        try {
-            out = new AVIOutputStream(file, format, depth);
-            out.setVideoCompressionQuality(quality);
+    private void avi(String file, int depth, int rate, int size) throws IOException {
+        Graphics2D g ;
 
-            out.setTimeScale(1);
-            out.setFrameRate(30);
+        MP4Encoder encoder = new MP4Encoder(file, rate);
 
-            Random rnd = new Random(0); // use seed 0 to get reproducable output
-            BufferedImage img;
-            switch (depth) {
-                case 24:
-                default: {
-                    img = new BufferedImage(320, 160, BufferedImage.TYPE_INT_RGB);
-                    break;
+        Random rnd = new Random(0);
+        BufferedImage img;
+        switch (depth) {
+            case 8: {
+                byte[] red = new byte[256];
+                byte[] green = new byte[256];
+                byte[] blue = new byte[256];
+                for (int i = 0; i < 255; i++) {
+                    red[i] = (byte) rnd.nextInt(256);
+                    green[i] = (byte) rnd.nextInt(256);
+                    blue[i] = (byte) rnd.nextInt(256);
                 }
-                case 8: {
-                    byte[] red = new byte[256];
-                    byte[] green = new byte[256];
-                    byte[] blue = new byte[256];
-                    for (int i = 0; i < 255; i++) {
-                        red[i] = (byte) rnd.nextInt(256);
-                        green[i] = (byte) rnd.nextInt(256);
-                        blue[i] = (byte) rnd.nextInt(256);
-                    }
-                    rnd.setSeed(0); // set back to 0 for reproducable output
-                    img = new BufferedImage(320, 160, BufferedImage.TYPE_BYTE_INDEXED, new IndexColorModel(8, 256, red, green, blue));
-                    break;
+                rnd.setSeed(0); // set back to 0 for reproducable output
+                img = new BufferedImage(320, 160, BufferedImage.TYPE_BYTE_INDEXED, new IndexColorModel(8, 256, red, green, blue));
+                break;
+            }
+            case 4: {
+                byte[] red = new byte[16];
+                byte[] green = new byte[16];
+                byte[] blue = new byte[16];
+                for (int i = 0; i < 15; i++) {
+                    red[i] = (byte) rnd.nextInt(16);
+                    green[i] = (byte) rnd.nextInt(16);
+                    blue[i] = (byte) rnd.nextInt(16);
                 }
-                case 4: {
-                    byte[] red = new byte[16];
-                    byte[] green = new byte[16];
-                    byte[] blue = new byte[16];
-                    for (int i = 0; i < 15; i++) {
-                        red[i] = (byte) rnd.nextInt(16);
-                        green[i] = (byte) rnd.nextInt(16);
-                        blue[i] = (byte) rnd.nextInt(16);
-                    }
-                    rnd.setSeed(0); // set back to 0 for reproducable output
-                    img = new BufferedImage(320, 160, BufferedImage.TYPE_BYTE_BINARY, new IndexColorModel(4, 16, red, green, blue));
-                    break;
-                }
+                rnd.setSeed(0); // set back to 0 for reproducable output
+                img = new BufferedImage(320, 160, BufferedImage.TYPE_BYTE_BINARY, new IndexColorModel(4, 16, red, green, blue));
+                break;
             }
-            g = img.createGraphics();
-            g.setBackground(Color.WHITE);
-            g.clearRect(0, 0, img.getWidth(), img.getHeight());
-
-            for (int i = 0; i < 100; i++) {
-                g.setColor(new Color(rnd.nextInt()));
-                g.fillRect(rnd.nextInt(img.getWidth() - 30), rnd.nextInt(img.getHeight() - 30), 30, 30);
-                out.writeFrame(img);
-            }
-
-        } finally {
-            if (g != null) {
-                g.dispose();
-            }
-            if (out != null) {
-                out.close();
+            case 24:
+            default: {
+                img = new BufferedImage(320, 160, BufferedImage.TYPE_INT_RGB);
+                break;
             }
         }
+        g = img.createGraphics();
+        g.setBackground(Color.WHITE);
+        g.clearRect(0, 0, img.getWidth(), img.getHeight());
+
+        for (int i = 0; i < size; i++) {
+            g.setColor(new Color(rnd.nextInt()));
+            g.fillRect(rnd.nextInt(img.getWidth() - 30), rnd.nextInt(img.getHeight() - 30), 30, 30);
+            encoder.addImage(img);
+        }
+
+        encoder.close();
     }
+
 
 }

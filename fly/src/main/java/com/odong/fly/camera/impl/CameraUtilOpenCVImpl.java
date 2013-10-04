@@ -1,5 +1,6 @@
 package com.odong.fly.camera.impl;
 
+import com.odong.fly.camera.Camera;
 import com.odong.fly.camera.CameraUtil;
 import org.opencv.highgui.VideoCapture;
 import org.slf4j.Logger;

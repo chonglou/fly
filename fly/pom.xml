@@ -106,6 +106,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec</artifactId>
+            <version>0.1.6-3</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>aopalliance</groupId>
             <artifactId>aopalliance</artifactId>
             <version>1.0</version>

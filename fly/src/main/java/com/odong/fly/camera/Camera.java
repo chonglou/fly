@@ -1,4 +1,4 @@
-package com.odong.fly.camera.impl;
+package com.odong.fly.camera;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
