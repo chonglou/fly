@@ -1,0 +1,53 @@
+require 'uri'
+require 'highline/import'
+
+def open_xls(name)
+  if name.include?(' ')
+    puts "文件名[#{name}]含有空格"
+    return
+  end
+  unless File.exists?(name)
+    puts "文件[#{name}]不存在"
+    return
+  end
+  require 'roo'
+  Roo::Spreadsheet.open name
+end
+
+namespace :janeliar do
+  desc 'Janeliar Stocks'
+  task :stocks do
+    f1 = ask('对照表文件？')
+
+    xls1= open_xls 'tmp/Janeliastocks.xls' # todo
+    unless xls1
+      next
+    end
+
+    f2 = ask('操作表文件？')
+    xls2= open_xls 'tmp/Janeliar_Gal4_line_summary_04012015.xlsx' # todo
+    unless xls2
+      next
+    end
+
+    ok = ask('确定要继续么？(y/n)') { |q| q.default='n' }
+    next unless ok == 'y'
+
+
+    #puts xls1.info
+    #puts xls2.info
+
+    xls2.sheet(xls2.sheets.first).each  do |row2|
+      puts "正在处理#{row2[0]}"
+
+      xls1.sheet(xls1.sheets.first).each  do |row1|
+        if row1[3].to_s.start_with?("P{GM#{row2[0]}")
+          row2[1] = row1[0]
+          break
+        end
+      end
+    end
+    #puts xls2.sheet(xls2.sheets.first).row('A')
+
+  end
+end
