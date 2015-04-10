@@ -4,17 +4,17 @@ require 'spreadsheet'
 require 'roo'
 
 def write_xls(name, sheets)
-  xls =  Spreadsheet.new
+  xls = Spreadsheet::Workbook.new
   sheets.each do |title, cells|
     sheet = xls.create_worksheet
     sheet.name = title
-    cells.each_with_index  do |row, i|
+    cells.each_with_index do |row, i|
       row.each_with_index do |val, j|
-        sheet[i,j] = val
+        sheet[i, j] = val
       end
     end
   end
-  
+
   xls.write name
 end
 
@@ -34,22 +34,18 @@ end
 namespace :janeliar do
   desc 'Janeliar Stocks'
   task :stocks do
-    f1 = ask('对照表文件？')
-
-    xls1= open_xls 'tmp/Janeliastocks.xls' # todo
+    xls1= open_xls ask('对照表文件？')
     unless xls1
       next
     end
 
-    f2 = ask('操作表文件？')
-    xls2= open_xls 'tmp/Janeliar_Gal4_line_summary_04012015.xlsx' # todo
+    xls2= open_xls ask('操作表文件？')
     unless xls2
       next
     end
 
     ok = ask('确定要继续么？(y/n)') { |q| q.default='n' }
     next unless ok == 'y'
-
 
 
     cells = []
@@ -65,6 +61,28 @@ namespace :janeliar do
       end
     end
 
-    write_xls 'tmp/result.xls', {'Sheet 1'=>cells}
+    write_xls 'tmp/result.xls', {'Sheet 1' => cells}
   end
+
+end
+
+namespace :test do
+  desc '测试write xls'
+  task :xls_write do
+    write_xls 'tmp/test.xls', {
+                                'Sheet 1' => [
+                                    ['(0, 0)', '(0, 1)'],
+                                    ['(1, 0)', '(1, 1)'],
+                                    ['(2, 0)', '(2, 1)'],
+                                    ['(3, 0)', '(3, 1)'],
+                                ],
+                                'Sheet 2' => [
+                                    ['(0, 0)', '(0, 1)', '(0, 2)'],
+                                    ['(1, 0)', '(1, 1)', '(1, 2)'],
+                                    ['(2, 0)', '(2, 1)', '(2, 2)'],
+                                    ['(3, 0)', '(3, 1)', '(3, 2)'],
+                                ]
+                            }
+  end
+
 end
