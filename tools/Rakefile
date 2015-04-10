@@ -1,5 +1,22 @@
 require 'uri'
 require 'highline/import'
+require 'spreadsheet'
+require 'roo'
+
+def write_xls(name, sheets)
+  xls =  Spreadsheet.new
+  sheets.each do |title, cells|
+    sheet = xls.create_worksheet
+    sheet.name = title
+    cells.each_with_index  do |row, i|
+      row.each_with_index do |val, j|
+        sheet[i,j] = val
+      end
+    end
+  end
+  
+  xls.write name
+end
 
 def open_xls(name)
   if name.include?(' ')
@@ -10,7 +27,7 @@ def open_xls(name)
     puts "文件[#{name}]不存在"
     return
   end
-  require 'roo'
+
   Roo::Spreadsheet.open name
 end
 
@@ -34,20 +51,20 @@ namespace :janeliar do
     next unless ok == 'y'
 
 
-    #puts xls1.info
-    #puts xls2.info
 
-    xls2.sheet(xls2.sheets.first).each  do |row2|
-      puts "正在处理#{row2[0]}"
+    cells = []
 
-      xls1.sheet(xls1.sheets.first).each  do |row1|
+    xls2.sheet(xls2.sheets.first).each do |row2|
+      puts "正在处理#{row2[0].to_s}"
+
+      xls1.sheet(xls1.sheets.first).each do |row1|
         if row1[3].to_s.start_with?("P{GM#{row2[0]}")
-          row2[1] = row1[0]
+          cells << [row2[0].to_s, row1[0].to_i]
           break
         end
       end
     end
-    #puts xls2.sheet(xls2.sheets.first).row('A')
 
+    write_xls 'tmp/result.xls', {'Sheet 1'=>cells}
   end
 end
