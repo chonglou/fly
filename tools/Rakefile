@@ -31,8 +31,8 @@ def open_xls(name)
   Roo::Spreadsheet.open name
 end
 
-namespace :janeliar do
-  desc 'Janeliar Stocks'
+namespace :janelia do
+  desc 'Janelia Stocks'
   task :stocks do
     xls1= open_xls ask('对照表文件？')
     unless xls1
